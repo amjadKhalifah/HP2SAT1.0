@@ -72,6 +72,7 @@ fabric.properties
 # Editor-based Rest Client
 .idea/httpRequests
 
-# Other IntelliJ
+# Other
 *.iml
 .idea/
+target/
