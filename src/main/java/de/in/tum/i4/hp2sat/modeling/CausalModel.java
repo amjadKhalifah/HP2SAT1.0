@@ -1,6 +1,7 @@
 package de.in.tum.i4.hp2sat.modeling;
 
 import de.in.tum.i4.hp2sat.exceptions.InvalidCausalModelException;
+import de.in.tum.i4.hp2sat.exceptions.InvalidCauseException;
 import de.in.tum.i4.hp2sat.exceptions.InvalidContextException;
 import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.Constant;
@@ -53,10 +54,11 @@ public class CausalModel {
      *                                 (2) no other variable than the exogenous variable are in the Map
      */
     public Tristate isCause(Map<Variable, Constant> context, Set<Literal> phi, Set<Literal> cause) throws
-            InvalidContextException {
+            InvalidContextException, InvalidCauseException {
         if (!isContextValid(context))
             throw new InvalidContextException();
-        // TODO is cause valid
+        if (!isCauseValid(cause))
+            throw new InvalidCauseException();
         // TODO SAT
         return Tristate.UNDEF;
     }
@@ -117,8 +119,21 @@ public class CausalModel {
      * @return true if valid, else false
      */
     private boolean isContextValid(Map<Variable, Constant> context) {
+        // each and only each exogenous variable must be defined by context
         return context.keySet().size() == exogenousVariables.size() &&
                 exogenousVariables.containsAll(context.keySet());
+    }
+
+    /**
+     * Checks if the given cause is valid
+     *
+     * @param cause the to be checked cause
+     * @return true if valid, else false
+     */
+    private boolean isCauseValid(Set<Literal> cause) {
+        // only endogenous variables as defined by the equations can be a cause
+        return equations.stream().map(Equation::getVariable).collect(Collectors.toSet())
+                .containsAll(cause.stream().map(Literal::variable).collect(Collectors.toSet()));
     }
 
     public String getName() {
