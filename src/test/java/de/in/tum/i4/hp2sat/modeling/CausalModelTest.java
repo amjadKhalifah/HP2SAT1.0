@@ -66,7 +66,7 @@ public class CausalModelTest {
     }
 
     @Test(expected = InvalidCausalModelException.class)
-    public void Should_ThrowException_When_TwoEquationsWithSameVariable() throws InvalidCausalModelException {
+    public void Should_ThrowException_When_TwoEquationsDefineSameVariable() throws InvalidCausalModelException {
         Variable a = f.variable("a");
         Variable b = f.variable("b");
         Variable cExo = f.variable("c");
@@ -76,6 +76,19 @@ public class CausalModelTest {
 
         CausalModel causalModel = new CausalModel(null, new HashSet<>(Arrays.asList(equationA1, equationA2)),
                 new HashSet<>(Collections.singletonList(cExo)));
+    }
+
+    @Test(expected = InvalidCausalModelException.class)
+    public void Should_ThrowException_When_VariableIsDefinedByEquationAndExogenous() throws InvalidCausalModelException {
+        Variable a = f.variable("a");
+        Variable b = f.variable("b");
+        Variable cExo = f.variable("c");
+
+        Equation equationA = new Equation(a, b);
+        Equation equationB = new Equation(b, cExo);
+
+        CausalModel causalModel = new CausalModel(null, new HashSet<>(Arrays.asList(equationA, equationB)),
+                new HashSet<>(Arrays.asList(b, cExo)));
     }
 
     @Test(expected = InvalidCausalModelException.class)
