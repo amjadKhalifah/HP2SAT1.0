@@ -1,4 +1,4 @@
-package de.in.tum.i4.hp2sat.modeling;
+package de.tum.in.i4.hp2sat.modeling;
 
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.Variable;

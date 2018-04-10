@@ -1,17 +1,15 @@
-package de.in.tum.i4.hp2sat.modeling;
+package de.tum.in.i4.hp2sat.modeling;
 
-import de.in.tum.i4.hp2sat.exceptions.InvalidCausalModelException;
-import de.in.tum.i4.hp2sat.exceptions.InvalidCauseException;
-import de.in.tum.i4.hp2sat.exceptions.InvalidContextException;
-import de.in.tum.i4.hp2sat.exceptions.InvalidPhiException;
-import de.in.tum.i4.hp2sat.testutil.ExampleProvider;
+import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidCauseException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidContextException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidPhiException;
+import de.tum.in.i4.hp2sat.testutil.ExampleProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.logicng.formulas.*;
 
 import java.util.*;
-
-import static org.junit.Assert.*;
 
 public class CausalModelTest {
     FormulaFactory f;

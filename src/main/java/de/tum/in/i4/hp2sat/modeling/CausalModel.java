@@ -1,9 +1,9 @@
-package de.in.tum.i4.hp2sat.modeling;
+package de.tum.in.i4.hp2sat.modeling;
 
-import de.in.tum.i4.hp2sat.exceptions.InvalidCausalModelException;
-import de.in.tum.i4.hp2sat.exceptions.InvalidCauseException;
-import de.in.tum.i4.hp2sat.exceptions.InvalidContextException;
-import de.in.tum.i4.hp2sat.exceptions.InvalidPhiException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidCauseException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidContextException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidPhiException;
 import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.Constant;
 import org.logicng.formulas.Literal;

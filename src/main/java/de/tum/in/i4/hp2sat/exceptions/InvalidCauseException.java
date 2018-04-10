@@ -1,4 +1,4 @@
-package de.in.tum.i4.hp2sat.exceptions;
+package de.tum.in.i4.hp2sat.exceptions;
 
 public class InvalidCauseException extends Exception {
     public InvalidCauseException() {
