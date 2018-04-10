@@ -1,9 +1,8 @@
 package de.in.tum.i4.hp2sat.modeling;
 
-import org.logicng.formulas.Formula;
+import de.in.tum.i4.hp2sat.exceptions.InvalidCausalModelException;
 import org.logicng.formulas.Variable;
 
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -14,7 +13,17 @@ public class CausalModel {
 
     private Set<Variable> variables;
 
-    public CausalModel(String name, Set<Equation> equations, Set<Variable> exogenousVariables) {
+    /**
+     * Creates a new causal model
+     *
+     * @param name               name of the causal model
+     * @param equations          equations for the endogenous variables of the causal model
+     * @param exogenousVariables the exogenous variables of the causal model
+     * @throws InvalidCausalModelException throws an exception if model is not valid: (1) each variable needs to be
+     *                                     either defined by an equation or be exogenous; (2) no duplicate definition of variables; (3) no circular
+     *                                     dependencies
+     */
+    public CausalModel(String name, Set<Equation> equations, Set<Variable> exogenousVariables) throws InvalidCausalModelException {
         this.name = name;
         this.equations = equations;
         this.exogenousVariables = exogenousVariables;
@@ -22,20 +31,24 @@ public class CausalModel {
         this.variables = this.equations.stream().map(Equation::getVariable).collect(Collectors.toSet());
         this.equations.forEach(e -> this.variables.addAll(e.getFormula().variables()));
         this.variables.addAll(exogenousVariables);
+
+        isValid(); // possibly throws exception
     }
 
     /**
      * Checks whether the current causal model is valid.
      *
-     * @return true if valid, false if invalid
+     * @throws InvalidCausalModelException thrown if invalid
      */
-    public boolean isValid() {
+    private void isValid() throws InvalidCausalModelException {
         boolean existsDefinitionForEachVariable = equations.size() + exogenousVariables.size() == this.variables.size();
         boolean existsNoDuplicateEquationForEachVariable =
                 equations.size() == equations.stream().map(Equation::getVariable).collect(Collectors.toSet()).size();
         boolean existsCircularDependency = equations.parallelStream()
                 .anyMatch(e -> isVariableInEquation(e.getVariable(), e));
-        return existsDefinitionForEachVariable && existsNoDuplicateEquationForEachVariable && !existsCircularDependency;
+
+        if (!(existsDefinitionForEachVariable && existsNoDuplicateEquationForEachVariable && !existsCircularDependency))
+            throw new InvalidCausalModelException();
     }
 
     /**

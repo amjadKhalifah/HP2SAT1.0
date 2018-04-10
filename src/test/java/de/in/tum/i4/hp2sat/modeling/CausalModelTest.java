@@ -1,5 +1,6 @@
 package de.in.tum.i4.hp2sat.modeling;
 
+import de.in.tum.i4.hp2sat.exceptions.InvalidCausalModelException;
 import org.junit.Before;
 import org.junit.Test;
 import org.logicng.formulas.Formula;
@@ -22,7 +23,7 @@ public class CausalModelTest {
     }
 
     @Test
-    public void Should_CreateCausalModel_When_EverythingFine() {
+    public void Should_CreateCausalModel_When_EverythingFine() throws InvalidCausalModelException {
         Variable BTExo = f.variable("BT_exo");
         Variable STExo = f.variable("ST_exo");
 
@@ -52,7 +53,7 @@ public class CausalModelTest {
     }
 
     @Test
-    public void Should_BeValid_When_EverythingFine() {
+    public void Should_NotThrowException_When_EverythingFine() throws InvalidCausalModelException {
         Variable a = f.variable("a");
         Variable b = f.variable("b");
         Variable cExo = f.variable("c");
@@ -62,11 +63,10 @@ public class CausalModelTest {
 
         CausalModel causalModel = new CausalModel(null, new HashSet<>(Arrays.asList(equationA, equationB)),
                 new HashSet<>(Collections.singletonList(cExo)));
-        assertTrue(causalModel.isValid());
     }
 
-    @Test
-    public void Should_BeInvalid_When_TwoEquationsWithSameVariable() {
+    @Test(expected = InvalidCausalModelException.class)
+    public void Should_ThrowException_When_TwoEquationsWithSameVariable() throws InvalidCausalModelException {
         Variable a = f.variable("a");
         Variable b = f.variable("b");
         Variable cExo = f.variable("c");
@@ -76,11 +76,10 @@ public class CausalModelTest {
 
         CausalModel causalModel = new CausalModel(null, new HashSet<>(Arrays.asList(equationA1, equationA2)),
                 new HashSet<>(Collections.singletonList(cExo)));
-        assertFalse(causalModel.isValid());
     }
 
-    @Test
-    public void Should_BeInvalid_When_NotEachVariableDefinedByEquation() {
+    @Test(expected = InvalidCausalModelException.class)
+    public void Should_BeInvalid_When_NotEachVariableDefinedByEquation() throws InvalidCausalModelException {
         Variable a = f.variable("a");
         Variable b = f.variable("b");
         Variable c = f.variable("c");
@@ -90,11 +89,10 @@ public class CausalModelTest {
 
         CausalModel causalModel = new CausalModel(null, new HashSet<>(Arrays.asList(equationA, equationB)),
                 new HashSet<>());
-        assertFalse(causalModel.isValid());
     }
 
-    @Test
-    public void Should_BeValid_When_CircularDependency1() {
+    @Test(expected = InvalidCausalModelException.class)
+    public void Should_BeValid_When_CircularDependency1() throws InvalidCausalModelException {
         Variable a = f.variable("a");
         Variable b = f.variable("b");
         Variable cExo = f.variable("c");
@@ -107,11 +105,10 @@ public class CausalModelTest {
         CausalModel causalModel = new CausalModel(null,
                 new HashSet<>(Arrays.asList(equationA, equationB, equationD)),
                 new HashSet<>(Collections.singletonList(cExo)));
-        assertFalse(causalModel.isValid());
     }
 
-    @Test
-    public void Should_BeValid_When_CircularDependency2() {
+    @Test(expected = InvalidCausalModelException.class)
+    public void Should_BeValid_When_CircularDependency2() throws InvalidCausalModelException {
         Variable a = f.variable("a");
         Variable b = f.variable("b");
         Variable cExo = f.variable("c");
@@ -124,6 +121,5 @@ public class CausalModelTest {
         CausalModel causalModel = new CausalModel(null,
                 new HashSet<>(Arrays.asList(equationA, equationB, equationD)),
                 new HashSet<>(Collections.singletonList(cExo)));
-        assertFalse(causalModel.isValid());
     }
 }
