@@ -7,6 +7,7 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,33 +38,30 @@ public class CausalModelTest {
         Formula BHFormula = f.and(BT, f.not(SH));
         Formula BSFormula = f.and(ST, BT);
 
-        ExogenousEquation BTExoEquation = new ExogenousEquation(BTExo);
-        ExogenousEquation STExoEquation = new ExogenousEquation(STExo);
-
-        EndogenousEquation BTEquation = new EndogenousEquation(BT, BTFormula);
-        EndogenousEquation STEquation = new EndogenousEquation(ST, STFormula);
-        EndogenousEquation SHEquation = new EndogenousEquation(SH, SHFormula);
-        EndogenousEquation BHEquation = new EndogenousEquation(BH, BHFormula);
-        EndogenousEquation BSEquation = new EndogenousEquation(BS, BSFormula);
+        Equation BTEquation = new Equation(BT, BTFormula);
+        Equation STEquation = new Equation(ST, STFormula);
+        Equation SHEquation = new Equation(SH, SHFormula);
+        Equation BHEquation = new Equation(BH, BHFormula);
+        Equation BSEquation = new Equation(BS, BSFormula);
 
         Set<Equation> equations = new HashSet<>(Arrays.asList(BTEquation, STEquation, SHEquation, BHEquation,
-                BSEquation, BTExoEquation, STExoEquation));
+                BSEquation));
+        Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(BTExo, STExo));
 
-        CausalModel causalModel = new CausalModel("BillySuzy", equations);
+        CausalModel causalModel = new CausalModel("BillySuzy", equations, exogenousVariables);
     }
 
     @Test
     public void Should_BeValid_When_EverythingFine() {
         Variable a = f.variable("a");
         Variable b = f.variable("b");
-        Variable c = f.variable("c");
+        Variable cExo = f.variable("c");
 
-        EndogenousEquation equationA = new EndogenousEquation(a, b);
-        EndogenousEquation equationB = new EndogenousEquation(b, c);
-        ExogenousEquation equationC = new ExogenousEquation(c);
+        Equation equationA = new Equation(a, b);
+        Equation equationB = new Equation(b, cExo);
 
-        CausalModel causalModel =
-                new CausalModel(null, new HashSet<>(Arrays.asList(equationA, equationB, equationC)));
+        CausalModel causalModel = new CausalModel(null, new HashSet<>(Arrays.asList(equationA, equationB)),
+                new HashSet<>(Collections.singletonList(cExo)));
         assertTrue(causalModel.isValid());
     }
 
@@ -71,14 +69,13 @@ public class CausalModelTest {
     public void Should_BeInvalid_When_TwoEquationsWithSameVariable() {
         Variable a = f.variable("a");
         Variable b = f.variable("b");
-        Variable c = f.variable("c");
+        Variable cExo = f.variable("c");
 
-        EndogenousEquation equationA1 = new EndogenousEquation(a, b);
-        EndogenousEquation equationA2 = new EndogenousEquation(a, c);
-        ExogenousEquation equationC = new ExogenousEquation(c);
+        Equation equationA1 = new Equation(a, b);
+        Equation equationA2 = new Equation(a, cExo);
 
-        CausalModel causalModel =
-                new CausalModel(null, new HashSet<>(Arrays.asList(equationA1, equationA2, equationC)));
+        CausalModel causalModel = new CausalModel(null, new HashSet<>(Arrays.asList(equationA1, equationA2)),
+                new HashSet<>(Collections.singletonList(cExo)));
         assertFalse(causalModel.isValid());
     }
 
@@ -88,10 +85,11 @@ public class CausalModelTest {
         Variable b = f.variable("b");
         Variable c = f.variable("c");
 
-        EndogenousEquation equationA = new EndogenousEquation(a, b);
-        EndogenousEquation equationB = new EndogenousEquation(b, c);
+        Equation equationA = new Equation(a, b);
+        Equation equationB = new Equation(b, c);
 
-        CausalModel causalModel = new CausalModel(null, new HashSet<>(Arrays.asList(equationA, equationB)));
+        CausalModel causalModel = new CausalModel(null, new HashSet<>(Arrays.asList(equationA, equationB)),
+                new HashSet<>());
         assertFalse(causalModel.isValid());
     }
 }
