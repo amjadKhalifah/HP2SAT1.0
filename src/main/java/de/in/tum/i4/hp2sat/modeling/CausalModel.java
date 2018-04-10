@@ -1,8 +1,12 @@
 package de.in.tum.i4.hp2sat.modeling;
 
 import de.in.tum.i4.hp2sat.exceptions.InvalidCausalModelException;
+import de.in.tum.i4.hp2sat.exceptions.InvalidContextException;
+import org.logicng.datastructures.Tristate;
+import org.logicng.formulas.Constant;
 import org.logicng.formulas.Variable;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,6 +37,14 @@ public class CausalModel {
         this.variables.addAll(exogenousVariables);
 
         isValid(); // possibly throws exception
+    }
+
+    public Tristate isCause(Map<Variable, Constant> context, Set<Variable> cause) throws InvalidContextException {
+        if (!isContextValid(context))
+            throw new InvalidContextException();
+        // TODO is cause valid
+        // TODO SAT
+        return Tristate.UNDEF;
     }
 
     /**
@@ -82,6 +94,11 @@ public class CausalModel {
         }
 
         return false;
+    }
+
+    private boolean isContextValid(Map<Variable, Constant> context) {
+        return context.keySet().size() == exogenousVariables.size() &&
+                exogenousVariables.containsAll(context.keySet());
     }
 
     public String getName() {

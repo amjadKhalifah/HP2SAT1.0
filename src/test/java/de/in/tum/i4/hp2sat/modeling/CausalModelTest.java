@@ -1,17 +1,13 @@
 package de.in.tum.i4.hp2sat.modeling;
 
 import de.in.tum.i4.hp2sat.exceptions.InvalidCausalModelException;
+import de.in.tum.i4.hp2sat.exceptions.InvalidContextException;
 import de.in.tum.i4.hp2sat.testutil.ExampleProvider;
 import org.junit.Before;
 import org.junit.Test;
-import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFactory;
-import org.logicng.formulas.Variable;
+import org.logicng.formulas.*;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -110,5 +106,36 @@ public class CausalModelTest {
         CausalModel causalModel = new CausalModel(null,
                 new HashSet<>(Arrays.asList(equationA, equationB, equationD)),
                 new HashSet<>(Collections.singletonList(cExo)));
+    }
+
+    @Test
+    public void Should_NotThrowException_When_ContextFine() throws InvalidCausalModelException, InvalidContextException {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Map<Variable, Constant> context = new HashMap<>();
+        context.put(f.variable("BT_exo"), f.verum());
+        context.put(f.variable("ST_exo"), f.verum());
+        Set<Variable> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
+        billySuzy.isCause(context, cause);
+    }
+
+    @Test(expected = InvalidContextException.class)
+    public void Should_ThrowException_When_ContextIncomplete() throws InvalidCausalModelException,
+            InvalidContextException {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Map<Variable, Constant> context = new HashMap<>();
+        context.put(f.variable("BT_exo"), f.verum());
+        Set<Variable> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
+        billySuzy.isCause(context, cause);
+    }
+
+    @Test(expected = InvalidContextException.class)
+    public void Should_ThrowException_When_ContextContainsNonExogenousVariable() throws InvalidCausalModelException,
+            InvalidContextException {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Map<Variable, Constant> context = new HashMap<>();
+        context.put(f.variable("BT_exo"), f.verum());
+        context.put(f.variable("BT"), f.verum());
+        Set<Variable> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
+        billySuzy.isCause(context, cause);
     }
 }
