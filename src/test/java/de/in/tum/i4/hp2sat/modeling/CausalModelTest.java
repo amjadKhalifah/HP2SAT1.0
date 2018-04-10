@@ -92,4 +92,38 @@ public class CausalModelTest {
                 new HashSet<>());
         assertFalse(causalModel.isValid());
     }
+
+    @Test
+    public void Should_BeValid_When_CircularDependency1() {
+        Variable a = f.variable("a");
+        Variable b = f.variable("b");
+        Variable cExo = f.variable("c");
+        Variable d = f.variable("d");
+
+        Equation equationA = new Equation(a, b);
+        Equation equationB = new Equation(b, d);
+        Equation equationD = new Equation(d, a); // circular: a -> b -> d -> a
+
+        CausalModel causalModel = new CausalModel(null,
+                new HashSet<>(Arrays.asList(equationA, equationB, equationD)),
+                new HashSet<>(Collections.singletonList(cExo)));
+        assertFalse(causalModel.isValid());
+    }
+
+    @Test
+    public void Should_BeValid_When_CircularDependency2() {
+        Variable a = f.variable("a");
+        Variable b = f.variable("b");
+        Variable cExo = f.variable("c");
+        Variable d = f.variable("d");
+
+        Equation equationA = new Equation(a, f.and(b, a)); // circular: a -> b,a
+        Equation equationB = new Equation(b, d);
+        Equation equationD = new Equation(d, cExo);
+
+        CausalModel causalModel = new CausalModel(null,
+                new HashSet<>(Arrays.asList(equationA, equationB, equationD)),
+                new HashSet<>(Collections.singletonList(cExo)));
+        assertFalse(causalModel.isValid());
+    }
 }
