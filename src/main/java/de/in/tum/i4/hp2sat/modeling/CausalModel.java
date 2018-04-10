@@ -4,6 +4,7 @@ import de.in.tum.i4.hp2sat.exceptions.InvalidCausalModelException;
 import de.in.tum.i4.hp2sat.exceptions.InvalidContextException;
 import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.Constant;
+import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
 import java.util.Map;
@@ -39,7 +40,20 @@ public class CausalModel {
         isValid(); // possibly throws exception
     }
 
-    public Tristate isCause(Map<Variable, Constant> context, Set<Variable> cause) throws InvalidContextException {
+    /**
+     * Determines whether the passed set of Literals is a cause for the given phi. For bot phi and cause, a
+     * positive/negative literal means that the variable is meant to be true/false. The context defines the exogenous
+     * variables. Each variable is assigned a Constant (CTrue/CTFalse).
+     *
+     * @param context the context of the causal scenario; defines the values of the exogenous variables
+     * @param phi     the literals (i.e. events) we want to check for whether the given cause is indeed a cause
+     * @param cause   the set of literals (i.e. primitive events) we want to check for being a cause for phi
+     * @return the result of the SAT Solver, i.e. true, false or undefined
+     * @throws InvalidContextException thrown if context is invalid: (1) each exogenous variable needs to be defined;
+     *                                 (2) no other variable than the exogenous variable are in the Map
+     */
+    public Tristate isCause(Map<Variable, Constant> context, Set<Literal> phi, Set<Literal> cause) throws
+            InvalidContextException {
         if (!isContextValid(context))
             throw new InvalidContextException();
         // TODO is cause valid
@@ -96,6 +110,12 @@ public class CausalModel {
         return false;
     }
 
+    /**
+     * Checks if the given context is valid
+     *
+     * @param context the to be checked context
+     * @return true if valid, else false
+     */
     private boolean isContextValid(Map<Variable, Constant> context) {
         return context.keySet().size() == exogenousVariables.size() &&
                 exogenousVariables.containsAll(context.keySet());
