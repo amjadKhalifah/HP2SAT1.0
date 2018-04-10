@@ -10,11 +10,6 @@ public class ExogenousEquation extends Equation{
         super(left);
     }
 
-    public ExogenousEquation(Variable left, Constant constant) {
-        super(left);
-        this.constant = constant;
-    }
-
     public Constant getConstant() {
         return constant;
     }

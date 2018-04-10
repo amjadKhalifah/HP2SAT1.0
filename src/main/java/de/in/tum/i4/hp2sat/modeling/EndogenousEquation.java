@@ -10,4 +10,8 @@ public class EndogenousEquation extends Equation {
         super(left);
         this.right = right;
     }
+
+    public Formula getRight() {
+        return right;
+    }
 }

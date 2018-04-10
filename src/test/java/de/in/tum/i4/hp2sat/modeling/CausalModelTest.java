@@ -51,4 +51,47 @@ public class CausalModelTest {
 
         CausalModel causalModel = new CausalModel("BillySuzy", equations);
     }
+
+    @Test
+    public void Should_BeValid_When_EverythingFine() {
+        Variable a = f.variable("a");
+        Variable b = f.variable("b");
+        Variable c = f.variable("c");
+
+        EndogenousEquation equationA = new EndogenousEquation(a, b);
+        EndogenousEquation equationB = new EndogenousEquation(b, c);
+        ExogenousEquation equationC = new ExogenousEquation(c);
+
+        CausalModel causalModel =
+                new CausalModel(null, new HashSet<>(Arrays.asList(equationA, equationB, equationC)));
+        assertTrue(causalModel.isValid());
+    }
+
+    @Test
+    public void Should_BeInvalid_When_TwoEquationsWithSameVariable() {
+        Variable a = f.variable("a");
+        Variable b = f.variable("b");
+        Variable c = f.variable("c");
+
+        EndogenousEquation equationA1 = new EndogenousEquation(a, b);
+        EndogenousEquation equationA2 = new EndogenousEquation(a, c);
+        ExogenousEquation equationC = new ExogenousEquation(c);
+
+        CausalModel causalModel =
+                new CausalModel(null, new HashSet<>(Arrays.asList(equationA1, equationA2, equationC)));
+        assertFalse(causalModel.isValid());
+    }
+
+    @Test
+    public void Should_BeInvalid_When_NotEachVariableDefinedByEquation() {
+        Variable a = f.variable("a");
+        Variable b = f.variable("b");
+        Variable c = f.variable("c");
+
+        EndogenousEquation equationA = new EndogenousEquation(a, b);
+        EndogenousEquation equationB = new EndogenousEquation(b, c);
+
+        CausalModel causalModel = new CausalModel(null, new HashSet<>(Arrays.asList(equationA, equationB)));
+        assertFalse(causalModel.isValid());
+    }
 }
