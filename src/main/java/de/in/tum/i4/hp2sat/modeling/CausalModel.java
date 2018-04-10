@@ -3,6 +3,7 @@ package de.in.tum.i4.hp2sat.modeling;
 import de.in.tum.i4.hp2sat.exceptions.InvalidCausalModelException;
 import de.in.tum.i4.hp2sat.exceptions.InvalidCauseException;
 import de.in.tum.i4.hp2sat.exceptions.InvalidContextException;
+import de.in.tum.i4.hp2sat.exceptions.InvalidPhiException;
 import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.Constant;
 import org.logicng.formulas.Literal;
@@ -54,10 +55,12 @@ public class CausalModel {
      *                                 (2) no other variable than the exogenous variable are in the Map
      */
     public Tristate isCause(Map<Variable, Constant> context, Set<Literal> phi, Set<Literal> cause) throws
-            InvalidContextException, InvalidCauseException {
+            InvalidContextException, InvalidCauseException, InvalidPhiException {
         if (!isContextValid(context))
             throw new InvalidContextException();
-        if (!isCauseValid(cause))
+        if (!isCauseOrPhiValid(phi))
+            throw new InvalidPhiException();
+        if (!isCauseOrPhiValid(cause))
             throw new InvalidCauseException();
         // TODO SAT
         return Tristate.UNDEF;
@@ -125,15 +128,16 @@ public class CausalModel {
     }
 
     /**
-     * Checks if the given cause is valid
+     * Checks if the given cause or phi is valid; works for both.
      *
-     * @param cause the to be checked cause
+     * @param causeOrPhi the to be checked cause or phi
      * @return true if valid, else false
      */
-    private boolean isCauseValid(Set<Literal> cause) {
+    private boolean isCauseOrPhiValid(Set<Literal> causeOrPhi) {
+        // TODO maybe check whether cause is in phi and vice versa
         // only endogenous variables as defined by the equations can be a cause
         return equations.stream().map(Equation::getVariable).collect(Collectors.toSet())
-                .containsAll(cause.stream().map(Literal::variable).collect(Collectors.toSet()));
+                .containsAll(causeOrPhi.stream().map(Literal::variable).collect(Collectors.toSet()));
     }
 
     public String getName() {
