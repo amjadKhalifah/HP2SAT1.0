@@ -62,6 +62,7 @@ public class CausalModel {
             throw new InvalidPhiException();
         if (!isCauseOrPhiValid(cause))
             throw new InvalidCauseException();
+        // TODO check W
         // TODO SAT
         return Tristate.UNDEF;
     }
