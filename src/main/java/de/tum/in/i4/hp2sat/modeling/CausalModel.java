@@ -58,9 +58,9 @@ public class CausalModel {
             InvalidContextException, InvalidCauseException, InvalidPhiException {
         if (!isContextValid(context))
             throw new InvalidContextException();
-        if (!isCauseOrPhiValid(phi))
+        if (!isLiteralsInEquations(phi))
             throw new InvalidPhiException();
-        if (!isCauseOrPhiValid(cause))
+        if (!isLiteralsInEquations(cause))
             throw new InvalidCauseException();
         // TODO check W
         // TODO SAT
@@ -129,16 +129,16 @@ public class CausalModel {
     }
 
     /**
-     * Checks if the given cause or phi is valid; works for both.
+     * Checks if the given literals (i.e. cause, phi or W) are in the Variable part of the equations of this causal
+     * model.
      *
-     * @param causeOrPhi the to be checked cause or phi
-     * @return true if valid, else false
+     * @param literals the to be checked literals
+     * @return true if all the literals are in the Variable part of the equations of this causal model, else false
      */
-    private boolean isCauseOrPhiValid(Set<Literal> causeOrPhi) {
+    private boolean isLiteralsInEquations(Set<Literal> literals) {
         // TODO maybe check whether cause is in phi and vice versa
-        // only endogenous variables as defined by the equations can be a cause
         return equations.stream().map(Equation::getVariable).collect(Collectors.toSet())
-                .containsAll(causeOrPhi.stream().map(Literal::variable).collect(Collectors.toSet()));
+                .containsAll(literals.stream().map(Literal::variable).collect(Collectors.toSet()));
     }
 
     public String getName() {
