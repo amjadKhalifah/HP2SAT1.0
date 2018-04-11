@@ -93,7 +93,7 @@ public class CausalModel {
      * @param equation the equation whithin which we search for the variable
      * @return true, if variable was found; otherwise false
      */
-    private boolean isVariableInEquation(Variable variable, Equation equation) {
+    boolean isVariableInEquation(Variable variable, Equation equation) {
         Set<Variable> variables = equation.getFormula().variables();
         // check if formula of equation contains variable
         if (variables.contains(variable)) {
