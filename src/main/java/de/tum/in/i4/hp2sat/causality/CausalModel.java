@@ -66,8 +66,7 @@ public class CausalModel {
             throw new InvalidCauseException();
         if (!isLiteralsInEquations(w))
             throw new InvalidWException();
-        // TODO SAT
-        return Tristate.UNDEF;
+        return CausalitySolver.solve(this, context, phi, cause, w);
     }
 
     /**
