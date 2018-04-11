@@ -40,13 +40,16 @@ public class CausalModel {
     }
 
     /**
-     * Determines whether the passed set of Literals is a cause for the given phi. For bot phi and cause, a
+     * Determines whether the passed set of Literals is a cause for the given phi and w. For both phi and cause, a
      * positive/negative literal means that the variable is meant to be true/false. The context defines the exogenous
-     * variables. Each variable is assigned a Constant (CTrue/CTFalse).
+     * variables. Each variable is assigned a Constant (CTrue/CTFalse). For W, only (positive) variables are allowed.
+     * Internally, the value of the respective value in the original world will be determined, i.e. the user is not
+     * required to specify the value of these variables by passing a positive or negative literal.
      *
      * @param context the context of the causal scenario; defines the values of the exogenous variables
      * @param phi     the literals (i.e. events) we want to check for whether the given cause is indeed a cause
      * @param cause   the set of literals (i.e. primitive events) we want to check for being a cause for phi
+     * @param w       the set of variables which are kept at their original value
      * @return the result of the SAT Solver, i.e. true, false or undefined
      * @throws InvalidContextException thrown if context is invalid: (1) each exogenous variable needs to be defined;
      *                                 (2) no other variable than the exogenous variable are in the Map
@@ -62,7 +65,6 @@ public class CausalModel {
             throw new InvalidCauseException();
         if (!isLiteralsInEquations(w))
             throw new InvalidWException();
-        // TODO check W
         // TODO SAT
         return Tristate.UNDEF;
     }
