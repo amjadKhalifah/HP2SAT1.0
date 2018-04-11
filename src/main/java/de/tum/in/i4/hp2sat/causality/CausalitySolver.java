@@ -31,6 +31,7 @@ class CausalitySolver {
                         return 0;
                     }
                 }).collect(Collectors.toList());
+        System.out.println(equationsSorted.stream().map(Equation::getVariable).collect(Collectors.toList()));
         // initially, we can only assign true/false to the respective exogenous variables as defined by the context
         Assignment assignment = new Assignment();
         context.forEach((v, c) -> {
