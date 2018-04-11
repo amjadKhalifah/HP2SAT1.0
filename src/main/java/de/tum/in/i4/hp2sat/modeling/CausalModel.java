@@ -1,9 +1,6 @@
 package de.tum.in.i4.hp2sat.modeling;
 
-import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
-import de.tum.in.i4.hp2sat.exceptions.InvalidCauseException;
-import de.tum.in.i4.hp2sat.exceptions.InvalidContextException;
-import de.tum.in.i4.hp2sat.exceptions.InvalidPhiException;
+import de.tum.in.i4.hp2sat.exceptions.*;
 import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.Constant;
 import org.logicng.formulas.Literal;
@@ -54,14 +51,17 @@ public class CausalModel {
      * @throws InvalidContextException thrown if context is invalid: (1) each exogenous variable needs to be defined;
      *                                 (2) no other variable than the exogenous variable are in the Map
      */
-    public Tristate isCause(Map<Variable, Constant> context, Set<Literal> phi, Set<Literal> cause) throws
-            InvalidContextException, InvalidCauseException, InvalidPhiException {
+    public Tristate isCause(Map<Variable, Constant> context, Set<Literal> phi, Set<Literal> cause, Set<Variable> w)
+            throws
+            InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidWException {
         if (!isContextValid(context))
             throw new InvalidContextException();
         if (!isLiteralsInEquations(phi))
             throw new InvalidPhiException();
         if (!isLiteralsInEquations(cause))
             throw new InvalidCauseException();
+        if (!isLiteralsInEquations(w))
+            throw new InvalidWException();
         // TODO check W
         // TODO SAT
         return Tristate.UNDEF;
@@ -135,7 +135,7 @@ public class CausalModel {
      * @param literals the to be checked literals
      * @return true if all the literals are in the Variable part of the equations of this causal model, else false
      */
-    private boolean isLiteralsInEquations(Set<Literal> literals) {
+    private boolean isLiteralsInEquations(Set<? extends Literal> literals) {
         // TODO maybe check whether cause is in phi and vice versa
         return equations.stream().map(Equation::getVariable).collect(Collectors.toSet())
                 .containsAll(literals.stream().map(Literal::variable).collect(Collectors.toSet()));
