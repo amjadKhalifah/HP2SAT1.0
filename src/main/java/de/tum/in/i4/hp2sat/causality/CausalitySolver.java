@@ -23,10 +23,6 @@ class CausalitySolver {
          * */
         List<Equation> equationsSorted = new ArrayList<>(causalModel.getEquations()).stream()
                 .sorted((equation1, equation2) -> {
-                    System.out.println(equation2.getVariable().name() + " in " + equation1.getVariable().name() +
-                            ": " + causalModel.isVariableInEquation(equation2.getVariable(), equation1));
-                    /*System.out.println(equation1.getVariable().name() + " in " + equation2.getVariable().name() +
-                            ": " + causalModel.isVariableInEquation(equation1.getVariable(), equation2));*/
                     // the following comments assume: X is defined by equation1 and Y is defined by equation2
                     if (causalModel.isVariableInEquation(equation2.getVariable(), equation1)) {
                         // if Y is used in the formula of X, then Y < X -> return 1
@@ -35,7 +31,7 @@ class CausalitySolver {
                         // if X is used in the formula of Y, then X < Y -> return -1
                         return -1;
                     } else {
-                        System.out.println(equation1.getVariable().name() + " 0 " + equation2.getVariable().name());
+                        // TODO double check with more examples; can endo and exo vars be mixed?
                         /*
                         * Here comes the tricky part. If neither the previous checks did not match, we end up here.
                         * However, just returning 0 produces wrong results in some cases, which is due to
@@ -55,8 +51,7 @@ class CausalitySolver {
                         }
                     }
                 }).collect(Collectors.toList());
-        System.out.println(context + ": " +
-                equationsSorted.stream().map(Equation::getVariable).collect(Collectors.toList()));
+
         // initially, we can only assign true/false to the respective exogenous variables as defined by the context
         Assignment assignment = new Assignment();
         context.forEach((v, c) -> {
