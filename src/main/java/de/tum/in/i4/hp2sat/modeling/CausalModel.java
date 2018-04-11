@@ -24,10 +24,11 @@ public class CausalModel {
      * @param equations          equations for the endogenous variables of the causal model
      * @param exogenousVariables the exogenous variables of the causal model
      * @throws InvalidCausalModelException throws an exception if model is not valid: (1) each variable needs to be
-     *                                     either defined by an equation or be exogenous; (2) no duplicate definition of variables; (3) no circular
-     *                                     dependencies
+     *                                     either defined by an equation or be exogenous; (2) no duplicate definition of
+     *                                     variables; (3) no circular dependencies
      */
-    public CausalModel(String name, Set<Equation> equations, Set<Variable> exogenousVariables) throws InvalidCausalModelException {
+    public CausalModel(String name, Set<Equation> equations, Set<Variable> exogenousVariables)
+            throws InvalidCausalModelException {
         this.name = name;
         this.equations = equations;
         this.exogenousVariables = exogenousVariables;

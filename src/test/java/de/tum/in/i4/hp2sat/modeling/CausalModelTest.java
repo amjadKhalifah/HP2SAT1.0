@@ -48,7 +48,8 @@ public class CausalModelTest {
     }
 
     @Test(expected = InvalidCausalModelException.class)
-    public void Should_ThrowException_When_VariableIsDefinedByEquationAndExogenous() throws InvalidCausalModelException {
+    public void Should_ThrowException_When_VariableIsDefinedByEquationAndExogenous()
+            throws InvalidCausalModelException {
         Variable a = f.variable("a");
         Variable b = f.variable("b");
         Variable cExo = f.variable("c");
