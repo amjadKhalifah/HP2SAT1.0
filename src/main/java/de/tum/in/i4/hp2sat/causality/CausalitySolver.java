@@ -23,12 +23,36 @@ class CausalitySolver {
          * */
         List<Equation> equationsSorted = new ArrayList<>(causalModel.getEquations()).stream()
                 .sorted((equation1, equation2) -> {
+                    System.out.println(equation2.getVariable().name() + " in " + equation1.getVariable().name() +
+                            ": " + causalModel.isVariableInEquation(equation2.getVariable(), equation1));
+                    /*System.out.println(equation1.getVariable().name() + " in " + equation2.getVariable().name() +
+                            ": " + causalModel.isVariableInEquation(equation1.getVariable(), equation2));*/
+                    // the following comments assume: X is defined by equation1 and Y is defined by equation2
                     if (causalModel.isVariableInEquation(equation2.getVariable(), equation1)) {
+                        // if Y is used in the formula of X, then Y < X -> return 1
                         return 1;
                     } else if (causalModel.isVariableInEquation(equation1.getVariable(), equation2)) {
+                        // if X is used in the formula of Y, then X < Y -> return -1
                         return -1;
                     } else {
-                        return 0;
+                        System.out.println(equation1.getVariable().name() + " 0 " + equation2.getVariable().name());
+                        /*
+                        * Here comes the tricky part. If neither the previous checks did not match, we end up here.
+                        * However, just returning 0 produces wrong results in some cases, which is due to
+                        * transitivity. To ensure proper ordering, we need to make sure that equations containing
+                        * exogenous variables are considered "smaller" than ones that don't. Only if both equations
+                        * contain exogenous variables, we return 0. On that way we ensure that during the evaluation
+                        * the exogenous variables are evaluated first. */
+                        if (equation1.getFormula().variables().stream().anyMatch(v -> causalModel
+                                .getExogenousVariables().contains(v)) && equation2.getFormula().variables().stream().noneMatch(v -> causalModel.getExogenousVariables().contains(v))) {
+                            return -1;
+                        } else if (equation1.getFormula().variables().stream().anyMatch(v -> causalModel
+                                .getExogenousVariables().contains(v)) && equation2.getFormula().variables().stream()
+                                .noneMatch(v -> causalModel.getExogenousVariables().contains(v))) {
+                            return 1;
+                        } else {
+                            return 0;
+                        }
                     }
                 }).collect(Collectors.toList());
         System.out.println(context + ": " +
