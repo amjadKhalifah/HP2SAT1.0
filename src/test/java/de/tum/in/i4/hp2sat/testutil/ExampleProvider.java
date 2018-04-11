@@ -27,7 +27,7 @@ public class ExampleProvider {
         Formula STFormula = STExo;
         Formula SHFormula = ST;
         Formula BHFormula = f.and(BT, f.not(SH));
-        Formula BSFormula = f.and(ST, BT);
+        Formula BSFormula = f.or(SH, BH);
 
         Equation BTEquation = new Equation(BT, BTFormula);
         Equation STEquation = new Equation(ST, STFormula);
