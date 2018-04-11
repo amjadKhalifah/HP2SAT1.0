@@ -1,4 +1,4 @@
-package de.tum.in.i4.hp2sat.causality.modeling;
+package de.tum.in.i4.hp2sat.causality;
 
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.Variable;

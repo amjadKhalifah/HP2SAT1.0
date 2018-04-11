@@ -1,8 +1,8 @@
 package de.tum.in.i4.hp2sat.testutil;
 
 import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
-import de.tum.in.i4.hp2sat.causality.modeling.CausalModel;
-import de.tum.in.i4.hp2sat.causality.modeling.Equation;
+import de.tum.in.i4.hp2sat.causality.CausalModel;
+import de.tum.in.i4.hp2sat.causality.Equation;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;

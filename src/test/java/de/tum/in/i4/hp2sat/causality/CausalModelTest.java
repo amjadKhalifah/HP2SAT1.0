@@ -1,4 +1,4 @@
-package de.tum.in.i4.hp2sat.causality.modeling;
+package de.tum.in.i4.hp2sat.causality;
 
 import de.tum.in.i4.hp2sat.exceptions.*;
 import de.tum.in.i4.hp2sat.testutil.ExampleProvider;
