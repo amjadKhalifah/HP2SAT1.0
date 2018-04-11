@@ -36,7 +36,7 @@ public class CausalitySolverTest {
     }
 
     @Test
-    public void Should_ReturnEvaluationForEquations_When_BillyAndSuzyThrow() throws Exception{
+    public void Should_ReturnEvaluationForEquationsInBillySuzy_When_BillyAndSuzyThrow() throws Exception{
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Map<Variable, Constant> context = new HashMap<>();
         context.put(f.variable("BT_exo"), f.verum());
@@ -60,7 +60,7 @@ public class CausalitySolverTest {
     }
 
     @Test
-    public void Should_ReturnEvaluationForEquations_When_SuzyThrowsOnly() throws Exception{
+    public void Should_ReturnEvaluationForEquationsInBillySuzy_When_SuzyThrowsOnly() throws Exception{
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Map<Variable, Constant> context = new HashMap<>();
         context.put(f.variable("BT_exo"), f.falsum());
@@ -79,6 +79,28 @@ public class CausalitySolverTest {
         evaluationExpected.put(f.variable("BS"), true);
 
         Map<Variable, Boolean> evaluationActual = CausalitySolver.evaluateEquations(billySuzy, context);
+
+        assertEquals(evaluationExpected, evaluationActual);
+    }
+
+    @Test
+    public void Should_ReturnEvaluationForEquationsInArsonistsDisjunctive_When_LightningOnly() throws Exception{
+        CausalModel arsonists = ExampleProvider.arsonists(true);
+        Map<Variable, Constant> context = new HashMap<>();
+        context.put(f.variable("L_exo"), f.verum());
+        context.put(f.variable("MD_exo"), f.falsum());
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("MD")));
+        Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("FF")));
+        Set<Variable> w = new HashSet<>();
+
+        Map<Variable, Boolean> evaluationExpected = new HashMap<>();
+        evaluationExpected.put(f.variable("L_exo"), true);
+        evaluationExpected.put(f.variable("MD_exo"), false);
+        evaluationExpected.put(f.variable("L"), true);
+        evaluationExpected.put(f.variable("MD"), false);
+        evaluationExpected.put(f.variable("FF"), true);
+
+        Map<Variable, Boolean> evaluationActual = CausalitySolver.evaluateEquations(arsonists, context);
 
         assertEquals(evaluationExpected, evaluationActual);
     }
