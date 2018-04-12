@@ -43,8 +43,8 @@ public class CausalitySolverTest {
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
         Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
         CausalityCheckResult causalityCheckResult = CausalitySolver.solve(billySuzy, context, phi, cause);
-        // TODO should also fulfill AC2 and AC3
-        assertEquals(new CausalityCheckResult(true, false, false), causalityCheckResult);
+        // TODO should also fulfill AC3
+        assertEquals(new CausalityCheckResult(true, true, false), causalityCheckResult);
     }
 
     @Test

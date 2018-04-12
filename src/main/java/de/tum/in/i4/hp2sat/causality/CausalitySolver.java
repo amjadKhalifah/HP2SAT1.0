@@ -2,7 +2,10 @@ package de.tum.in.i4.hp2sat.causality;
 
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.logicng.datastructures.Assignment;
+import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.*;
+import org.logicng.solvers.MiniSat;
+import org.logicng.solvers.SATSolver;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -127,8 +130,29 @@ class CausalitySolver {
             Formula simplifiedFormula = simplify(phiFormula, causalModel, cause, w);
             simplifiedFormulas.add(simplifiedFormula);
         }
-        //TODO
-        return false;
+        // combine all simplified formulas together by OR
+        Formula combinedWsFormula = f.or(simplifiedFormulas.stream()
+                .filter(formula -> formula.variables().size() > 0).collect(Collectors.toSet()));
+        // some variables need to be kept at their original value and the cause needs to be negated
+        Formula requiredValuesFormula = f.and(evaluation.stream()
+                .filter(l -> combinedWsFormula.variables().contains(l.variable()))
+                .map(l -> {
+                    if (cause.stream().map(Literal::variable).collect(Collectors.toSet()).contains(l.variable()))
+                        /*
+                        * need to negate the cause to check whether phi still occurs in the counterfactual scenario,
+                        * i.e. where the cause does not occur anymore */
+                        return l.negate();
+                    else
+                        return l;
+                }).collect(Collectors.toSet()));
+        // construct final formula using AND
+        Formula finalFormula = f.and(requiredValuesFormula, combinedWsFormula);
+        // instantiate SAT solver
+        SATSolver miniSAT = MiniSat.miniSat(f);
+        miniSAT.add(finalFormula);
+        // obtain SAT result
+        Tristate result = miniSAT.sat();
+        return result == Tristate.TRUE;
     }
 
     /**
