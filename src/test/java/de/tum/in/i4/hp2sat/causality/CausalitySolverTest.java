@@ -31,7 +31,7 @@ public class CausalitySolverTest {
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
         Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
         Set<Variable> w = new HashSet<>(Collections.singletonList(f.variable("SH")));
-        Tristate result = CausalitySolver.solve(billySuzy, context, phi, cause, w);
+        Tristate result = CausalitySolver.solve(billySuzy, context, phi, cause);
         assertEquals(Tristate.UNDEF, result);
     }
 

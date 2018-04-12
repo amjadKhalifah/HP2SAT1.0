@@ -9,8 +9,8 @@ import java.util.stream.Collectors;
 
 class CausalitySolver {
     static Tristate solve(CausalModel causalModel, Map<Variable, Constant> context, Set<Literal> phi,
-                          Set<Literal> cause, Set<Variable> w) {
-        // TODO
+                          Set<Literal> cause) {
+        Set<Literal> evaluation = evaluateEquations(causalModel, context);
         return Tristate.UNDEF;
     }
 
