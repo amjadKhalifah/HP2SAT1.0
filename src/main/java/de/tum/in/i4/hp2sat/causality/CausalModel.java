@@ -1,4 +1,4 @@
-package de.tum.in.i4.hp2sat.modeling;
+package de.tum.in.i4.hp2sat.causality;
 
 import de.tum.in.i4.hp2sat.exceptions.*;
 import org.logicng.datastructures.Tristate;
@@ -66,8 +66,7 @@ public class CausalModel {
             throw new InvalidCauseException();
         if (!isLiteralsInEquations(w))
             throw new InvalidWException();
-        // TODO SAT
-        return Tristate.UNDEF;
+        return CausalitySolver.solve(this, context, phi, cause, w);
     }
 
     /**
@@ -94,7 +93,7 @@ public class CausalModel {
      * @param equation the equation whithin which we search for the variable
      * @return true, if variable was found; otherwise false
      */
-    private boolean isVariableInEquation(Variable variable, Equation equation) {
+    boolean isVariableInEquation(Variable variable, Equation equation) {
         Set<Variable> variables = equation.getFormula().variables();
         // check if formula of equation contains variable
         if (variables.contains(variable)) {
