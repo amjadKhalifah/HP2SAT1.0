@@ -45,6 +45,30 @@ public class CausalitySolverTest {
     }
 
     @Test
+    public void Should_FulfillAllACs_When_SHIsCauseBS() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Map<Variable, Constant> context = new HashMap<>();
+        context.put(f.variable("BT_exo"), f.verum());
+        context.put(f.variable("ST_exo"), f.verum());
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("SH")));
+        Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
+        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
+        assertEquals(new CausalitySolverResult(true, true, true), causalitySolverResult);
+    }
+
+    @Test
+    public void Should_FulfillAllACs_When_NotBTIsCauseForNotBS() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Map<Variable, Constant> context = new HashMap<>();
+        context.put(f.variable("BT_exo"), f.falsum());
+        context.put(f.variable("ST_exo"), f.falsum());
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("BT", false)));
+        Set<Literal> phi = new HashSet<>(Collections.singletonList(f.literal("BS", false)));
+        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
+        assertEquals(new CausalitySolverResult(true, true, true), causalitySolverResult);
+    }
+
+    @Test
     public void Should_FulfillAC1AndAC2Only_When_BTAndSTIsCauseForBS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Map<Variable, Constant> context = new HashMap<>();
@@ -66,6 +90,30 @@ public class CausalitySolverTest {
         Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
         CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
         assertEquals(new CausalitySolverResult(false, false, false), causalitySolverResult);
+    }
+
+    @Test
+    public void Should_FulfillAC1Only_When_LIsCauseForFF() throws Exception {
+        CausalModel arsonists = ExampleProvider.arsonists(true);
+        Map<Variable, Constant> context = new HashMap<>();
+        context.put(f.variable("L_exo"), f.verum());
+        context.put(f.variable("MD_exo"), f.verum());
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("L")));
+        Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("FF")));
+        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(arsonists, context, phi, cause);
+        assertEquals(new CausalitySolverResult(true, false, false), causalitySolverResult);
+    }
+
+    @Test
+    public void Should_FulfillAllAcs_When_LAndMDIsCauseForFF() throws Exception {
+        CausalModel arsonists = ExampleProvider.arsonists(true);
+        Map<Variable, Constant> context = new HashMap<>();
+        context.put(f.variable("L_exo"), f.verum());
+        context.put(f.variable("MD_exo"), f.verum());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("L"), f.variable("MD")));
+        Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("FF")));
+        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(arsonists, context, phi, cause);
+        assertEquals(new CausalitySolverResult(true, true, true), causalitySolverResult);
     }
 
     @Test
