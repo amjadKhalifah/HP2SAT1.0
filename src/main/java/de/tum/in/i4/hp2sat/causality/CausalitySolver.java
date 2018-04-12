@@ -1,7 +1,7 @@
 package de.tum.in.i4.hp2sat.causality;
 
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.logicng.datastructures.Assignment;
-import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.*;
 
 import java.util.*;
@@ -9,15 +9,16 @@ import java.util.stream.Collectors;
 
 class CausalitySolver {
     static CausalityCheckResult solve(CausalModel causalModel, Map<Variable, Constant> context, Set<Literal> phi,
-                          Set<Literal> cause) {
+                                      Set<Literal> cause) {
         Set<Literal> evaluation = evaluateEquations(causalModel, context);
         boolean ac1 = fulfillsAC1(evaluation, phi, cause);
         boolean ac2 = false;
         boolean ac3 = false;
         if (ac1) {
-            // TODO
+            ac2 = fulfillsAC2(causalModel, phi, cause, evaluation);
+            // TODO ac3
         }
-        CausalityCheckResult causalityCheckResult= new CausalityCheckResult(ac1, ac2, ac3);
+        CausalityCheckResult causalityCheckResult = new CausalityCheckResult(ac1, ac2, ac3);
         return causalityCheckResult;
     }
 
@@ -88,7 +89,99 @@ class CausalitySolver {
         return assignment.literals();
     }
 
+    /**
+     * Checks if AC1 fulfilled.
+     *
+     * @param evaluation the original evaluation of variables
+     * @param phi        the phi
+     * @param cause      the cause for which we check AC1
+     * @return true if AC1 fulfilled, else false
+     */
     private static boolean fulfillsAC1(Set<Literal> evaluation, Set<Literal> phi, Set<Literal> cause) {
         return evaluation.containsAll(phi) && evaluation.containsAll(cause);
+    }
+
+    /**
+     * Checks if AC2 is fulfilled.
+     *
+     * @param causalModel the underlying causal model
+     * @param phi         the phi
+     * @param cause       the cause for which we check AC2
+     * @param evaluation  the original evaluation of variables
+     * @return true if AC2 fulfilled, else false
+     */
+    private static boolean fulfillsAC2(CausalModel causalModel, Set<Literal> phi, Set<Literal> cause,
+                                       Set<Literal> evaluation) {
+        // remove exogenous variables from evaluation as they are not needed for computing the Ws
+        Set<Literal> evaluationWithoutExogenousVariables = evaluation.stream()
+                .filter(l -> !causalModel.getExogenousVariables().contains(l.variable())).collect(Collectors.toSet());
+        // get all possible Ws, i.e create power set of the evaluation
+        Set<Set<Literal>> allW = new UnifiedSet<>(evaluationWithoutExogenousVariables).powerSet().stream()
+                .map(s -> s.toImmutable().castToSet()).collect(Collectors.toSet());
+
+        FormulaFactory f = new FormulaFactory();
+        Formula phiFormula = f.not(f.and(phi));
+        Set<Formula> simplifiedFormulas = new HashSet<>();
+        for (Set<Literal> w : allW) {
+            // for each W, simplify formula
+            Formula simplifiedFormula = simplify(phiFormula, causalModel, cause, w);
+            simplifiedFormulas.add(simplifiedFormula);
+        }
+        //TODO
+        return false;
+    }
+
+    /**
+     * Simplifies a given formula. If a variable in the formula is part of the Cause, this variable is not further
+     * simplified. Same, if the variable consists of exogenous variables only. If a variable is in W, we replace it
+     * with true/false, depending on its original value as defined by W. This method is called recursively until no
+     * further simplification is possible.
+     *
+     * @param formula     the to be simplified formula
+     * @param causalModel the corresponding causal model
+     * @param cause       the hypothesized cause
+     * @param w           the set of literals that are kept at their original value.
+     * @return a simplified version of the formula
+     */
+    private static Formula simplify(Formula formula, CausalModel causalModel, Set<Literal> cause, Set<Literal> w) {
+        FormulaFactory formulaFactory = new FormulaFactory();
+        /*
+         * get all simplifiable variables; the following must apply:
+         * (1) the variable must not be part of the cause
+         * (2) the variable must not consist of exogenous variables only*/
+        Set<Variable> simplifiableVariables = formula.variables().stream()
+                .filter(v -> !cause.contains(v)).collect(Collectors.toSet());
+        Set<Variable> simplifiableVariablesTemp = new HashSet<>();
+        for (Variable variable : simplifiableVariables) {
+            // no need to check if equation exists, as we ensure this by validating the causal model
+            Equation correspondingEquation = causalModel.getEquations().stream().filter(e -> e.getVariable().equals
+                    (variable)).findFirst().get();
+            Formula f = correspondingEquation.getFormula();
+            // only if the variable is not defined by exogenous variables only, it is simplifiable
+            if (!causalModel.getExogenousVariables().containsAll(f.variables()))
+                simplifiableVariablesTemp.add(variable);
+        }
+        simplifiableVariables = simplifiableVariablesTemp;
+
+        if (simplifiableVariables.size() > 0) {
+            Formula simplifiedFormula = formula;
+            // simplify each variable
+            for (Variable variable : simplifiableVariables) {
+                if (w.stream().map(Literal::variable).collect(Collectors.toSet()).contains(variable)) {
+                    // no need to check if the literal exists as done before!
+                    Literal literal = w.stream().filter(l -> l.variable().equals(variable)).findFirst().get();
+                    simplifiedFormula = formula.substitute(variable,
+                            (literal.phase() ? formulaFactory.verum() : formulaFactory.falsum()));
+                } else {
+                    // TODO exogenous variables? -> requires context -> replace with true/false -> NEEDS TEST CASE
+                    Equation correspondingEquation = causalModel.getEquations().stream()
+                            .filter(e -> e.getVariable().equals(variable)).findFirst().get();
+                    simplifiedFormula = formula.substitute(variable, correspondingEquation.getFormula());
+                }
+            }
+            return simplify(simplifiedFormula, causalModel, cause, w);
+        } else {
+            return formula;
+        }
     }
 }
