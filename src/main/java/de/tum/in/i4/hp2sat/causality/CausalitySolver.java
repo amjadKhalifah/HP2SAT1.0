@@ -8,10 +8,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 class CausalitySolver {
-    static Tristate solve(CausalModel causalModel, Map<Variable, Constant> context, Set<Literal> phi,
+    static CausalityCheckResult solve(CausalModel causalModel, Map<Variable, Constant> context, Set<Literal> phi,
                           Set<Literal> cause) {
         Set<Literal> evaluation = evaluateEquations(causalModel, context);
-        return Tristate.UNDEF;
+        boolean ac1 = fulfillsAC1(evaluation, phi, cause);
+        boolean ac2 = false;
+        boolean ac3 = false;
+        if (ac1) {
+            // TODO
+        }
+        CausalityCheckResult causalityCheckResult= new CausalityCheckResult(ac1, ac2, ac3);
+        return causalityCheckResult;
     }
 
     static Set<Literal> evaluateEquations(CausalModel causalModel, Map<Variable, Constant> context) {
@@ -79,5 +86,9 @@ class CausalitySolver {
          * Finally, we return the literals of the assignment. A positive/negative literal indicates that the
          * corresponding variable evaluates to true/false  */
         return assignment.literals();
+    }
+
+    private static boolean fulfillsAC1(Set<Literal> evaluation, Set<Literal> phi, Set<Literal> cause) {
+        return evaluation.containsAll(phi) && evaluation.containsAll(cause);
     }
 }

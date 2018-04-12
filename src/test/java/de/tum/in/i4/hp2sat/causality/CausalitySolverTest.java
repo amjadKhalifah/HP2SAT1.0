@@ -23,16 +23,40 @@ public class CausalitySolverTest {
     }
 
     @Test
-    public void Should_ReturnUndef_When_AsLongAsMethodIncomplete() throws Exception {
+    public void Should_FulfillAC1Only_When_BTIsCause() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Map<Variable, Constant> context = new HashMap<>();
         context.put(f.variable("BT_exo"), f.verum());
         context.put(f.variable("ST_exo"), f.verum());
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
         Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
-        Set<Variable> w = new HashSet<>(Collections.singletonList(f.variable("SH")));
-        Tristate result = CausalitySolver.solve(billySuzy, context, phi, cause);
-        assertEquals(Tristate.UNDEF, result);
+        CausalityCheckResult causalityCheckResult = CausalitySolver.solve(billySuzy, context, phi, cause);
+        assertEquals(new CausalityCheckResult(true, false, false), causalityCheckResult);
+    }
+
+    @Test
+    public void Should_FulfillAllACs_When_STIsCause() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Map<Variable, Constant> context = new HashMap<>();
+        context.put(f.variable("BT_exo"), f.verum());
+        context.put(f.variable("ST_exo"), f.verum());
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
+        Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
+        CausalityCheckResult causalityCheckResult = CausalitySolver.solve(billySuzy, context, phi, cause);
+        // TODO should also fulfill AC2 and AC3
+        assertEquals(new CausalityCheckResult(true, false, false), causalityCheckResult);
+    }
+
+    @Test
+    public void Should_NotFulfillACs_When_NotBTIsCauseForBS() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Map<Variable, Constant> context = new HashMap<>();
+        context.put(f.variable("BT_exo"), f.verum());
+        context.put(f.variable("ST_exo"), f.verum());
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("BT", false)));
+        Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
+        CausalityCheckResult causalityCheckResult = CausalitySolver.solve(billySuzy, context, phi, cause);
+        assertEquals(new CausalityCheckResult(false, false, false), causalityCheckResult);
     }
 
     @Test
@@ -43,7 +67,6 @@ public class CausalitySolverTest {
         context.put(f.variable("ST_exo"), f.verum());
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
         Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
-        Set<Variable> w = new HashSet<>(Collections.singletonList(f.variable("SH")));
 
         Set<Literal> evaluationExpected = new HashSet<>(Arrays.asList(f.literal("BT_exo", true),
                 f.literal("ST_exo", true), f.literal("BT", true),
@@ -62,7 +85,6 @@ public class CausalitySolverTest {
         context.put(f.variable("ST_exo"), f.verum());
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
         Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
-        Set<Variable> w = new HashSet<>(Collections.singletonList(f.variable("SH")));
 
         Set<Literal> evaluationExpected = new HashSet<>(Arrays.asList(f.literal("BT_exo", false),
                 f.literal("ST_exo", true), f.literal("BT", false),
@@ -81,7 +103,6 @@ public class CausalitySolverTest {
         context.put(f.variable("MD_exo"), f.falsum());
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("MD")));
         Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("FF")));
-        Set<Variable> w = new HashSet<>();
 
         Set<Literal> evaluationExpected = new HashSet<>(Arrays.asList(f.literal("L_exo", true),
                 f.literal("MD_exo", false), f.literal("L", true),

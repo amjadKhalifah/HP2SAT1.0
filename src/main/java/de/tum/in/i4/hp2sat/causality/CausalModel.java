@@ -55,7 +55,7 @@ public class CausalModel {
      *                                 the equations
      * @throws InvalidPhiException     thrown if phi is invalid: each literal of phi needs to be defined in the equations
      */
-    public Tristate isCause(Map<Variable, Constant> context, Set<Literal> phi, Set<Literal> cause)
+    public CausalityCheckResult isCause(Map<Variable, Constant> context, Set<Literal> phi, Set<Literal> cause)
             throws InvalidContextException, InvalidCauseException, InvalidPhiException {
         if (!isContextValid(context))
             throw new InvalidContextException();
