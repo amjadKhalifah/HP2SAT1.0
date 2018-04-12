@@ -19,7 +19,16 @@ class CausalitySolver {
         boolean ac3 = false;
         if (ac1) {
             ac2 = fulfillsAC2(causalModel, phi, cause, evaluation);
-            // TODO ac3
+            if (ac2) {
+                // get all possible Ws, i.e create power set of the evaluation
+                Set<Set<Literal>> allSubsetsOfCause = new UnifiedSet<>(cause).powerSet().stream()
+                        .map(s -> s.toImmutable().castToSet())
+                        .filter(s -> s.size() > 0 && s.size() < cause.size()) // remove empty set and full cause
+                        .collect(Collectors.toSet());
+                // no sub-cause must fulfill AC1 and AC2
+                ac3 = allSubsetsOfCause.stream().noneMatch(c -> fulfillsAC1(evaluation, phi, cause) &&
+                        fulfillsAC2(causalModel, phi, c, evaluation));
+            }
         }
         CausalityCheckResult causalityCheckResult = new CausalityCheckResult(ac1, ac2, ac3);
         return causalityCheckResult;
@@ -139,8 +148,8 @@ class CausalitySolver {
                 .map(l -> {
                     if (cause.stream().map(Literal::variable).collect(Collectors.toSet()).contains(l.variable()))
                         /*
-                        * need to negate the cause to check whether phi still occurs in the counterfactual scenario,
-                        * i.e. where the cause does not occur anymore */
+                         * need to negate the cause to check whether phi still occurs in the counterfactual scenario,
+                         * i.e. where the cause does not occur anymore */
                         return l.negate();
                     else
                         return l;

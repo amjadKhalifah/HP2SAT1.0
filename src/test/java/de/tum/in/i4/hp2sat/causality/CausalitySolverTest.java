@@ -43,7 +43,18 @@ public class CausalitySolverTest {
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
         Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
         CausalityCheckResult causalityCheckResult = CausalitySolver.solve(billySuzy, context, phi, cause);
-        // TODO should also fulfill AC3
+        assertEquals(new CausalityCheckResult(true, true, true), causalityCheckResult);
+    }
+
+    @Test
+    public void Should_FulfillAC1AndAC2Only_When_BTAndSTIsCauseForBS() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Map<Variable, Constant> context = new HashMap<>();
+        context.put(f.variable("BT_exo"), f.verum());
+        context.put(f.variable("ST_exo"), f.verum());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("BT"), f.variable("ST")));
+        Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
+        CausalityCheckResult causalityCheckResult = CausalitySolver.solve(billySuzy, context, phi, cause);
         assertEquals(new CausalityCheckResult(true, true, false), causalityCheckResult);
     }
 
