@@ -11,8 +11,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 class CausalitySolver {
-    static CausalityCheckResult solve(CausalModel causalModel, Map<Variable, Constant> context, Set<Literal> phi,
-                                      Set<Literal> cause) {
+    static CausalitySolverResult solve(CausalModel causalModel, Map<Variable, Constant> context, Set<Literal> phi,
+                                       Set<Literal> cause) {
         Set<Literal> evaluation = evaluateEquations(causalModel, context);
         boolean ac1 = fulfillsAC1(evaluation, phi, cause);
         boolean ac2 = false;
@@ -30,8 +30,8 @@ class CausalitySolver {
                         fulfillsAC2(causalModel, phi, c, evaluation));
             }
         }
-        CausalityCheckResult causalityCheckResult = new CausalityCheckResult(ac1, ac2, ac3);
-        return causalityCheckResult;
+        CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3);
+        return causalitySolverResult;
     }
 
     static Set<Literal> evaluateEquations(CausalModel causalModel, Map<Variable, Constant> context) {
