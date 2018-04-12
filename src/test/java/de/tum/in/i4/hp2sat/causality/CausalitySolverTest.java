@@ -45,16 +45,11 @@ public class CausalitySolverTest {
         Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
         Set<Variable> w = new HashSet<>(Collections.singletonList(f.variable("SH")));
 
-        Map<Variable, Boolean> evaluationExpected = new HashMap<>();
-        evaluationExpected.put(f.variable("BT_exo"), true);
-        evaluationExpected.put(f.variable("ST_exo"), true);
-        evaluationExpected.put(f.variable("BT"), true);
-        evaluationExpected.put(f.variable("ST"), true);
-        evaluationExpected.put(f.variable("BH"), false);
-        evaluationExpected.put(f.variable("SH"), true);
-        evaluationExpected.put(f.variable("BS"), true);
-
-        Map<Variable, Boolean> evaluationActual = CausalitySolver.evaluateEquations(billySuzy, context);
+        Set<Literal> evaluationExpected = new HashSet<>(Arrays.asList(f.literal("BT_exo", true),
+                f.literal("ST_exo", true), f.literal("BT", true),
+                f.literal("ST", true), f.literal("BH", false),
+                f.literal("SH", true), f.literal("BS", true)));
+        Set<Literal> evaluationActual = CausalitySolver.evaluateEquations(billySuzy, context);
 
         assertEquals(evaluationExpected, evaluationActual);
     }
@@ -69,16 +64,11 @@ public class CausalitySolverTest {
         Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
         Set<Variable> w = new HashSet<>(Collections.singletonList(f.variable("SH")));
 
-        Map<Variable, Boolean> evaluationExpected = new HashMap<>();
-        evaluationExpected.put(f.variable("BT_exo"), false);
-        evaluationExpected.put(f.variable("ST_exo"), true);
-        evaluationExpected.put(f.variable("BT"), false);
-        evaluationExpected.put(f.variable("ST"), true);
-        evaluationExpected.put(f.variable("BH"), false);
-        evaluationExpected.put(f.variable("SH"), true);
-        evaluationExpected.put(f.variable("BS"), true);
-
-        Map<Variable, Boolean> evaluationActual = CausalitySolver.evaluateEquations(billySuzy, context);
+        Set<Literal> evaluationExpected = new HashSet<>(Arrays.asList(f.literal("BT_exo", false),
+                f.literal("ST_exo", true), f.literal("BT", false),
+                f.literal("ST", true), f.literal("BH", false),
+                f.literal("SH", true), f.literal("BS", true)));
+        Set<Literal> evaluationActual = CausalitySolver.evaluateEquations(billySuzy, context);
 
         assertEquals(evaluationExpected, evaluationActual);
     }
@@ -93,14 +83,10 @@ public class CausalitySolverTest {
         Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("FF")));
         Set<Variable> w = new HashSet<>();
 
-        Map<Variable, Boolean> evaluationExpected = new HashMap<>();
-        evaluationExpected.put(f.variable("L_exo"), true);
-        evaluationExpected.put(f.variable("MD_exo"), false);
-        evaluationExpected.put(f.variable("L"), true);
-        evaluationExpected.put(f.variable("MD"), false);
-        evaluationExpected.put(f.variable("FF"), true);
-
-        Map<Variable, Boolean> evaluationActual = CausalitySolver.evaluateEquations(arsonists, context);
+        Set<Literal> evaluationExpected = new HashSet<>(Arrays.asList(f.literal("L_exo", true),
+                f.literal("MD_exo", false), f.literal("L", true),
+                f.literal("MD", false), f.literal("FF", true)));
+        Set<Literal> evaluationActual = CausalitySolver.evaluateEquations(arsonists, context);
 
         assertEquals(evaluationExpected, evaluationActual);
     }

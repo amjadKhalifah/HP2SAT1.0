@@ -14,7 +14,7 @@ class CausalitySolver {
         return Tristate.UNDEF;
     }
 
-    static Map<Variable, Boolean> evaluateEquations(CausalModel causalModel, Map<Variable, Constant> context) {
+    static Set<Literal> evaluateEquations(CausalModel causalModel, Map<Variable, Constant> context) {
         // assume that causal model is valid!
         /*
          * Following to HP, we can sort variables in an acyclic causal model according to their dependence on other
@@ -33,12 +33,12 @@ class CausalitySolver {
                     } else {
                         // TODO double check with more examples; can endo and exo vars be mixed?
                         /*
-                        * Here comes the tricky part. If neither the previous checks did not match, we end up here.
-                        * However, just returning 0 produces wrong results in some cases, which is due to
-                        * transitivity. To ensure proper ordering, we need to make sure that equations containing
-                        * exogenous variables are considered "smaller" than ones that don't. Only if both equations
-                        * contain exogenous variables, we return 0. On that way we ensure that during the evaluation
-                        * the exogenous variables are evaluated first. */
+                         * Here comes the tricky part. If neither the previous checks did not match, we end up here.
+                         * However, just returning 0 produces wrong results in some cases, which is due to
+                         * transitivity. To ensure proper ordering, we need to make sure that equations containing
+                         * exogenous variables are considered "smaller" than ones that don't. Only if both equations
+                         * contain exogenous variables, we return 0. On that way we ensure that during the evaluation
+                         * the exogenous variables are evaluated first. */
                         if (equation1.getFormula().variables().stream().anyMatch(v -> causalModel
                                 .getExogenousVariables().contains(v)) && equation2.getFormula().variables().stream().noneMatch(v -> causalModel.getExogenousVariables().contains(v))) {
                             return -1;
@@ -76,10 +76,8 @@ class CausalitySolver {
             }
         }
         /*
-         * Finally, we return a map of variables and their corresponding evaluation. The phase of a
-         * Literal (true/false) in the assignment indicates the evaluation. */
-        Map<Variable, Boolean> evaluation = assignment.literals().stream()
-                .collect(Collectors.toMap(Literal::variable, Literal::phase));
-        return evaluation;
+         * Finally, we return the literals of the assignment. A positive/negative literal indicates that the
+         * corresponding variable evaluates to true/false  */
+        return assignment.literals();
     }
 }
