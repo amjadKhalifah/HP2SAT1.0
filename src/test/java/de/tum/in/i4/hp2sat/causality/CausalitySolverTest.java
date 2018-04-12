@@ -21,7 +21,7 @@ public class CausalitySolverTest {
     }
 
     @Test
-    public void Should_FulfillAC1Only_When_BTIsCause() throws Exception {
+    public void Should_FulfillAC1Only_When_BTIsCauseForBS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Map<Variable, Constant> context = new HashMap<>();
         context.put(f.variable("BT_exo"), f.verum());
@@ -33,7 +33,7 @@ public class CausalitySolverTest {
     }
 
     @Test
-    public void Should_FulfillAllACs_When_STIsCause() throws Exception {
+    public void Should_FulfillAllACs_When_STIsCauseBS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Map<Variable, Constant> context = new HashMap<>();
         context.put(f.variable("BT_exo"), f.verum());
