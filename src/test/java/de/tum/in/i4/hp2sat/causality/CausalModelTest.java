@@ -114,8 +114,7 @@ public class CausalModelTest {
         context.put(f.variable("ST_exo"), f.verum());
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
         Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
-        Set<Variable> w = new HashSet<>(Collections.singletonList(f.variable("SH")));
-        billySuzy.isCause(context, phi, cause, w);
+        billySuzy.isCause(context, phi, cause);
     }
 
     @Test(expected = InvalidContextException.class)
@@ -125,8 +124,7 @@ public class CausalModelTest {
         context.put(f.variable("BT_exo"), f.verum());
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
         Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
-        Set<Variable> w = new HashSet<>(Collections.singletonList(f.variable("SH")));
-        billySuzy.isCause(context, phi, cause, w);
+        billySuzy.isCause(context, phi, cause);
     }
 
     @Test(expected = InvalidPhiException.class)
@@ -137,8 +135,7 @@ public class CausalModelTest {
         context.put(f.variable("ST_exo"), f.verum());
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
         Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("ST_exo")));
-        Set<Variable> w = new HashSet<>(Collections.singletonList(f.variable("SH")));
-        billySuzy.isCause(context, phi, cause, w);
+        billySuzy.isCause(context, phi, cause);
     }
 
     @Test(expected = InvalidContextException.class)
@@ -149,8 +146,7 @@ public class CausalModelTest {
         context.put(f.variable("BT"), f.verum());
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
         Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
-        Set<Variable> w = new HashSet<>(Collections.singletonList(f.variable("SH")));
-        billySuzy.isCause(context, phi, cause, w);
+        billySuzy.isCause(context, phi, cause);
     }
 
     @Test(expected = InvalidCauseException.class)
@@ -161,19 +157,6 @@ public class CausalModelTest {
         context.put(f.variable("ST_exo"), f.verum());
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("AnInvalidVar")));
         Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
-        Set<Variable> w = new HashSet<>(Collections.singletonList(f.variable("SH")));
-        billySuzy.isCause(context, phi, cause, w);
-    }
-
-    @Test(expected = InvalidWException.class)
-    public void Should_ThrowException_When_WContainsInvalidVariable() throws Exception {
-        CausalModel billySuzy = ExampleProvider.billySuzy();
-        Map<Variable, Constant> context = new HashMap<>();
-        context.put(f.variable("BT_exo"), f.verum());
-        context.put(f.variable("ST_exo"), f.verum());
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
-        Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
-        Set<Variable> w = new HashSet<>(Collections.singletonList(f.variable("AnInvalidVar")));
-        billySuzy.isCause(context, phi, cause, w);
+        billySuzy.isCause(context, phi, cause);
     }
 }
