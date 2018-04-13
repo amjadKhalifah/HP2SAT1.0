@@ -134,7 +134,6 @@ public class CausalModel {
      * @return true if all the literals are in the Variable part of the equations of this causal model, else false
      */
     private boolean isLiteralsInEquations(Set<? extends Literal> literals) {
-        // TODO maybe check whether cause is in phi and vice versa
         return equations.stream().map(Equation::getVariable).collect(Collectors.toSet())
                 .containsAll(literals.stream().map(Literal::variable).collect(Collectors.toSet()));
     }
