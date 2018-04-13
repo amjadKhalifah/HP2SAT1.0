@@ -117,6 +117,32 @@ public class CausalitySolverTest {
     }
 
     @Test
+    public void Should_FulfillAllACs_When_STIsCauseForNotBSInExtendedModelWITHOUTWind() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzyExtended();
+        Map<Variable, Constant> context = new HashMap<>();
+        context.put(f.variable("BT_exo"), f.verum());
+        context.put(f.variable("ST_exo"), f.verum());
+        context.put(f.variable("NW_exo"), f.falsum());
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
+        Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
+        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
+        assertEquals(new CausalitySolverResult(true, true, true), causalitySolverResult);
+    }
+
+    @Test
+    public void Should_FulfillNoAC_When_STIsCauseForNotBSInExtendedModelWITHWind() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzyExtended();
+        Map<Variable, Constant> context = new HashMap<>();
+        context.put(f.variable("BT_exo"), f.verum());
+        context.put(f.variable("ST_exo"), f.verum());
+        context.put(f.variable("NW_exo"), f.verum());
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
+        Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
+        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
+        assertEquals(new CausalitySolverResult(false, false, false), causalitySolverResult);
+    }
+
+    @Test
     public void Should_ReturnEvaluationForEquationsInBillySuzy_When_BillyAndSuzyThrow() throws Exception{
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Map<Variable, Constant> context = new HashMap<>();

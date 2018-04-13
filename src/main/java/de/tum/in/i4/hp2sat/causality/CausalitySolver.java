@@ -183,7 +183,8 @@ class CausalitySolver {
          * (1) the variable must not be part of the cause
          * (2) the variable must not consist of exogenous variables only*/
         Set<Variable> simplifiableVariables = formula.variables().stream()
-                .filter(v -> !cause.contains(v)).collect(Collectors.toSet());
+                .filter(v -> !cause.contains(v) && !causalModel.getExogenousVariables().contains(v))
+                .collect(Collectors.toSet());
         Set<Variable> simplifiableVariablesTemp = new HashSet<>();
         for (Variable variable : simplifiableVariables) {
             // no need to check if equation exists, as we ensure this by validating the causal model
