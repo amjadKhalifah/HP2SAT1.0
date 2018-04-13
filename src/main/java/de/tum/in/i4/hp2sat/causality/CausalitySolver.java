@@ -51,20 +51,16 @@ class CausalitySolver {
                         // if X is used in the formula of Y, then X < Y -> return -1
                         return -1;
                     } else {
-                        // TODO double check with more examples; can endo and exo vars be mixed?
                         /*
-                         * Here comes the tricky part. If neither the previous checks did not match, we end up here.
-                         * However, just returning 0 produces wrong results in some cases, which is due to
-                         * transitivity. To ensure proper ordering, we need to make sure that equations containing
-                         * exogenous variables are considered "smaller" than ones that don't. Only if both equations
-                         * contain exogenous variables, we return 0. On that way we ensure that during the evaluation
-                         * the exogenous variables are evaluated first. */
-                        if (equation1.getFormula().variables().stream().anyMatch(v -> causalModel
-                                .getExogenousVariables().contains(v)) && equation2.getFormula().variables().stream().noneMatch(v -> causalModel.getExogenousVariables().contains(v))) {
+                         * We need to ensure that variables defined by exogenous variables only always come before
+                         * variables defined by endo- AND exogenous variables (or possibly endogenous variables only).
+                         * On that way, we ensure that we can properly evaluate all variabls given a context */
+                        if (causalModel.getExogenousVariables().containsAll(equation1.getFormula().variables()) &&
+                                !causalModel.getExogenousVariables().containsAll(equation2.getFormula().variables())) {
                             return -1;
-                        } else if (equation1.getFormula().variables().stream().anyMatch(v -> causalModel
-                                .getExogenousVariables().contains(v)) && equation2.getFormula().variables().stream()
-                                .noneMatch(v -> causalModel.getExogenousVariables().contains(v))) {
+                        } else if (causalModel.getExogenousVariables()
+                                .containsAll(equation2.getFormula().variables()) &&
+                                !causalModel.getExogenousVariables().containsAll(equation1.getFormula().variables())) {
                             return 1;
                         } else {
                             return 0;
@@ -190,9 +186,9 @@ class CausalitySolver {
         for (Variable variable : simplifiableVariables) {
             if (causalModel.getExogenousVariables().contains(variable)) {
                 /*
-                * this case can only apply if the exogenous variable is in a formula together with some endogenous
-                * variables. We then need to "simplify" this exogenous variable as well by replacing it with
-                * true/false depending on its evaluation in the underlying scenario */
+                 * this case can only apply if the exogenous variable is in a formula together with some endogenous
+                 * variables. We then need to "simplify" this exogenous variable as well by replacing it with
+                 * true/false depending on its evaluation in the underlying scenario */
                 simplifiableVariablesTemp.add(variable);
             } else {
                 // no need to check if equation exists, as we ensure this by validating the causal model
