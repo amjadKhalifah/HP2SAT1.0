@@ -219,7 +219,6 @@ class CausalitySolver {
                     Literal literal = evaluation.stream().filter(l -> l.variable().equals(variable)).findFirst().get();
                     simplifiedFormula = formula.substitute(variable,
                             (literal.phase() ? formulaFactory.verum() : formulaFactory.falsum()));
-                    // TODO exogenous variables? -> requires context -> replace with true/false -> NEEDS TEST CASE
                 } else {
                     Equation correspondingEquation = causalModel.getEquations().stream()
                             .filter(e -> e.getVariable().equals(variable)).findFirst().get();
