@@ -54,7 +54,7 @@ public class CausalModel {
      *                                 the equations
      * @throws InvalidPhiException     thrown if phi is invalid: each literal of phi needs to be defined in the equations
      */
-    public CausalitySolverResult isCause(Map<Variable, Constant> context, Set<Literal> phi, Set<Literal> cause)
+    public CausalitySolverResult isCause(Set<Literal> context, Set<Literal> phi, Set<Literal> cause)
             throws InvalidContextException, InvalidCauseException, InvalidPhiException {
         if (!isContextValid(context))
             throw new InvalidContextException();
@@ -120,10 +120,10 @@ public class CausalModel {
      * @param context the to be checked context
      * @return true if valid, else false
      */
-    private boolean isContextValid(Map<Variable, Constant> context) {
+    private boolean isContextValid(Set<Literal> context) {
         // each and only each exogenous variable must be defined by context
-        return context.keySet().size() == exogenousVariables.size() &&
-                exogenousVariables.containsAll(context.keySet());
+        return context.size() == exogenousVariables.size() &&
+                exogenousVariables.containsAll(context.stream().map(Literal::variable).collect(Collectors.toSet()));
     }
 
     /**

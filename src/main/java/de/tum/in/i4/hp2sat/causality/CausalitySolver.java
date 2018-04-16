@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 class CausalitySolver {
-    static CausalitySolverResult solve(CausalModel causalModel, Map<Variable, Constant> context, Set<Literal> phi,
+    static CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Set<Literal> phi,
                                        Set<Literal> cause) {
         Set<Literal> evaluation = evaluateEquations(causalModel, context);
         boolean ac1 = fulfillsAC1(evaluation, phi, cause);
@@ -34,7 +34,7 @@ class CausalitySolver {
         return causalitySolverResult;
     }
 
-    static Set<Literal> evaluateEquations(CausalModel causalModel, Map<Variable, Constant> context) {
+    static Set<Literal> evaluateEquations(CausalModel causalModel, Set<Literal> context) {
         // assume that causal model is valid!
         /*
          * Following to HP, we can sort variables in an acyclic causal model according to their dependence on other
@@ -68,15 +68,8 @@ class CausalitySolver {
                     }
                 }).collect(Collectors.toList());
 
-        // initially, we can only assign true/false to the respective exogenous variables as defined by the context
-        Assignment assignment = new Assignment();
-        context.forEach((v, c) -> {
-            if (c instanceof CTrue) {
-                assignment.addLiteral(v);
-            } else if (c instanceof CFalse) {
-                assignment.addLiteral(v.negate());
-            }
-        });
+        // initially, we can only assign the exogenous variables as defined by the context
+        Assignment assignment = new Assignment(context);
         for (Equation equation : equationsSorted) {
             /*
              * For each equation, we "evaluate" the corresponding formula based on the assignment. Since the equations
