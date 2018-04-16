@@ -124,8 +124,10 @@ class CausalitySolver {
         Set<Literal> evaluationWithoutExogenousVariables = evaluation.stream()
                 .filter(l -> !causalModel.getExogenousVariables().contains(l.variable())).collect(Collectors.toSet());
         // get all possible Ws, i.e create power set of the evaluation
-        Set<Set<Literal>> allW = new UnifiedSet<>(evaluationWithoutExogenousVariables).powerSet().stream()
-                .map(s -> s.toImmutable().castToSet()).collect(Collectors.toSet());
+        List<Set<Literal>> allW = new UnifiedSet<>(evaluationWithoutExogenousVariables).powerSet().stream()
+                .map(s -> s.toImmutable().castToSet())
+                .sorted(Comparator.comparingInt(Set::size))
+                .collect(Collectors.toList());
 
         FormulaFactory f = new FormulaFactory();
         Formula phiFormula = f.not(f.and(phi));
