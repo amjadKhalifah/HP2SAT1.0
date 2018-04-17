@@ -11,29 +11,34 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 class CausalitySolver {
-    static CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Set<Literal> phi,
+    /**
+     * Checks AC1, AC2 and AC3 given a causal model, a cause, a context and phi.
+     *
+     * @param causalModel the underlying causel model
+     * @param context     the context
+     * @param phi         the phi
+     * @param cause       the cause
+     * @return for each AC, true if fulfilled, false else
+     */
+    static CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
                                        Set<Literal> cause) {
         Set<Literal> evaluation = evaluateEquations(causalModel, context);
         boolean ac1 = fulfillsAC1(evaluation, phi, cause);
-        boolean ac2 = false;
-        boolean ac3 = false;
-        if (ac1) {
-            ac2 = fulfillsAC2(causalModel, phi, cause, evaluation);
-            if (ac2) {
-                // get all possible Ws, i.e create power set of the evaluation
-                Set<Set<Literal>> allSubsetsOfCause = new UnifiedSet<>(cause).powerSet().stream()
-                        .map(s -> s.toImmutable().castToSet())
-                        .filter(s -> s.size() > 0 && s.size() < cause.size()) // remove empty set and full cause
-                        .collect(Collectors.toSet());
-                // no sub-cause must fulfill AC1 and AC2
-                ac3 = allSubsetsOfCause.stream().noneMatch(c -> fulfillsAC1(evaluation, phi, cause) &&
-                        fulfillsAC2(causalModel, phi, c, evaluation));
-            }
-        }
+        boolean ac2 = fulfillsAC2(causalModel, phi, cause, evaluation);
+        boolean ac3 = fulfillsAC3(causalModel, phi, cause, evaluation);
         CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3);
         return causalitySolverResult;
     }
 
+    /**
+     * Evaluates the equations of the given causal model under a given context.
+     *
+     * @param causalModel the causal model
+     * @param context     the context, i.e. the evaluation of the exogenous variables; positive literal means true,
+     *                    negative means false
+     * @return evaluation for all variables within the causal model (endo and exo); positive literal means true,
+     * negative means false
+     */
     static Set<Literal> evaluateEquations(CausalModel causalModel, Set<Literal> context) {
         // assume that causal model is valid!
         /*
@@ -98,8 +103,9 @@ class CausalitySolver {
      * @param cause      the cause for which we check AC1
      * @return true if AC1 fulfilled, else false
      */
-    private static boolean fulfillsAC1(Set<Literal> evaluation, Set<Literal> phi, Set<Literal> cause) {
-        return evaluation.containsAll(phi) && evaluation.containsAll(cause);
+    private static boolean fulfillsAC1(Set<Literal> evaluation, Formula phi, Set<Literal> cause) {
+        Set<Literal> litersOfPhi = phi.literals();
+        return evaluation.containsAll(litersOfPhi) && evaluation.containsAll(cause);
     }
 
     /**
@@ -111,7 +117,7 @@ class CausalitySolver {
      * @param evaluation  the original evaluation of variables
      * @return true if AC2 fulfilled, else false
      */
-    private static boolean fulfillsAC2(CausalModel causalModel, Set<Literal> phi, Set<Literal> cause,
+    private static boolean fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause,
                                        Set<Literal> evaluation) {
         // remove exogenous variables from evaluation as they are not needed for computing the Ws
         Set<Literal> evaluationWithoutExogenousVariables = evaluation.stream()
@@ -123,7 +129,7 @@ class CausalitySolver {
                 .collect(Collectors.toList());
 
         FormulaFactory f = new FormulaFactory();
-        Formula phiFormula = f.not(f.and(phi));
+        Formula phiFormula = f.not(phi); // negate phi
         Set<Formula> simplifiedFormulas = new HashSet<>();
         for (Set<Literal> w : allW) {
             // for each W, simplify formula
@@ -220,5 +226,27 @@ class CausalitySolver {
         } else {
             return formula;
         }
+    }
+
+    /**
+     * Checks if AC3 is fulfilled.
+     *
+     * @param causalModel the underlying causal model
+     * @param phi         the phi
+     * @param cause       the cause for which we check AC2
+     * @param evaluation  the original evaluation of variables
+     * @return true if A3 fulfilled, else false
+     */
+    private static boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause,
+                                       Set<Literal> evaluation) {
+        // get all subsets of cause
+        Set<Set<Literal>> allSubsetsOfCause = new UnifiedSet<>(cause).powerSet().stream()
+                .map(s -> s.toImmutable().castToSet())
+                .filter(s -> s.size() > 0 && s.size() < cause.size()) // remove empty set and full cause
+                .collect(Collectors.toSet());
+        // no sub-cause must fulfill AC1 and AC2
+        boolean ac3 = allSubsetsOfCause.stream().noneMatch(c -> fulfillsAC1(evaluation, phi, cause) &&
+                fulfillsAC2(causalModel, phi, c, evaluation));
+        return ac3;
     }
 }

@@ -1,7 +1,7 @@
 package de.tum.in.i4.hp2sat.causality;
 
 import de.tum.in.i4.hp2sat.exceptions.*;
-import org.logicng.formulas.Constant;
+import org.logicng.formulas.Formula;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
@@ -54,11 +54,11 @@ public class CausalModel {
      *                                 the equations
      * @throws InvalidPhiException     thrown if phi is invalid: each literal of phi needs to be defined in the equations
      */
-    public CausalitySolverResult isCause(Set<Literal> context, Set<Literal> phi, Set<Literal> cause)
+    public CausalitySolverResult isCause(Set<Literal> context, Formula phi, Set<Literal> cause)
             throws InvalidContextException, InvalidCauseException, InvalidPhiException {
         if (!isContextValid(context))
             throw new InvalidContextException();
-        if (!isLiteralsInEquations(phi))
+        if (!isLiteralsInEquations(phi.literals()))
             throw new InvalidPhiException();
         if (!isLiteralsInEquations(cause))
             throw new InvalidCauseException();
