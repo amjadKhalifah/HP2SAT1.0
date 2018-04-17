@@ -137,8 +137,7 @@ class CausalitySolver {
             simplifiedFormulas.add(simplifiedFormula);
         }
         // combine all simplified formulas together by OR
-        Formula combinedWsFormula = f.or(simplifiedFormulas.stream()
-                .filter(formula -> formula.variables().size() > 0).collect(Collectors.toSet()));
+        Formula combinedWsFormula = f.or(simplifiedFormulas);
         // some variables need to be kept at their original value and the cause needs to be negated
         Formula requiredValuesFormula = f.and(evaluation.stream()
                 .filter(l -> combinedWsFormula.variables().contains(l.variable()))
@@ -179,18 +178,17 @@ class CausalitySolver {
         FormulaFactory formulaFactory = new FormulaFactory();
         /*
          * get all simplifiable variables; the following must apply:
-         * (1) the variable must not be part of the cause
-         * (2) the variable must not consist of exogenous variables only*/
-        Set<Variable> simplifiableVariables = formula.variables().stream()
-                .filter(v -> !cause.contains(v)).collect(Collectors.toSet());
-        Set<Variable> simplifiableVariablesTemp = new HashSet<>();
-        for (Variable variable : simplifiableVariables) {
+         * the variable must not consist of exogenous variables only*/
+        Set<Variable> simplifiableVariables = new HashSet<>();
+        for (Variable variable : formula.variables()) {
             if (causalModel.getExogenousVariables().contains(variable)) {
                 /*
                  * this case can only apply if the exogenous variable is in a formula together with some endogenous
                  * variables. We then need to "simplify" this exogenous variable as well by replacing it with
                  * true/false depending on its evaluation in the underlying scenario */
-                simplifiableVariablesTemp.add(variable);
+                simplifiableVariables.add(variable);
+            } else if (cause.stream().map(Literal::variable).collect(Collectors.toSet()).contains(variable)) {
+                simplifiableVariables.add(variable);
             } else {
                 // no need to check if equation exists, as we ensure this by validating the causal model
                 Equation correspondingEquation = causalModel.getEquations().stream().filter(e -> e.getVariable().equals
@@ -198,18 +196,25 @@ class CausalitySolver {
                 Formula f = correspondingEquation.getFormula();
                 // only if the variable is not defined by exogenous variables only, it is simplifiable
                 if (!causalModel.getExogenousVariables().containsAll(f.variables()))
-                    simplifiableVariablesTemp.add(variable);
+                    simplifiableVariables.add(variable);
             }
         }
-        simplifiableVariables = simplifiableVariablesTemp;
 
         if (simplifiableVariables.size() > 0) {
             Formula simplifiedFormula = formula;
             // simplify each variable
             for (Variable variable : simplifiableVariables) {
+                if (simplifiedFormula instanceof Constant)
+                    // if we do not stop simplification here, then true or false might be replaced with an equation
+                    break;
                 if (w.stream().map(Literal::variable).collect(Collectors.toSet()).contains(variable)) {
                     // no need to check if the literal exists as done before!
                     Literal literal = w.stream().filter(l -> l.variable().equals(variable)).findFirst().get();
+                    simplifiedFormula = formula.substitute(variable,
+                            (literal.phase() ? formulaFactory.verum() : formulaFactory.falsum()));
+                } else if (cause.stream().map(Literal::variable).collect(Collectors.toSet()).contains(variable)) {
+                    // no need to check if the literal exists as done before!
+                    Literal literal = cause.stream().filter(l -> l.variable().equals(variable)).findFirst().get().negate();
                     simplifiedFormula = formula.substitute(variable,
                             (literal.phase() ? formulaFactory.verum() : formulaFactory.falsum()));
                 } else if (causalModel.getExogenousVariables().contains(variable)) {

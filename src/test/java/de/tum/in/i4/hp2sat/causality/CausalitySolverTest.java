@@ -97,14 +97,14 @@ public class CausalitySolverTest {
     }
 
     @Test
-    public void Should_FulfillAllAC3Only_When_STIsCauseBSAndBH() throws Exception {
+    public void Should_FulfillAC3Only_When_STIsCauseBSAndBH() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
         Formula phi = f.and(f.variable("BS"), f.variable("BH"));
         CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
-        assertEquals(new CausalitySolverResult(false, false, true), causalitySolverResult);
+        assertEquals(new CausalitySolverResult(false, true, true), causalitySolverResult);
     }
 
     @Test
@@ -150,7 +150,8 @@ public class CausalitySolverTest {
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
         Formula phi = f.variable("BS");
         CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
-        assertEquals(new CausalitySolverResult(false, false, true), causalitySolverResult);
+        assertEquals(new CausalitySolverResult(false, true, true), causalitySolverResult);
+    }
     }
 
     @Test
