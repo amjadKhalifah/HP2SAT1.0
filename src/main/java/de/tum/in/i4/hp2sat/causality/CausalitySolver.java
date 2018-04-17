@@ -15,21 +15,8 @@ class CausalitySolver {
                                        Set<Literal> cause) {
         Set<Literal> evaluation = evaluateEquations(causalModel, context);
         boolean ac1 = fulfillsAC1(evaluation, phi, cause);
-        boolean ac2 = false;
-        boolean ac3 = false;
-        if (ac1) {
-            ac2 = fulfillsAC2(causalModel, phi, cause, evaluation);
-            if (ac2) {
-                // get all possible Ws, i.e create power set of the evaluation
-                Set<Set<Literal>> allSubsetsOfCause = new UnifiedSet<>(cause).powerSet().stream()
-                        .map(s -> s.toImmutable().castToSet())
-                        .filter(s -> s.size() > 0 && s.size() < cause.size()) // remove empty set and full cause
-                        .collect(Collectors.toSet());
-                // no sub-cause must fulfill AC1 and AC2
-                ac3 = allSubsetsOfCause.stream().noneMatch(c -> fulfillsAC1(evaluation, phi, cause) &&
-                        fulfillsAC2(causalModel, phi, c, evaluation));
-            }
-        }
+        boolean ac2 = fulfillsAC2(causalModel, phi, cause, evaluation);
+        boolean ac3 = fulfillsAC3(causalModel, phi, cause, evaluation);
         CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3);
         return causalitySolverResult;
     }
@@ -220,5 +207,27 @@ class CausalitySolver {
         } else {
             return formula;
         }
+    }
+
+    /**
+     * Checks if AC3 is fulfilled.
+     *
+     * @param causalModel the underlying causal model
+     * @param phi         the phi
+     * @param cause       the cause for which we check AC2
+     * @param evaluation  the original evaluation of variables
+     * @return true if A3 fulfilled, else false
+     */
+    private static boolean fulfillsAC3(CausalModel causalModel, Set<Literal> phi, Set<Literal> cause,
+                                       Set<Literal> evaluation) {
+        // get all subsets of cause
+        Set<Set<Literal>> allSubsetsOfCause = new UnifiedSet<>(cause).powerSet().stream()
+                .map(s -> s.toImmutable().castToSet())
+                .filter(s -> s.size() > 0 && s.size() < cause.size()) // remove empty set and full cause
+                .collect(Collectors.toSet());
+        // no sub-cause must fulfill AC1 and AC2
+        boolean ac3 = allSubsetsOfCause.stream().noneMatch(c -> fulfillsAC1(evaluation, phi, cause) &&
+                fulfillsAC2(causalModel, phi, c, evaluation));
+        return ac3;
     }
 }
