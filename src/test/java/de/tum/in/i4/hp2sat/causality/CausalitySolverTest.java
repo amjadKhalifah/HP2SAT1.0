@@ -152,6 +152,17 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
         assertEquals(new CausalitySolverResult(false, true, true), causalitySolverResult);
     }
+
+    @Test
+    public void Should_FulfillAllACs_When_CIsCauseForDGivenAAndNotB() throws Exception {
+        CausalModel guns = ExampleProvider.guns();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", false),
+                f.literal("C_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("C")));
+        Formula phi = f.variable("D");
+        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(guns, context, phi, cause);
+        assertEquals(new CausalitySolverResult(true, true, true), causalitySolverResult);
     }
 
     @Test
