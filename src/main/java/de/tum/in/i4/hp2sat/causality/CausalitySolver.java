@@ -11,6 +11,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 class CausalitySolver {
+    /**
+     * Checks AC1, AC2 and AC3 given a causal model, a cause, a context and phi.
+     *
+     * @param causalModel the underlying causel model
+     * @param context     the context
+     * @param phi         the phi
+     * @param cause       the cause
+     * @return for each AC, true if fulfilled, false else
+     */
     static CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
                                        Set<Literal> cause) {
         Set<Literal> evaluation = evaluateEquations(causalModel, context);
@@ -21,6 +30,15 @@ class CausalitySolver {
         return causalitySolverResult;
     }
 
+    /**
+     * Evaluates the equations of the given causal model under a given context.
+     *
+     * @param causalModel the causal model
+     * @param context     the context, i.e. the evaluation of the exogenous variables; positive literal means true,
+     *                    negative means false
+     * @return evaluation for all variables within the causal model (endo and exo); positive literal means true,
+     * negative means false
+     */
     static Set<Literal> evaluateEquations(CausalModel causalModel, Set<Literal> context) {
         // assume that causal model is valid!
         /*
@@ -111,7 +129,7 @@ class CausalitySolver {
                 .collect(Collectors.toList());
 
         FormulaFactory f = new FormulaFactory();
-        Formula phiFormula = f.not(phi);
+        Formula phiFormula = f.not(phi); // negate phi
         Set<Formula> simplifiedFormulas = new HashSet<>();
         for (Set<Literal> w : allW) {
             // for each W, simplify formula
