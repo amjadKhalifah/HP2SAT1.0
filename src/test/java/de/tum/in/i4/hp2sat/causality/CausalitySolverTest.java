@@ -154,7 +154,7 @@ public class CausalitySolverTest {
     }
 
     @Test
-    public void Should_ReturnEvaluationForEquationsInBillySuzy_When_BillyAndSuzyThrow() throws Exception{
+    public void Should_ReturnEvaluationForEquationsInBillySuzy_When_BillyAndSuzyThrow() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
@@ -169,7 +169,7 @@ public class CausalitySolverTest {
     }
 
     @Test
-    public void Should_ReturnEvaluationForEquationsInBillySuzy_When_SuzyThrowsOnly() throws Exception{
+    public void Should_ReturnEvaluationForEquationsInBillySuzy_When_SuzyThrowsOnly() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", true)));
@@ -184,7 +184,7 @@ public class CausalitySolverTest {
     }
 
     @Test
-    public void Should_ReturnEvaluationForEquationsInArsonistsDisjunctive_When_LightningOnly() throws Exception{
+    public void Should_ReturnEvaluationForEquationsInArsonistsDisjunctive_When_LightningOnly() throws Exception {
         CausalModel arsonists = ExampleProvider.arsonists(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", false)));
