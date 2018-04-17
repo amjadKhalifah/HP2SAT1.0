@@ -112,7 +112,7 @@ public class CausalModelTest {
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
-        Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
+        Formula phi = f.variable("BS");
         billySuzy.isCause(context, phi, cause);
     }
 
@@ -121,7 +121,7 @@ public class CausalModelTest {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Collections.singletonList(f.literal("BT_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
-        Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
+        Formula phi = f.variable("BS");
         billySuzy.isCause(context, phi, cause);
     }
 
@@ -131,7 +131,7 @@ public class CausalModelTest {
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
-        Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("ST_exo")));
+        Formula phi = f.variable("ST_exo");
         billySuzy.isCause(context, phi, cause);
     }
 
@@ -141,7 +141,7 @@ public class CausalModelTest {
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("BT", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
-        Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
+        Formula phi = f.variable("BS");
         billySuzy.isCause(context, phi, cause);
     }
 
@@ -151,7 +151,7 @@ public class CausalModelTest {
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("AnInvalidVar")));
-        Set<Literal> phi = new HashSet<>(Collections.singletonList(f.variable("BS")));
+        Formula phi = f.variable("BS");
         billySuzy.isCause(context, phi, cause);
     }
 }

@@ -11,7 +11,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 class CausalitySolver {
-    static CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Set<Literal> phi,
+    static CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
                                        Set<Literal> cause) {
         Set<Literal> evaluation = evaluateEquations(causalModel, context);
         boolean ac1 = fulfillsAC1(evaluation, phi, cause);
@@ -85,8 +85,9 @@ class CausalitySolver {
      * @param cause      the cause for which we check AC1
      * @return true if AC1 fulfilled, else false
      */
-    private static boolean fulfillsAC1(Set<Literal> evaluation, Set<Literal> phi, Set<Literal> cause) {
-        return evaluation.containsAll(phi) && evaluation.containsAll(cause);
+    private static boolean fulfillsAC1(Set<Literal> evaluation, Formula phi, Set<Literal> cause) {
+        Set<Literal> litersOfPhi = phi.literals();
+        return evaluation.containsAll(litersOfPhi) && evaluation.containsAll(cause);
     }
 
     /**
@@ -98,7 +99,7 @@ class CausalitySolver {
      * @param evaluation  the original evaluation of variables
      * @return true if AC2 fulfilled, else false
      */
-    private static boolean fulfillsAC2(CausalModel causalModel, Set<Literal> phi, Set<Literal> cause,
+    private static boolean fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause,
                                        Set<Literal> evaluation) {
         // remove exogenous variables from evaluation as they are not needed for computing the Ws
         Set<Literal> evaluationWithoutExogenousVariables = evaluation.stream()
@@ -110,7 +111,7 @@ class CausalitySolver {
                 .collect(Collectors.toList());
 
         FormulaFactory f = new FormulaFactory();
-        Formula phiFormula = f.not(f.and(phi));
+        Formula phiFormula = f.not(phi);
         Set<Formula> simplifiedFormulas = new HashSet<>();
         for (Set<Literal> w : allW) {
             // for each W, simplify formula
@@ -218,7 +219,7 @@ class CausalitySolver {
      * @param evaluation  the original evaluation of variables
      * @return true if A3 fulfilled, else false
      */
-    private static boolean fulfillsAC3(CausalModel causalModel, Set<Literal> phi, Set<Literal> cause,
+    private static boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause,
                                        Set<Literal> evaluation) {
         // get all subsets of cause
         Set<Set<Literal>> allSubsetsOfCause = new UnifiedSet<>(cause).powerSet().stream()
