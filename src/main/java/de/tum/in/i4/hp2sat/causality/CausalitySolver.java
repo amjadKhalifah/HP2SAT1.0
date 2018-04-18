@@ -130,34 +130,30 @@ class CausalitySolver {
 
         FormulaFactory f = new FormulaFactory();
         Formula phiFormula = f.not(phi); // negate phi
-        Set<Formula> simplifiedFormulas = new HashSet<>();
+
+        SATSolver miniSAT = MiniSat.miniSat(f);
         for (Set<Literal> w : allW) {
             // for each W, simplify formula
             Formula simplifiedFormula = simplify(phiFormula, causalModel, cause, w, evaluation);
-            simplifiedFormulas.add(simplifiedFormula);
+            /*
+            * get all literals and the values they are required to have (expressed by their phase) such that the
+            * simplified formula is possibly satisfiable while keeping all the notaffected variables at their value
+            * according to the original evaluation */
+            Set<Literal> requiredLiterals = evaluation.stream()
+                    .filter(l -> simplifiedFormula.variables().contains(l.variable())).collect(Collectors.toSet());
+            // construct final formula
+            Formula finalFormula = f.and(f.and(requiredLiterals), simplifiedFormula);
+            // reset SAT solver
+            miniSAT.reset();
+            // add to-be-checked formula to SAT solver
+            miniSAT.add(finalFormula);
+            Tristate result = miniSAT.sat();
+            // return true, i.e. AC2 fulfilled, if formula is satisfiable
+            if (result == Tristate.TRUE)
+                return true;
         }
-        // combine all simplified formulas together by OR
-        Formula combinedWsFormula = f.or(simplifiedFormulas);
-        // some variables need to be kept at their original value and the cause needs to be negated
-        Formula requiredValuesFormula = f.and(evaluation.stream()
-                .filter(l -> combinedWsFormula.variables().contains(l.variable()))
-                .map(l -> {
-                    if (cause.stream().map(Literal::variable).collect(Collectors.toSet()).contains(l.variable()))
-                        /*
-                         * need to negate the cause to check whether phi still occurs in the counterfactual scenario,
-                         * i.e. where the cause does not occur anymore */
-                        return l.negate();
-                    else
-                        return l;
-                }).collect(Collectors.toSet()));
-        // construct final formula using AND
-        Formula finalFormula = f.and(requiredValuesFormula, combinedWsFormula);
-        // instantiate SAT solver
-        SATSolver miniSAT = MiniSat.miniSat(f);
-        miniSAT.add(finalFormula);
-        // obtain SAT result
-        Tristate result = miniSAT.sat();
-        return result == Tristate.TRUE;
+
+        return false;
     }
 
     /**
