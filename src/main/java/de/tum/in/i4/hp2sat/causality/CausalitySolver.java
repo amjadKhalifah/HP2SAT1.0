@@ -137,7 +137,7 @@ class CausalitySolver {
             Formula simplifiedFormula = simplify(phiFormula, causalModel, cause, w, evaluation);
             /*
             * get all literals and the values they are required to have (expressed by their phase) such that the
-            * simplified formula is possibly satisfiable while keeping all the notaffected variables at their value
+            * simplified formula is possibly satisfiable while keeping all the not affected variables at their value
             * according to the original evaluation */
             Set<Literal> requiredLiterals = evaluation.stream()
                     .filter(l -> simplifiedFormula.variables().contains(l.variable())).collect(Collectors.toSet());
