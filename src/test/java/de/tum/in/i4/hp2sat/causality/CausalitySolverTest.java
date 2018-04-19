@@ -141,7 +141,7 @@ public class CausalitySolverTest {
         CausalModel billySuzy = ExampleProvider.billySuzyExtended();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true),
-                f.literal("NW_exo", false)));
+                f.literal("W_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
         Formula phi = f.variable("BS");
         CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
@@ -154,7 +154,7 @@ public class CausalitySolverTest {
         CausalModel billySuzy = ExampleProvider.billySuzyExtended();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true),
-                f.literal("NW_exo", true)));
+                f.literal("W_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
         Formula phi = f.variable("BS");
         CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
