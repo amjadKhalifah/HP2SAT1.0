@@ -123,6 +123,7 @@ class CausalitySolver {
         Set<Literal> evaluationWithoutExogenousVariables = evaluation.stream()
                 .filter(l -> !causalModel.getExogenousVariables().contains(l.variable())).collect(Collectors.toSet());
         // get all possible Ws, i.e create power set of the evaluation
+        // TODO this is already an optimization! use all endogenous vars!
         List<Set<Literal>> allW = new UnifiedSet<>(evaluationWithoutExogenousVariables).powerSet().stream()
                 .map(s -> s.toImmutable().castToSet())
                 .sorted(Comparator.comparingInt(Set::size))
@@ -130,48 +131,43 @@ class CausalitySolver {
 
         FormulaFactory f = new FormulaFactory();
         Formula phiFormula = f.not(phi); // negate phi
-        Set<Formula> simplifiedFormulas = new HashSet<>();
+
+        SATSolver miniSAT = MiniSat.miniSat(f);
         for (Set<Literal> w : allW) {
             // for each W, simplify formula
             Formula simplifiedFormula = simplify(phiFormula, causalModel, cause, w, evaluation);
-            simplifiedFormulas.add(simplifiedFormula);
+            /*
+            * get all literals and the values they are required to have (expressed by their phase) such that the
+            * simplified formula is possibly satisfiable while keeping all the not affected variables at their value
+            * according to the original evaluation */
+            Set<Literal> requiredLiterals = evaluation.stream()
+                    .filter(l -> simplifiedFormula.variables().contains(l.variable())).collect(Collectors.toSet());
+            // construct final formula
+            Formula finalFormula = f.and(f.and(requiredLiterals), simplifiedFormula);
+            // reset SAT solver
+            miniSAT.reset();
+            // add to-be-checked formula to SAT solver
+            miniSAT.add(finalFormula);
+            Tristate result = miniSAT.sat();
+            // return true, i.e. AC2 fulfilled, if formula is satisfiable
+            if (result == Tristate.TRUE)
+                return true;
         }
-        // combine all simplified formulas together by OR
-        Formula combinedWsFormula = f.or(simplifiedFormulas.stream()
-                .filter(formula -> formula.variables().size() > 0).collect(Collectors.toSet()));
-        // some variables need to be kept at their original value and the cause needs to be negated
-        Formula requiredValuesFormula = f.and(evaluation.stream()
-                .filter(l -> combinedWsFormula.variables().contains(l.variable()))
-                .map(l -> {
-                    if (cause.stream().map(Literal::variable).collect(Collectors.toSet()).contains(l.variable()))
-                        /*
-                         * need to negate the cause to check whether phi still occurs in the counterfactual scenario,
-                         * i.e. where the cause does not occur anymore */
-                        return l.negate();
-                    else
-                        return l;
-                }).collect(Collectors.toSet()));
-        // construct final formula using AND
-        Formula finalFormula = f.and(requiredValuesFormula, combinedWsFormula);
-        // instantiate SAT solver
-        SATSolver miniSAT = MiniSat.miniSat(f);
-        miniSAT.add(finalFormula);
-        // obtain SAT result
-        Tristate result = miniSAT.sat();
-        return result == Tristate.TRUE;
+
+        return false;
     }
 
     /**
-     * Simplifies a given formula. If a variable in the formula is part of the Cause, this variable is not further
-     * simplified. Same, if the variable consists of exogenous variables only. If a variable is in W, we replace it
-     * with true/false, depending on its original value as defined by W. Analogously for the evaluation. This method is
-     * called recursively until no further simplification is possible.
+     * Simplifies a given formula. If a variable in the formula is defined by exogenous variables only, it is not
+     * further simplified. If a variable is in W or cause or is exogenous we replace it with true/false, depending on
+     * its original value as defined by W, cause or evaluation. This method is called recursively until no further
+     * simplification is possible.
      *
      * @param formula     the to be simplified formula
      * @param causalModel the corresponding causal model
      * @param cause       the hypothesized cause
      * @param w           the set of literals that are kept at their original value.
-     * @param evaluation  the evaluation of exogenous variables
+     * @param evaluation  the evaluation of all variables
      * @return a simplified version of the formula
      */
     private static Formula simplify(Formula formula, CausalModel causalModel, Set<Literal> cause, Set<Literal> w,
@@ -179,18 +175,17 @@ class CausalitySolver {
         FormulaFactory formulaFactory = new FormulaFactory();
         /*
          * get all simplifiable variables; the following must apply:
-         * (1) the variable must not be part of the cause
-         * (2) the variable must not consist of exogenous variables only*/
-        Set<Variable> simplifiableVariables = formula.variables().stream()
-                .filter(v -> !cause.contains(v)).collect(Collectors.toSet());
-        Set<Variable> simplifiableVariablesTemp = new HashSet<>();
-        for (Variable variable : simplifiableVariables) {
+         * the variable must not consist of exogenous variables only*/
+        Set<Variable> simplifiableVariables = new HashSet<>();
+        for (Variable variable : formula.variables()) {
             if (causalModel.getExogenousVariables().contains(variable)) {
                 /*
                  * this case can only apply if the exogenous variable is in a formula together with some endogenous
                  * variables. We then need to "simplify" this exogenous variable as well by replacing it with
                  * true/false depending on its evaluation in the underlying scenario */
-                simplifiableVariablesTemp.add(variable);
+                simplifiableVariables.add(variable);
+            } else if (cause.stream().map(Literal::variable).collect(Collectors.toSet()).contains(variable)) {
+                simplifiableVariables.add(variable);
             } else {
                 // no need to check if equation exists, as we ensure this by validating the causal model
                 Equation correspondingEquation = causalModel.getEquations().stream().filter(e -> e.getVariable().equals
@@ -198,25 +193,39 @@ class CausalitySolver {
                 Formula f = correspondingEquation.getFormula();
                 // only if the variable is not defined by exogenous variables only, it is simplifiable
                 if (!causalModel.getExogenousVariables().containsAll(f.variables()))
-                    simplifiableVariablesTemp.add(variable);
+                    simplifiableVariables.add(variable);
             }
         }
-        simplifiableVariables = simplifiableVariablesTemp;
 
         if (simplifiableVariables.size() > 0) {
             Formula simplifiedFormula = formula;
             // simplify each variable
             for (Variable variable : simplifiableVariables) {
+                if (simplifiedFormula instanceof Constant)
+                    // if we do not stop simplification here, then true or false might be replaced with an equation
+                    break;
+                // replace variables in W with true/false
                 if (w.stream().map(Literal::variable).collect(Collectors.toSet()).contains(variable)) {
                     // no need to check if the literal exists as done before!
                     Literal literal = w.stream().filter(l -> l.variable().equals(variable)).findFirst().get();
                     simplifiedFormula = formula.substitute(variable,
                             (literal.phase() ? formulaFactory.verum() : formulaFactory.falsum()));
-                } else if (causalModel.getExogenousVariables().contains(variable)) {
+                }
+                // replace variable in cause with true/false; NOTE: we negate the cause!
+                else if (cause.stream().map(Literal::variable).collect(Collectors.toSet()).contains(variable)) {
+                    // no need to check if the literal exists as done before!
+                    Literal literal = cause.stream().filter(l -> l.variable().equals(variable)).findFirst().get().negate();
+                    simplifiedFormula = formula.substitute(variable,
+                            (literal.phase() ? formulaFactory.verum() : formulaFactory.falsum()));
+                }
+                // replace exogenous variables with true/false depending on the evaluation
+                else if (causalModel.getExogenousVariables().contains(variable)) {
                     Literal literal = evaluation.stream().filter(l -> l.variable().equals(variable)).findFirst().get();
                     simplifiedFormula = formula.substitute(variable,
                             (literal.phase() ? formulaFactory.verum() : formulaFactory.falsum()));
-                } else {
+                }
+                // replace all other literals with their equation
+                else {
                     Equation correspondingEquation = causalModel.getEquations().stream()
                             .filter(e -> e.getVariable().equals(variable)).findFirst().get();
                     simplifiedFormula = formula.substitute(variable, correspondingEquation.getFormula());

@@ -97,14 +97,14 @@ public class CausalitySolverTest {
     }
 
     @Test
-    public void Should_FulfillAllAC3Only_When_STIsCauseBSAndBH() throws Exception {
+    public void Should_FulfillAC3Only_When_STIsCauseBSAndBH() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
         Formula phi = f.and(f.variable("BS"), f.variable("BH"));
         CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
-        assertEquals(new CausalitySolverResult(false, false, true), causalitySolverResult);
+        assertEquals(new CausalitySolverResult(false, true, true), causalitySolverResult);
     }
 
     @Test
@@ -150,11 +150,23 @@ public class CausalitySolverTest {
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
         Formula phi = f.variable("BS");
         CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
-        assertEquals(new CausalitySolverResult(false, false, true), causalitySolverResult);
+        assertEquals(new CausalitySolverResult(false, true, true), causalitySolverResult);
     }
 
     @Test
-    public void Should_ReturnEvaluationForEquationsInBillySuzy_When_BillyAndSuzyThrow() throws Exception{
+    public void Should_FulfillAllACs_When_CIsCauseForDGivenAAndNotB() throws Exception {
+        CausalModel guns = ExampleProvider.guns();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", false),
+                f.literal("C_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("C")));
+        Formula phi = f.variable("D");
+        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(guns, context, phi, cause);
+        assertEquals(new CausalitySolverResult(true, true, true), causalitySolverResult);
+    }
+
+    @Test
+    public void Should_ReturnEvaluationForEquationsInBillySuzy_When_BillyAndSuzyThrow() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
@@ -169,7 +181,7 @@ public class CausalitySolverTest {
     }
 
     @Test
-    public void Should_ReturnEvaluationForEquationsInBillySuzy_When_SuzyThrowsOnly() throws Exception{
+    public void Should_ReturnEvaluationForEquationsInBillySuzy_When_SuzyThrowsOnly() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", true)));
@@ -184,7 +196,7 @@ public class CausalitySolverTest {
     }
 
     @Test
-    public void Should_ReturnEvaluationForEquationsInArsonistsDisjunctive_When_LightningOnly() throws Exception{
+    public void Should_ReturnEvaluationForEquationsInArsonistsDisjunctive_When_LightningOnly() throws Exception {
         CausalModel arsonists = ExampleProvider.arsonists(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", false)));

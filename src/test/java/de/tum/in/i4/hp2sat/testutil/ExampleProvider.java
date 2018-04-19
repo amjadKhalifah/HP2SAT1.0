@@ -73,6 +73,7 @@ public class ExampleProvider {
         FormulaFactory f =  new FormulaFactory();
         Variable BTExo = f.variable("BT_exo");
         Variable STExo = f.variable("ST_exo");
+        // TODO rename to W_exo
         Variable NWExo = f.variable("NW_exo"); // NW = No Wind
 
         Variable BT = f.variable("BT");
@@ -100,6 +101,38 @@ public class ExampleProvider {
         Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(BTExo, STExo, NWExo));
 
         CausalModel causalModel = new CausalModel("BillySuzy", equations, exogenousVariables);
+        return causalModel;
+    }
+
+    public static CausalModel guns() throws InvalidCausalModelException {
+        FormulaFactory f =  new FormulaFactory();
+        Variable AExo = f.variable("A_exo");
+        Variable BExo = f.variable("B_exo");
+        Variable CExo = f.variable("C_exo");
+
+        Variable A = f.variable("A");
+        Variable B = f.variable("B");
+        Variable C = f.variable("C");
+        Variable AB = f.variable("AB");
+        Variable D = f.variable("D");
+
+        Formula AFormula = AExo;
+        Formula BFormula = BExo;
+        Formula CFormula = CExo;
+        Formula ABFormula = f.and(A, B);
+        Formula DFormula = f.or(AB, C);
+
+        Equation AEquation = new Equation(A, AFormula);
+        Equation BEquation = new Equation(B, BFormula);
+        Equation CEquation = new Equation(C, CFormula);
+        Equation ABEquation = new Equation(AB, ABFormula);
+        Equation DEquation = new Equation(D, DFormula);
+
+        Set<Equation> equations = new HashSet<>(Arrays.asList(AEquation, BEquation, CEquation, ABEquation,
+                DEquation));
+        Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(AExo, BExo, CExo));
+
+        CausalModel causalModel = new CausalModel("Guns", equations, exogenousVariables);
         return causalModel;
     }
 }
