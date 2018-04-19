@@ -124,7 +124,6 @@ class CausalitySolver {
         Set<Literal> evaluationWithoutExogenousVariables = evaluation.stream()
                 .filter(l -> !causalModel.getExogenousVariables().contains(l.variable())).collect(Collectors.toSet());
         // get all possible Ws, i.e create power set of the evaluation
-        // TODO this is already an optimization! use all endogenous vars!
         List<Set<Literal>> allW = new UnifiedSet<>(evaluationWithoutExogenousVariables).powerSet().stream()
                 .map(s -> s.toImmutable().castToSet())
                 .sorted(Comparator.comparingInt(Set::size))
