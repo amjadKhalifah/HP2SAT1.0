@@ -24,9 +24,10 @@ class CausalitySolver {
                                        Set<Literal> cause) {
         Set<Literal> evaluation = evaluateEquations(causalModel, context);
         boolean ac1 = fulfillsAC1(evaluation, phi, cause);
-        boolean ac2 = fulfillsAC2(causalModel, phi, cause, evaluation);
+        Set<Literal> w = fulfillsAC2(causalModel, phi, cause, evaluation);
+        boolean ac2 = w != null;
         boolean ac3 = fulfillsAC3(causalModel, phi, cause, evaluation);
-        CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3);
+        CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3, cause, w);
         return causalitySolverResult;
     }
 
@@ -117,13 +118,12 @@ class CausalitySolver {
      * @param evaluation  the original evaluation of variables
      * @return true if AC2 fulfilled, else false
      */
-    private static boolean fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause,
+    private static Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause,
                                        Set<Literal> evaluation) {
         // remove exogenous variables from evaluation as they are not needed for computing the Ws
         Set<Literal> evaluationWithoutExogenousVariables = evaluation.stream()
                 .filter(l -> !causalModel.getExogenousVariables().contains(l.variable())).collect(Collectors.toSet());
         // get all possible Ws, i.e create power set of the evaluation
-        // TODO this is already an optimization! use all endogenous vars!
         List<Set<Literal>> allW = new UnifiedSet<>(evaluationWithoutExogenousVariables).powerSet().stream()
                 .map(s -> s.toImmutable().castToSet())
                 .sorted(Comparator.comparingInt(Set::size))
@@ -151,10 +151,10 @@ class CausalitySolver {
             Tristate result = miniSAT.sat();
             // return true, i.e. AC2 fulfilled, if formula is satisfiable
             if (result == Tristate.TRUE)
-                return true;
+                return w;
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -255,7 +255,7 @@ class CausalitySolver {
                 .collect(Collectors.toSet());
         // no sub-cause must fulfill AC1 and AC2
         boolean ac3 = allSubsetsOfCause.stream().noneMatch(c -> fulfillsAC1(evaluation, phi, cause) &&
-                fulfillsAC2(causalModel, phi, c, evaluation));
+                fulfillsAC2(causalModel, phi, c, evaluation) != null);
         return ac3;
     }
 }

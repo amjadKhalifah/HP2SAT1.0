@@ -73,8 +73,7 @@ public class ExampleProvider {
         FormulaFactory f =  new FormulaFactory();
         Variable BTExo = f.variable("BT_exo");
         Variable STExo = f.variable("ST_exo");
-        // TODO rename to W_exo
-        Variable NWExo = f.variable("NW_exo"); // NW = No Wind
+        Variable WExo = f.variable("W_exo"); // W = Wind
 
         Variable BT = f.variable("BT");
         Variable ST = f.variable("ST");
@@ -85,9 +84,9 @@ public class ExampleProvider {
         Formula BTFormula = BTExo;
         Formula STFormula = STExo;
         // Suzy hits only if she throws and there is no wind
-        Formula SHFormula = f.and(ST, f.not(NWExo));
+        Formula SHFormula = f.and(ST, f.not(WExo));
         // Billy only hits if he throws, Suzy doesn't and no wind
-        Formula BHFormula = f.and(BT, f.not(SH), f.not(NWExo));
+        Formula BHFormula = f.and(BT, f.not(SH), f.not(WExo));
         Formula BSFormula = f.or(SH, BH);
 
         Equation BTEquation = new Equation(BT, BTFormula);
@@ -98,7 +97,7 @@ public class ExampleProvider {
 
         Set<Equation> equations = new HashSet<>(Arrays.asList(BTEquation, STEquation, SHEquation, BHEquation,
                 BSEquation));
-        Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(BTExo, STExo, NWExo));
+        Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(BTExo, STExo, WExo));
 
         CausalModel causalModel = new CausalModel("BillySuzy", equations, exogenousVariables);
         return causalModel;
