@@ -2,6 +2,8 @@ package de.tum.in.i4.hp2sat.causality;
 
 import org.logicng.formulas.Literal;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -18,6 +20,20 @@ public class CausalitySolverResult {
         this.ac3 = ac3;
         this.cause = cause;
         this.w = w;
+    }
+
+    public Map<Literal, Double> getResponsibility() {
+        Map<Literal, Double> responsibility = new HashMap<>();
+
+        if (this.ac1 && this.ac2 && this.ac3) {
+            int w = this.w == null ? 0 : this.w.size();
+            int x = cause.size();
+            this.cause.forEach(l -> responsibility.put(l, 1D / (x + w)));
+        } else {
+            this.cause.forEach(l -> responsibility.put(l, 0D));
+        }
+
+        return responsibility;
     }
 
     @Override
