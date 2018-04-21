@@ -204,10 +204,11 @@ class CausalitySolver {
                 if (simplifiedFormula instanceof Constant)
                     // if we do not stop simplification here, then true or false might be replaced with an equation
                     break;
-                // replace variables in W with true/false
-                if (w.stream().map(Literal::variable).collect(Collectors.toSet()).contains(variable)) {
+                // replace variables in W and exogenous variables with true/false
+                if (w.stream().map(Literal::variable).collect(Collectors.toSet()).contains(variable) ||
+                        causalModel.getExogenousVariables().contains(variable)) {
                     // no need to check if the literal exists as done before!
-                    Literal literal = w.stream().filter(l -> l.variable().equals(variable)).findFirst().get();
+                    Literal literal = evaluation.stream().filter(l -> l.variable().equals(variable)).findFirst().get();
                     simplifiedFormula = formula.substitute(variable,
                             (literal.phase() ? formulaFactory.verum() : formulaFactory.falsum()));
                 }
@@ -215,12 +216,6 @@ class CausalitySolver {
                 else if (cause.stream().map(Literal::variable).collect(Collectors.toSet()).contains(variable)) {
                     // no need to check if the literal exists as done before!
                     Literal literal = cause.stream().filter(l -> l.variable().equals(variable)).findFirst().get().negate();
-                    simplifiedFormula = formula.substitute(variable,
-                            (literal.phase() ? formulaFactory.verum() : formulaFactory.falsum()));
-                }
-                // replace exogenous variables with true/false depending on the evaluation
-                else if (causalModel.getExogenousVariables().contains(variable)) {
-                    Literal literal = evaluation.stream().filter(l -> l.variable().equals(variable)).findFirst().get();
                     simplifiedFormula = formula.substitute(variable,
                             (literal.phase() ? formulaFactory.verum() : formulaFactory.falsum()));
                 }
