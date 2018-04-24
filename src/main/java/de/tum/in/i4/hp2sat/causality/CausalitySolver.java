@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 class CausalitySolver {
     /**
-     * Checks AC1, AC2 and AC3 given a causal model, a cause, a context and phi.
+     * Checks AC1, AC2 and AC3 given a causal model, a cause, a context and phi. Solving strategy is STANDARD.
      *
      * @param causalModel the underlying causel model
      * @param context     the context
@@ -22,11 +22,26 @@ class CausalitySolver {
      */
     static CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
                                        Set<Literal> cause) {
+        return solve(causalModel, context, phi, cause, SolvingStrategy.STANDARD);
+    }
+
+    /**
+     * Checks AC1, AC2 and AC3 given a causal model, a cause, a context and phi and a solving strategy.
+     *
+     * @param causalModel     the underlying causel model
+     * @param context         the context
+     * @param phi             the phi
+     * @param cause           the cause
+     * @param solvingStrategy the applied solving strategy
+     * @return for each AC, true if fulfilled, false else
+     */
+    static CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
+                                       Set<Literal> cause, SolvingStrategy solvingStrategy) {
         Set<Literal> evaluation = evaluateEquations(causalModel, context);
         boolean ac1 = fulfillsAC1(evaluation, phi, cause);
-        Set<Literal> w = fulfillsAC2(causalModel, phi, cause, evaluation);
+        Set<Literal> w = fulfillsAC2(causalModel, phi, cause, evaluation, solvingStrategy);
         boolean ac2 = w != null;
-        boolean ac3 = fulfillsAC3(causalModel, phi, cause, evaluation);
+        boolean ac3 = fulfillsAC3(causalModel, phi, cause, evaluation, solvingStrategy);
         CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3, cause, w);
         return causalitySolverResult;
     }
@@ -110,25 +125,44 @@ class CausalitySolver {
     }
 
     /**
+     * Checks if AC2 is fulfilled given a solving strategy. Wrapper for the actual fulfillsAC2 method.
+     *
+     * @param causalModel     the underlying causal model
+     * @param phi             the phi
+     * @param cause           the cause for which we check AC2
+     * @param evaluation      the original evaluation of variables
+     * @param solvingStrategy the solving strategy
+     * @return internally calls another method the checks for AC2; returns true if AC2 fulfilled, else false
+     */
+    private static Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause,
+                                            Set<Literal> evaluation, SolvingStrategy solvingStrategy) {
+        if (solvingStrategy == SolvingStrategy.STANDARD) {
+            // remove exogenous variables from evaluation as they are not needed for computing the Ws
+            Set<Literal> evaluationWithoutExogenousVariables = evaluation.stream()
+                    .filter(l -> !causalModel.getExogenousVariables().contains(l.variable())).collect(Collectors.toSet());
+            // get all possible Ws, i.e create power set of the evaluation
+            List<Set<Literal>> allW = new UnifiedSet<>(evaluationWithoutExogenousVariables).powerSet().stream()
+                    .map(s -> s.toImmutable().castToSet())
+                    .sorted(Comparator.comparingInt(Set::size))
+                    .collect(Collectors.toList());
+            return fulfillsAC2(causalModel, phi, cause, evaluation, allW);
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Checks if AC2 is fulfilled.
      *
      * @param causalModel the underlying causal model
      * @param phi         the phi
      * @param cause       the cause for which we check AC2
      * @param evaluation  the original evaluation of variables
+     * @param allW        set of all relevant W
      * @return true if AC2 fulfilled, else false
      */
     private static Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause,
-                                       Set<Literal> evaluation) {
-        // remove exogenous variables from evaluation as they are not needed for computing the Ws
-        Set<Literal> evaluationWithoutExogenousVariables = evaluation.stream()
-                .filter(l -> !causalModel.getExogenousVariables().contains(l.variable())).collect(Collectors.toSet());
-        // get all possible Ws, i.e create power set of the evaluation
-        List<Set<Literal>> allW = new UnifiedSet<>(evaluationWithoutExogenousVariables).powerSet().stream()
-                .map(s -> s.toImmutable().castToSet())
-                .sorted(Comparator.comparingInt(Set::size))
-                .collect(Collectors.toList());
-
+                                            Set<Literal> evaluation, List<Set<Literal>> allW) {
         FormulaFactory f = new FormulaFactory();
         Formula phiFormula = f.not(phi); // negate phi
 
@@ -137,9 +171,9 @@ class CausalitySolver {
             // for each W, simplify formula
             Formula simplifiedFormula = simplify(phiFormula, causalModel, cause, w, evaluation);
             /*
-            * get all literals and the values they are required to have (expressed by their phase) such that the
-            * simplified formula is possibly satisfiable while keeping all the not affected variables at their value
-            * according to the original evaluation */
+             * get all literals and the values they are required to have (expressed by their phase) such that the
+             * simplified formula is possibly satisfiable while keeping all the not affected variables at their value
+             * according to the original evaluation */
             Set<Literal> requiredLiterals = evaluation.stream()
                     .filter(l -> simplifiedFormula.variables().contains(l.variable())).collect(Collectors.toSet());
             // construct final formula
@@ -235,14 +269,15 @@ class CausalitySolver {
     /**
      * Checks if AC3 is fulfilled.
      *
-     * @param causalModel the underlying causal model
-     * @param phi         the phi
-     * @param cause       the cause for which we check AC2
-     * @param evaluation  the original evaluation of variables
+     * @param causalModel     the underlying causal model
+     * @param phi             the phi
+     * @param cause           the cause for which we check AC2
+     * @param evaluation      the original evaluation of variables
+     * @param solvingStrategy the solving strategy
      * @return true if A3 fulfilled, else false
      */
     private static boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause,
-                                       Set<Literal> evaluation) {
+                                       Set<Literal> evaluation, SolvingStrategy solvingStrategy) {
         // get all subsets of cause
         Set<Set<Literal>> allSubsetsOfCause = new UnifiedSet<>(cause).powerSet().stream()
                 .map(s -> s.toImmutable().castToSet())
@@ -250,7 +285,7 @@ class CausalitySolver {
                 .collect(Collectors.toSet());
         // no sub-cause must fulfill AC1 and AC2
         boolean ac3 = allSubsetsOfCause.stream().noneMatch(c -> fulfillsAC1(evaluation, phi, cause) &&
-                fulfillsAC2(causalModel, phi, c, evaluation) != null);
+                fulfillsAC2(causalModel, phi, c, evaluation, solvingStrategy) != null);
         return ac3;
     }
 }
