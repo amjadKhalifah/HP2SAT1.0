@@ -239,6 +239,17 @@ public class CausalitySolverTest {
     }
 
     @Test
+    public void Should_ReturnNoCause_WhenSuzyBillyDoNotThrow() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", false), f.literal("ST_exo", false)));
+        Formula phi = f.variable("BS");
+        Set<CausalitySolverResult> allCausesExpected = new HashSet<>();
+        Set<CausalitySolverResult> allCausesActual = CausalitySolver.getAllCauses(billySuzy, context, phi);
+        assertEquals(allCausesExpected, allCausesActual);
+    }
+
+    @Test
     public void Should_ReturnAllCauses_WhenLandMDInConjunctiveScenario() throws Exception{
         CausalModel arsonists = ExampleProvider.arsonists(false);
         Set<Literal> context = new HashSet<>(Arrays.asList(
