@@ -46,7 +46,16 @@ class CausalitySolver {
         return causalitySolverResult;
     }
 
+    /**
+     * Returns all causes for a given causal model, a context and phi.
+     *
+     * @param causalModel the underlying causel model
+     * @param context     the context
+     * @param phi         the phi
+     * @return set of all causes, i.e. AC1-AC3 fulfilled, as set of results
+     */
     static Set<CausalitySolverResult> getAllCauses(CausalModel causalModel, Set<Literal> context, Formula phi) {
+        // compute all possible combination of primitive events
         Set<Literal> evaluation = evaluateEquations(causalModel, context);
         Set<Literal> evaluationWithoutExogenousVariables = evaluation.stream()
                 .filter(l -> !causalModel.getExogenousVariables().contains(l.variable())).collect(Collectors.toSet());
@@ -54,7 +63,7 @@ class CausalitySolver {
                 .stream().map(s -> s.toImmutable().castToSet())
                 .sorted(Comparator.comparingInt(Set::size))
                 .collect(Collectors.toList());
-        // remove empty set
+        // remove empty set (index 0 as list is ordered!)
         allPotentialCauses.remove(0);
         Set<CausalitySolverResult> allCauses = new HashSet<>();
         for (Set<Literal> cause : allPotentialCauses) {
