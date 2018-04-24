@@ -70,8 +70,7 @@ class CausalitySolver {
             /*
              * if a subset of the currently analyzed potential cause is already a cause, we don't need to check the
              * current one since it will not fulfill AC3 (minimality!) */
-            if (allCauses.stream().filter(c -> c.getCause().containsAll(cause))
-                    .collect(Collectors.toSet()).size() == 0) {
+            if (allCauses.stream().noneMatch(c -> cause.containsAll(c.getCause()))) {
                 CausalitySolverResult causalitySolverResult = CausalitySolver.solve(causalModel, context, phi, cause);
                 if (causalitySolverResult.isAc1() && causalitySolverResult.isAc2() && causalitySolverResult.isAc3()) {
                     // if all ACs fulfilled, it is a cause
