@@ -46,6 +46,34 @@ class CausalitySolver {
         return causalitySolverResult;
     }
 
+    static Set<CausalitySolverResult> getAllCauses(CausalModel causalModel, Set<Literal> context, Formula phi) {
+        Set<Literal> evaluation = evaluateEquations(causalModel, context);
+        Set<Literal> evaluationWithoutExogenousVariables = evaluation.stream()
+                .filter(l -> !causalModel.getExogenousVariables().contains(l.variable())).collect(Collectors.toSet());
+        List<Set<Literal>> allPotentialCauses = new UnifiedSet<>(evaluationWithoutExogenousVariables).powerSet()
+                .stream().map(s -> s.toImmutable().castToSet())
+                .sorted(Comparator.comparingInt(Set::size))
+                .collect(Collectors.toList());
+        // remove empty set
+        allPotentialCauses.remove(0);
+        Set<CausalitySolverResult> allCauses = new HashSet<>();
+        for (Set<Literal> cause : allPotentialCauses) {
+            /*
+             * if a subset of the currently analyzed potential cause is already a cause, we don't need to check the
+             * current one since it will not fulfill AC3 (minimality!) */
+            if (allCauses.stream().filter(c -> c.getCause().containsAll(cause))
+                    .collect(Collectors.toSet()).size() == 0) {
+                CausalitySolverResult causalitySolverResult = CausalitySolver.solve(causalModel, context, phi, cause);
+                if (causalitySolverResult.isAc1() && causalitySolverResult.isAc2() && causalitySolverResult.isAc3()) {
+                    // if all ACs fulfilled, it is a cause
+                    allCauses.add(causalitySolverResult);
+                }
+            }
+
+        }
+        return allCauses;
+    }
+
     /**
      * Evaluates the equations of the given causal model under a given context.
      *
