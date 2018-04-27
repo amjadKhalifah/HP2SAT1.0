@@ -2,10 +2,7 @@ package de.tum.in.i4.hp2sat.causality;
 
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.logicng.datastructures.Assignment;
-import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.*;
-import org.logicng.solvers.MiniSat;
-import org.logicng.solvers.SATSolver;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -202,25 +199,11 @@ class CausalitySolver {
         FormulaFactory f = new FormulaFactory();
         Formula phiFormula = f.not(phi); // negate phi
 
-        SATSolver miniSAT = MiniSat.miniSat(f);
         for (Set<Literal> w : allW) {
             // for each W, simplify formula
             Formula simplifiedFormula = simplify(phiFormula, causalModel, cause, w, evaluation);
-            /*
-             * get all literals and the values they are required to have (expressed by their phase) such that the
-             * simplified formula is possibly satisfiable while keeping all the not affected variables at their value
-             * according to the original evaluation */
-            Set<Literal> requiredLiterals = evaluation.stream()
-                    .filter(l -> simplifiedFormula.variables().contains(l.variable())).collect(Collectors.toSet());
-            // construct final formula
-            Formula finalFormula = f.and(f.and(requiredLiterals), simplifiedFormula);
-            // reset SAT solver
-            miniSAT.reset();
-            // add to-be-checked formula to SAT solver
-            miniSAT.add(finalFormula);
-            Tristate result = miniSAT.sat();
-            // return true, i.e. AC2 fulfilled, if formula is satisfiable
-            if (result == Tristate.TRUE)
+            // if simplified formula is $true
+            if (simplifiedFormula.equals(f.verum()))
                 return w;
         }
 
