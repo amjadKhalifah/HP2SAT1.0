@@ -218,4 +218,66 @@ public class CausalitySolverTest {
 
         assertEquals(evaluationExpected, evaluationActual);
     }
+
+    @Test
+    public void Should_ReturnAllCauses_WhenSuzyBillyThrow() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", true), f.literal("ST_exo", true)));
+        Formula phi = f.variable("BS");
+        Set<CausalitySolverResult> allCausesExpected = new HashSet<>(Arrays.asList(
+                new CausalitySolverResult(true, true, true,
+                        new HashSet<>(Collections.singletonList(f.variable("ST"))),
+                        new HashSet<>(Collections.singletonList(f.literal("BH", false)))),
+                new CausalitySolverResult(true, true, true,
+                        new HashSet<>(Collections.singletonList(f.variable("SH"))),
+                        new HashSet<>(Collections.singletonList(f.literal("BH", false)))),
+                new CausalitySolverResult(true, true, true,
+                        new HashSet<>(Collections.singletonList(f.variable("BS"))), new HashSet<>())));
+        Set<CausalitySolverResult> allCausesActual = CausalitySolver.getAllCauses(billySuzy, context, phi);
+        assertEquals(allCausesExpected, allCausesActual);
+    }
+
+    @Test
+    public void Should_ReturnNoCause_WhenSuzyBillyDoNotThrow() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", false), f.literal("ST_exo", false)));
+        Formula phi = f.variable("BS");
+        Set<CausalitySolverResult> allCausesExpected = new HashSet<>();
+        Set<CausalitySolverResult> allCausesActual = CausalitySolver.getAllCauses(billySuzy, context, phi);
+        assertEquals(allCausesExpected, allCausesActual);
+    }
+
+    @Test
+    public void Should_ReturnAllCauses_WhenLandMDInConjunctiveScenario() throws Exception{
+        CausalModel arsonists = ExampleProvider.arsonists(false);
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("L_exo", true), f.literal("MD_exo", true)));
+        Formula phi = f.variable("FF");
+        Set<CausalitySolverResult> allCausesExpected = new HashSet<>(Arrays.asList(
+                new CausalitySolverResult(true, true, true,
+                        new HashSet<>(Collections.singletonList(f.variable("L"))), new HashSet<>()),
+                new CausalitySolverResult(true, true, true,
+                        new HashSet<>(Collections.singletonList(f.variable("MD"))), new HashSet<>()),
+                new CausalitySolverResult(true, true, true,
+                        new HashSet<>(Collections.singletonList(f.variable("FF"))), new HashSet<>())));
+        Set<CausalitySolverResult> allCausesActual = CausalitySolver.getAllCauses(arsonists, context, phi);
+        assertEquals(allCausesExpected, allCausesActual);
+    }
+
+    @Test
+    public void Should_ReturnAllCauses_WhenLandMDInDisjunctiveScenario() throws Exception{
+        CausalModel arsonists = ExampleProvider.arsonists(true);
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("L_exo", true), f.literal("MD_exo", true)));
+        Formula phi = f.variable("FF");
+        Set<CausalitySolverResult> allCausesExpected = new HashSet<>(Arrays.asList(
+                new CausalitySolverResult(true, true, true,
+                        new HashSet<>(Arrays.asList(f.variable("L"), f.variable("MD"))), new HashSet<>()),
+                new CausalitySolverResult(true, true, true,
+                        new HashSet<>(Collections.singletonList(f.variable("FF"))), new HashSet<>())));
+        Set<CausalitySolverResult> allCausesActual = CausalitySolver.getAllCauses(arsonists, context, phi);
+        assertEquals(allCausesExpected, allCausesActual);
+    }
 }
