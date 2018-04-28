@@ -88,10 +88,11 @@ class CausalitySolver {
      * @param causalModel the causal model
      * @param context     the context, i.e. the evaluation of the exogenous variables; positive literal means true,
      *                    negative means false
+     * @param variables   if some variables are given, then only their evaluation is returned
      * @return evaluation for all variables within the causal model (endo and exo); positive literal means true,
      * negative means false
      */
-    static Set<Literal> evaluateEquations(CausalModel causalModel, Set<Literal> context) {
+    static Set<Literal> evaluateEquations(CausalModel causalModel, Set<Literal> context, Variable... variables) {
         // assume that causal model is valid!
         /*
          * Following to HP, we can sort variables in an acyclic causal model according to their dependence on other
@@ -139,6 +140,17 @@ class CausalitySolver {
                 assignment.addLiteral(equation.getVariable());
             } else if (evaluation instanceof CFalse) {
                 assignment.addLiteral(equation.getVariable().negate());
+            }
+
+            /*
+             * If variables are specified, we stop the evaluation once all the specified variables are actually
+             * evaluated.*/
+            if (variables.length > 0 &&
+                    assignment.literals().stream().map(Literal::variable).collect(Collectors.toSet())
+                            .containsAll(Arrays.asList(variables))) {
+                // return the evaluation for the specified variables only
+                return assignment.literals().stream()
+                        .filter(l -> Arrays.asList(variables).contains(l.variable())).collect(Collectors.toSet());
             }
         }
         /*
@@ -221,13 +233,13 @@ class CausalitySolver {
                 causalModelModifiedW.getEquations().stream().filter(e -> e.getVariable().equals(l.variable()))
                         .forEach(e -> e.setFormula(l.phase() ? f.verum() : f.falsum()));
             }
-            // evaluate all variables in the modified causal model
+            // evaluate all variables in the negated phi
             Set<Literal> evaluationModified = evaluateEquations(causalModelModifiedW, evaluation.stream()
                     .filter(l -> causalModelModifiedW.getExogenousVariables().contains(l.variable())) // get context
-                    .collect(Collectors.toSet()));
+                    .collect(Collectors.toSet()), phiFormula.variables().toArray(new Variable[0]));
             /*
-            * if the negated phi evaluates to true given the values of the variables in the modified causal model,
-            * AC2 is fulfilled an we return the W for which it is fulfilled. */
+             * if the negated phi evaluates to true given the values of the variables in the modified causal model,
+             * AC2 is fulfilled an we return the W for which it is fulfilled. */
             if (phiFormula.evaluate(new Assignment(evaluationModified)))
                 return w;
         }
