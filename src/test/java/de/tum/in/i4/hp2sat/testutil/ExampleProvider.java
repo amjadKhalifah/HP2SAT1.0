@@ -135,6 +135,40 @@ public class ExampleProvider {
         return causalModel;
     }
 
+    public static CausalModel dummy() throws InvalidCausalModelException {
+        FormulaFactory f = new FormulaFactory();
+        Variable AExo = f.variable("A_exo");
+        Variable BExo = f.variable("B_exo");
+
+        Variable A = f.variable("A");
+        Variable B = f.variable("B");
+        Variable C = f.variable("C");
+        Variable D = f.variable("D");
+        Variable E = f.variable("E");
+        Variable F = f.variable("F");
+
+        Formula AFormula = AExo;
+        Formula BFormula = f.and(BExo, f.not(A));
+        Formula CFormula = f.or(A, B);
+        Formula DFormula = A;
+        Formula EFormula = f.not(A);
+        Formula FFormula = f.or(C, D, E);
+
+        Equation AEquation = new Equation(A, AFormula);
+        Equation BEquation = new Equation(B, BFormula);
+        Equation CEquation = new Equation(C, CFormula);
+        Equation DEquation = new Equation(D, DFormula);
+        Equation EEquation = new Equation(E, EFormula);
+        Equation FEquation = new Equation(F, FFormula);
+
+        Set<Equation> equations = new HashSet<>(Arrays.asList(AEquation, BEquation, CEquation, DEquation, EEquation,
+                FEquation));
+        Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(AExo, BExo));
+
+        CausalModel causalModel = new CausalModel("Guns", equations, exogenousVariables);
+        return causalModel;
+    }
+
     public static CausalModel benchmarkModel() throws InvalidCausalModelException {
         FormulaFactory f = new FormulaFactory();
         Variable A = f.variable("A");

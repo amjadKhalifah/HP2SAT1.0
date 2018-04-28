@@ -176,6 +176,19 @@ public class CausalitySolverTest {
     }
 
     @Test
+    public void Should_FulfillAllACs_When_AIsCauseInDummyModel() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("A")));
+        Formula phi = f.variable("F");
+        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(dummyModel, context, phi, cause);
+        assertEquals(new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Arrays.asList(f.literal("E", false), f.literal("B", false)))),
+                causalitySolverResult);
+    }
+
+    @Test
     public void Should_ReturnEvaluationForEquationsInBillySuzy_When_BillyAndSuzyThrow() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
