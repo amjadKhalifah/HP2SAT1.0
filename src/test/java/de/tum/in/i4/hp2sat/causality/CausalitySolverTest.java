@@ -184,7 +184,8 @@ public class CausalitySolverTest {
         Formula phi = f.variable("F");
         CausalitySolverResult causalitySolverResult = CausalitySolver.solve(dummyModel, context, phi, cause);
         assertEquals(new CausalitySolverResult(true, true, true, cause,
-                        new HashSet<>(Arrays.asList(f.literal("E", false), f.literal("B", false)))),
+                        new HashSet<>(Arrays.asList(f.literal("E", false),
+                                f.literal("B", false), f.literal("G", false)))),
                 causalitySolverResult);
     }
 
