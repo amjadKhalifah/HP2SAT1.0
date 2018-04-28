@@ -2,10 +2,7 @@ package de.tum.in.i4.hp2sat.causality;
 
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.logicng.datastructures.Assignment;
-import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.*;
-import org.logicng.solvers.MiniSat;
-import org.logicng.solvers.SATSolver;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -202,25 +199,11 @@ class CausalitySolver {
         FormulaFactory f = new FormulaFactory();
         Formula phiFormula = f.not(phi); // negate phi
 
-        SATSolver miniSAT = MiniSat.miniSat(f);
         for (Set<Literal> w : allW) {
             // for each W, simplify formula
             Formula simplifiedFormula = simplify(phiFormula, causalModel, cause, w, evaluation);
-            /*
-             * get all literals and the values they are required to have (expressed by their phase) such that the
-             * simplified formula is possibly satisfiable while keeping all the not affected variables at their value
-             * according to the original evaluation */
-            Set<Literal> requiredLiterals = evaluation.stream()
-                    .filter(l -> simplifiedFormula.variables().contains(l.variable())).collect(Collectors.toSet());
-            // construct final formula
-            Formula finalFormula = f.and(f.and(requiredLiterals), simplifiedFormula);
-            // reset SAT solver
-            miniSAT.reset();
-            // add to-be-checked formula to SAT solver
-            miniSAT.add(finalFormula);
-            Tristate result = miniSAT.sat();
-            // return true, i.e. AC2 fulfilled, if formula is satisfiable
-            if (result == Tristate.TRUE)
+            // if simplified formula is $true
+            if (simplifiedFormula.equals(f.verum()))
                 return w;
         }
 
@@ -242,35 +225,11 @@ class CausalitySolver {
      */
     private static Formula simplify(Formula formula, CausalModel causalModel, Set<Literal> cause, Set<Literal> w,
                                     Set<Literal> evaluation) {
-        FormulaFactory formulaFactory = new FormulaFactory();
-        /*
-         * get all simplifiable variables; the following must apply:
-         * the variable must not consist of exogenous variables only*/
-        Set<Variable> simplifiableVariables = new HashSet<>();
-        for (Variable variable : formula.variables()) {
-            if (causalModel.getExogenousVariables().contains(variable)) {
-                /*
-                 * this case can only apply if the exogenous variable is in a formula together with some endogenous
-                 * variables. We then need to "simplify" this exogenous variable as well by replacing it with
-                 * true/false depending on its evaluation in the underlying scenario */
-                simplifiableVariables.add(variable);
-            } else if (cause.stream().map(Literal::variable).collect(Collectors.toSet()).contains(variable)) {
-                simplifiableVariables.add(variable);
-            } else {
-                // no need to check if equation exists, as we ensure this by validating the causal model
-                Equation correspondingEquation = causalModel.getEquations().stream().filter(e -> e.getVariable().equals
-                        (variable)).findFirst().get();
-                Formula f = correspondingEquation.getFormula();
-                // only if the variable is not defined by exogenous variables only, it is simplifiable
-                if (!causalModel.getExogenousVariables().containsAll(f.variables()))
-                    simplifiableVariables.add(variable);
-            }
-        }
-
-        if (simplifiableVariables.size() > 0) {
+        FormulaFactory f = new FormulaFactory();
+        if (!(formula instanceof Constant)) {
             Formula simplifiedFormula = formula;
             // simplify each variable
-            for (Variable variable : simplifiableVariables) {
+            for (Variable variable : formula.variables()) {
                 if (simplifiedFormula instanceof Constant)
                     // if we do not stop simplification here, then true or false might be replaced with an equation
                     break;
@@ -280,14 +239,14 @@ class CausalitySolver {
                     // no need to check if the literal exists as done before!
                     Literal literal = evaluation.stream().filter(l -> l.variable().equals(variable)).findFirst().get();
                     simplifiedFormula = formula.substitute(variable,
-                            (literal.phase() ? formulaFactory.verum() : formulaFactory.falsum()));
+                            (literal.phase() ? f.verum() : f.falsum()));
                 }
                 // replace variable in cause with true/false; NOTE: we negate the cause!
                 else if (cause.stream().map(Literal::variable).collect(Collectors.toSet()).contains(variable)) {
                     // no need to check if the literal exists as done before!
                     Literal literal = cause.stream().filter(l -> l.variable().equals(variable)).findFirst().get().negate();
                     simplifiedFormula = formula.substitute(variable,
-                            (literal.phase() ? formulaFactory.verum() : formulaFactory.falsum()));
+                            (literal.phase() ? f.verum() : f.falsum()));
                 }
                 // replace all other literals with their equation
                 else {
