@@ -125,6 +125,7 @@ class CausalitySolver {
                         }
                     }
                 }).collect(Collectors.toList());
+        System.out.println(equationsSorted);
 
         // initially, we can only assign the exogenous variables as defined by the context
         Assignment assignment = new Assignment(context);
