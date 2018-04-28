@@ -1,5 +1,6 @@
 package de.tum.in.i4.hp2sat.causality;
 
+import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.*;
@@ -18,7 +19,7 @@ class CausalitySolver {
      * @return for each AC, true if fulfilled, false else
      */
     static CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
-                                       Set<Literal> cause) {
+                                       Set<Literal> cause) throws InvalidCausalModelException {
         return solve(causalModel, context, phi, cause, SolvingStrategy.STANDARD);
     }
 
@@ -33,7 +34,8 @@ class CausalitySolver {
      * @return for each AC, true if fulfilled, false else
      */
     static CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
-                                       Set<Literal> cause, SolvingStrategy solvingStrategy) {
+                                       Set<Literal> cause, SolvingStrategy solvingStrategy)
+            throws InvalidCausalModelException {
         Set<Literal> evaluation = evaluateEquations(causalModel, context);
         boolean ac1 = fulfillsAC1(evaluation, phi, cause);
         Set<Literal> w = fulfillsAC2(causalModel, phi, cause, evaluation, solvingStrategy);
@@ -51,7 +53,8 @@ class CausalitySolver {
      * @param phi         the phi
      * @return set of all causes, i.e. AC1-AC3 fulfilled, as set of results
      */
-    static Set<CausalitySolverResult> getAllCauses(CausalModel causalModel, Set<Literal> context, Formula phi) {
+    static Set<CausalitySolverResult> getAllCauses(CausalModel causalModel, Set<Literal> context, Formula phi)
+            throws InvalidCausalModelException {
         // compute all possible combination of primitive events
         Set<Literal> evaluation = evaluateEquations(causalModel, context);
         Set<Literal> evaluationWithoutExogenousVariables = evaluation.stream()
@@ -85,17 +88,34 @@ class CausalitySolver {
      * @param causalModel the causal model
      * @param context     the context, i.e. the evaluation of the exogenous variables; positive literal means true,
      *                    negative means false
+     * @param variables   if some variables are given, then only their evaluation is returned
      * @return evaluation for all variables within the causal model (endo and exo); positive literal means true,
      * negative means false
      */
-    static Set<Literal> evaluateEquations(CausalModel causalModel, Set<Literal> context) {
+    static Set<Literal> evaluateEquations(CausalModel causalModel, Set<Literal> context, Variable... variables) {
+        Assignment assignment = new Assignment(context);
+        return evaluateEquationsHelper(causalModel, causalModel.getEquations(), assignment, variables);
+    }
+
+    /**
+     * Helper method that can be called recursively to avoid unevaluated equations.
+     *
+     * @param causalModel the causal model
+     * @param equations   the equations that need to be evaluated
+     * @param assignment  the currently known assignment
+     * @param variables   if some variables are given, then only their evaluation is returned
+     * @return evaluation for all variables within the causal model (endo and exo); positive literal means true,
+     * negative means false
+     */
+    private static Set<Literal> evaluateEquationsHelper(CausalModel causalModel, Set<Equation> equations,
+                                                        Assignment assignment, Variable... variables) {
         // assume that causal model is valid!
         /*
          * Following to HP, we can sort variables in an acyclic causal model according to their dependence on other
          * variables. The following applies: "If X < Y, then the value of X may affect the value of Y , but the value
          * of Y cannot affect the value of X"
          * */
-        List<Equation> equationsSorted = new ArrayList<>(causalModel.getEquations()).stream()
+        List<Equation> equationsSorted = new ArrayList<>(equations).stream()
                 .sorted((equation1, equation2) -> {
                     // the following comments assume: X is defined by equation1 and Y is defined by equation2
                     if (causalModel.isVariableInEquation(equation2.getVariable(), equation1)) {
@@ -105,16 +125,24 @@ class CausalitySolver {
                         // if X is used in the formula of Y, then X < Y -> return -1
                         return -1;
                     } else {
+                        Set<Variable> exoVars = causalModel.getExogenousVariables();
                         /*
                          * We need to ensure that variables defined by exogenous variables only always come before
-                         * variables defined by endo- AND exogenous variables (or possibly endogenous variables only).
-                         * On that way, we ensure that we can properly evaluate all variabls given a context */
-                        if (causalModel.getExogenousVariables().containsAll(equation1.getFormula().variables()) &&
-                                !causalModel.getExogenousVariables().containsAll(equation2.getFormula().variables())) {
+                         * variables defined by endo- AND exogenous variables (or possibly endogenous variables only)
+                         * and that variables defined by exo- and endogenous variables come before variables defined
+                         * by endogenous variables only. On that way, we ensure that we can properly evaluate all
+                         * variables given a context */
+                        if (exoVars.containsAll(equation1.getFormula().variables()) &&
+                                !exoVars.containsAll(equation2.getFormula().variables())) {
                             return -1;
-                        } else if (causalModel.getExogenousVariables()
-                                .containsAll(equation2.getFormula().variables()) &&
-                                !causalModel.getExogenousVariables().containsAll(equation1.getFormula().variables())) {
+                        } else if (exoVars.containsAll(equation2.getFormula().variables()) &&
+                                !exoVars.containsAll(equation1.getFormula().variables())) {
+                            return 1;
+                        } else if (equation1.getFormula().variables().stream().anyMatch(exoVars::contains) &&
+                                equation2.getFormula().variables().stream().noneMatch(exoVars::contains)) {
+                            return -1;
+                        } else if (equation2.getFormula().variables().stream().anyMatch(exoVars::contains) &&
+                                equation1.getFormula().variables().stream().noneMatch(exoVars::contains)) {
                             return 1;
                         } else {
                             return 0;
@@ -122,8 +150,8 @@ class CausalitySolver {
                     }
                 }).collect(Collectors.toList());
 
+        Set<Equation> unevaluatedEquations = new HashSet<>();
         // initially, we can only assign the exogenous variables as defined by the context
-        Assignment assignment = new Assignment(context);
         for (Equation equation : equationsSorted) {
             /*
              * For each equation, we "evaluate" the corresponding formula based on the assignment. Since the equations
@@ -136,12 +164,34 @@ class CausalitySolver {
                 assignment.addLiteral(equation.getVariable());
             } else if (evaluation instanceof CFalse) {
                 assignment.addLiteral(equation.getVariable().negate());
+            } else {
+                // add equation to unevaluated equations
+                unevaluatedEquations.add(equation);
+            }
+
+            /*
+             * If variables are specified, we stop the evaluation once all the specified variables are actually
+             * evaluated.*/
+            if (variables.length > 0 &&
+                    assignment.literals().stream().map(Literal::variable).collect(Collectors.toSet())
+                            .containsAll(Arrays.asList(variables))) {
+                // return the evaluation for the specified variables only
+                return assignment.literals().stream()
+                        .filter(l -> Arrays.asList(variables).contains(l.variable())).collect(Collectors.toSet());
             }
         }
-        /*
-         * Finally, we return the literals of the assignment. A positive/negative literal indicates that the
-         * corresponding variable evaluates to true/false  */
-        return assignment.literals();
+
+        if (unevaluatedEquations.size() != 0) {
+            // if some equations are still unevaluated, recursively call method
+            /*
+             * This does not happen very often. The problem seems to be the sort function. */
+            return evaluateEquationsHelper(causalModel, unevaluatedEquations, assignment, variables);
+        } else {
+            /*
+             * Finally, we return the literals of the assignment. A positive/negative literal indicates that the
+             * corresponding variable evaluates to true/false  */
+            return assignment.literals();
+        }
     }
 
     /**
@@ -168,11 +218,13 @@ class CausalitySolver {
      * @return internally calls another method the checks for AC2; returns true if AC2 fulfilled, else false
      */
     private static Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause,
-                                            Set<Literal> evaluation, SolvingStrategy solvingStrategy) {
+                                            Set<Literal> evaluation, SolvingStrategy solvingStrategy)
+            throws InvalidCausalModelException {
         if (solvingStrategy == SolvingStrategy.STANDARD) {
             // remove exogenous variables from evaluation as they are not needed for computing the Ws
             Set<Literal> evaluationWithoutExogenousVariables = evaluation.stream()
-                    .filter(l -> !causalModel.getExogenousVariables().contains(l.variable())).collect(Collectors.toSet());
+                    .filter(l -> !causalModel.getExogenousVariables().contains(l.variable()))
+                    .collect(Collectors.toSet());
             // get all possible Ws, i.e create power set of the evaluation
             List<Set<Literal>> allW = new UnifiedSet<>(evaluationWithoutExogenousVariables).powerSet().stream()
                     .map(s -> s.toImmutable().castToSet())
@@ -195,15 +247,35 @@ class CausalitySolver {
      * @return true if AC2 fulfilled, else false
      */
     private static Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause,
-                                            Set<Literal> evaluation, List<Set<Literal>> allW) {
+                                            Set<Literal> evaluation, List<Set<Literal>> allW)
+            throws InvalidCausalModelException {
         FormulaFactory f = new FormulaFactory();
         Formula phiFormula = f.not(phi); // negate phi
 
+        // create copy of original causal model
+        CausalModel causalModelModified = new CausalModel(causalModel);
+        // replace equation of each part of the cause with its negation, i.e. setting x'
+        for (Literal l : cause) {
+            causalModelModified.getEquations().stream().filter(e -> e.getVariable().equals(l.variable()))
+                    .forEach(e -> e.setFormula(l.negate().phase() ? f.verum() : f.falsum()));
+        }
+
         for (Set<Literal> w : allW) {
-            // for each W, simplify formula
-            Formula simplifiedFormula = simplify(phiFormula, causalModel, cause, w, evaluation);
-            // if simplified formula is $true
-            if (simplifiedFormula.equals(f.verum()))
+            // create copy of modified causal model
+            CausalModel causalModelModifiedW = new CausalModel(causalModelModified);
+            // replace equations of variables in W with true/false
+            for (Literal l : w) {
+                causalModelModifiedW.getEquations().stream().filter(e -> e.getVariable().equals(l.variable()))
+                        .forEach(e -> e.setFormula(l.phase() ? f.verum() : f.falsum()));
+            }
+            // evaluate all variables in the negated phi
+            Set<Literal> evaluationModified = evaluateEquations(causalModelModifiedW, evaluation.stream()
+                    .filter(l -> causalModelModifiedW.getExogenousVariables().contains(l.variable())) // get context
+                    .collect(Collectors.toSet()), phiFormula.variables().toArray(new Variable[0]));
+            /*
+             * if the negated phi evaluates to true given the values of the variables in the modified causal model,
+             * AC2 is fulfilled an we return the W for which it is fulfilled. */
+            if (phiFormula.evaluate(new Assignment(evaluationModified)))
                 return w;
         }
 
@@ -223,6 +295,7 @@ class CausalitySolver {
      * @param evaluation  the evaluation of all variables
      * @return a simplified version of the formula
      */
+    // TODO maybe we do not need this function anymore
     private static Formula simplify(Formula formula, CausalModel causalModel, Set<Literal> cause, Set<Literal> w,
                                     Set<Literal> evaluation) {
         FormulaFactory f = new FormulaFactory();
@@ -244,7 +317,8 @@ class CausalitySolver {
                 // replace variable in cause with true/false; NOTE: we negate the cause!
                 else if (cause.stream().map(Literal::variable).collect(Collectors.toSet()).contains(variable)) {
                     // no need to check if the literal exists as done before!
-                    Literal literal = cause.stream().filter(l -> l.variable().equals(variable)).findFirst().get().negate();
+                    Literal literal = cause.stream().filter(l -> l.variable().equals(variable)).findFirst().get()
+                            .negate();
                     simplifiedFormula = formula.substitute(variable,
                             (literal.phase() ? f.verum() : f.falsum()));
                 }
@@ -279,8 +353,15 @@ class CausalitySolver {
                 .filter(s -> s.size() > 0 && s.size() < cause.size()) // remove empty set and full cause
                 .collect(Collectors.toSet());
         // no sub-cause must fulfill AC1 and AC2
-        boolean ac3 = allSubsetsOfCause.stream().noneMatch(c -> fulfillsAC1(evaluation, phi, cause) &&
-                fulfillsAC2(causalModel, phi, c, evaluation, solvingStrategy) != null);
+        boolean ac3 = allSubsetsOfCause.stream().noneMatch(c -> {
+            try {
+                return fulfillsAC1(evaluation, phi, cause) &&
+                        fulfillsAC2(causalModel, phi, c, evaluation, solvingStrategy) != null;
+            } catch (InvalidCausalModelException e) {
+                e.printStackTrace();
+                return false;
+            }
+        });
         return ac3;
     }
 }

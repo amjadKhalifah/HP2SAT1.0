@@ -5,6 +5,7 @@ import org.logicng.formulas.Formula;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,6 +41,16 @@ public class CausalModel {
     }
 
     /**
+     * Creates a copy of the passed causal model.
+     *
+     * @param causalModel the causal model that is copied
+     */
+    public CausalModel(CausalModel causalModel) throws InvalidCausalModelException {
+        this(causalModel.name, causalModel.equations.stream().map(Equation::new).collect(Collectors.toSet()),
+                new HashSet<>(causalModel.exogenousVariables));
+    }
+
+    /**
      * Determines whether the passed set of Literals is a cause for the given phi. For both phi and cause, a
      * positive/negative literal means that the variable is meant to be true/false. The context defines the exogenous
      * variables. Each variable is assigned a Constant (CTrue/CTFalse).
@@ -55,7 +66,7 @@ public class CausalModel {
      * @throws InvalidPhiException     thrown if phi is invalid: each literal of phi needs to be defined in the equations
      */
     public CausalitySolverResult isCause(Set<Literal> context, Formula phi, Set<Literal> cause)
-            throws InvalidContextException, InvalidCauseException, InvalidPhiException {
+            throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
         if (!isContextValid(context))
             throw new InvalidContextException();
         if (!isLiteralsInEquations(phi.literals()))
