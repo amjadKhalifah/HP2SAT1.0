@@ -12,6 +12,10 @@ public class Equation {
         this.formula = formula;
     }
 
+    @Override
+    public String toString() {
+        return variable + " = " + formula;
+    }
     public Variable getVariable() {
         return variable;
     }
