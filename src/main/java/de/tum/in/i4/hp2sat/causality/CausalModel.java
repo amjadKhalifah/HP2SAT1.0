@@ -72,7 +72,8 @@ public class CausalModel {
             throw new InvalidPhiException();
         if (!isLiteralsInEquations(cause))
             throw new InvalidCauseException();
-        return EvalCausalitySolver.solve(this, context, phi, cause);
+        // TODO set strategy based on solving strategy
+        return (new EvalCausalitySolver()).solve(this, context, phi, cause, SolvingStrategy.STANDARD);
     }
 
     /**

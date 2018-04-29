@@ -1,12 +1,82 @@
 package de.tum.in.i4.hp2sat.causality;
 
+import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
+import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-class CausalitySolver {
+abstract class CausalitySolver {
+    /**
+     * Checks AC1, AC2 and AC3 given a causal model, a cause, a context and phi and a solving strategy.
+     *
+     * @param causalModel     the underlying causel model
+     * @param context         the context
+     * @param phi             the phi
+     * @param cause           the cause
+     * @param solvingStrategy the applied solving strategy
+     * @return for each AC, true if fulfilled, false else
+     */
+    CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
+                                       Set<Literal> cause, SolvingStrategy solvingStrategy)
+            throws InvalidCausalModelException {
+        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context);
+        boolean ac1 = CausalitySolver.fulfillsAC1(evaluation, phi, cause);
+        Set<Literal> w = fulfillsAC2(causalModel, phi, cause, evaluation, solvingStrategy);
+        boolean ac2 = w != null;
+        boolean ac3 = fulfillsAC3(causalModel, phi, cause, evaluation, solvingStrategy);
+        CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3, cause, w);
+        return causalitySolverResult;
+    }
+
+    /**
+     * Checks if AC1 fulfilled.
+     *
+     * @param evaluation the original evaluation of variables
+     * @param phi        the phi
+     * @param cause      the cause for which we check AC1
+     * @return true if AC1 fulfilled, else false
+     */
+    static boolean fulfillsAC1(Set<Literal> evaluation, Formula phi, Set<Literal> cause) {
+        Set<Literal> litersOfPhi = phi.literals();
+        return evaluation.containsAll(litersOfPhi) && evaluation.containsAll(cause);
+    }
+
+    abstract Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause,
+                                          Set<Literal> evaluation, SolvingStrategy solvingStrategy)
+            throws InvalidCausalModelException;
+    /**
+     * Checks if AC3 is fulfilled.
+     *
+     * @param causalModel     the underlying causal model
+     * @param phi             the phi
+     * @param cause           the cause for which we check AC2
+     * @param evaluation      the original evaluation of variables
+     * @param solvingStrategy the solving strategy
+     * @return true if A3 fulfilled, else false
+     */
+    private boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause,
+                                       Set<Literal> evaluation, SolvingStrategy solvingStrategy) {
+        // get all subsets of cause
+        Set<Set<Literal>> allSubsetsOfCause = new UnifiedSet<>(cause).powerSet().stream()
+                .map(s -> s.toImmutable().castToSet())
+                .filter(s -> s.size() > 0 && s.size() < cause.size()) // remove empty set and full cause
+                .collect(Collectors.toSet());
+        // no sub-cause must fulfill AC1 and AC2
+        boolean ac3 = allSubsetsOfCause.stream().noneMatch(c -> {
+            try {
+                return CausalitySolver.fulfillsAC1(evaluation, phi, cause) &&
+                        fulfillsAC2(causalModel, phi, c, evaluation, solvingStrategy) != null;
+            } catch (InvalidCausalModelException e) {
+                e.printStackTrace();
+                return false;
+            }
+        });
+        return ac3;
+    }
+
     /**
      * Evaluates the equations of the given causal model under a given context.
      *
@@ -117,18 +187,5 @@ class CausalitySolver {
              * corresponding variable evaluates to true/false  */
             return assignment.literals();
         }
-    }
-
-    /**
-     * Checks if AC1 fulfilled.
-     *
-     * @param evaluation the original evaluation of variables
-     * @param phi        the phi
-     * @param cause      the cause for which we check AC1
-     * @return true if AC1 fulfilled, else false
-     */
-    static boolean fulfillsAC1(Set<Literal> evaluation, Formula phi, Set<Literal> cause) {
-        Set<Literal> litersOfPhi = phi.literals();
-        return evaluation.containsAll(litersOfPhi) && evaluation.containsAll(cause);
     }
 }
