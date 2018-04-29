@@ -33,24 +33,24 @@ class EvalCausalitySolver extends CausalitySolver {
                     .map(s -> s.toImmutable().castToSet())
                     .sorted(Comparator.comparingInt(Set::size))
                     .collect(Collectors.toList());
-            return fulfillsAC2(causalModel, phi, cause, context, evaluation, allW);
+            return fulfillsAC2(causalModel, phi, cause, context, allW);
         } else {
             return null;
         }
     }
 
     /**
-     * Checks if AC2 is fulfilled.
+     * Internal method for checking if AC2 is fulfilled.
      *
      * @param causalModel the underlying causal model
      * @param phi         the phi
      * @param cause       the cause for which we check AC2
-     * @param evaluation  the original evaluation of variables
+     * @param context     the context
      * @param allW        set of all relevant W
-     * @return true if AC2 fulfilled, else false
+     * @return W if AC2 fulfilled, else null
      */
     private Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                                     Set<Literal> evaluation, List<Set<Literal>> allW)
+                                     List<Set<Literal>> allW)
             throws InvalidCausalModelException {
         FormulaFactory f = new FormulaFactory();
         Formula phiFormula = f.not(phi); // negate phi
