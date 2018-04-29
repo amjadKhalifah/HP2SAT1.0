@@ -10,44 +10,6 @@ import java.util.stream.Collectors;
 
 class EvalCausalitySolver extends CausalitySolver{
     /**
-     * Returns all causes for a given causal model, a context and phi.
-     *
-     * @param causalModel the underlying causel model
-     * @param context     the context
-     * @param phi         the phi
-     * @return set of all causes, i.e. AC1-AC3 fulfilled, as set of results
-     */
-    // TODO move to parent
-    Set<CausalitySolverResult> getAllCauses(CausalModel causalModel, Set<Literal> context, Formula phi)
-            throws InvalidCausalModelException {
-        // compute all possible combination of primitive events
-        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context);
-        Set<Literal> evaluationWithoutExogenousVariables = evaluation.stream()
-                .filter(l -> !causalModel.getExogenousVariables().contains(l.variable())).collect(Collectors.toSet());
-        List<Set<Literal>> allPotentialCauses = new UnifiedSet<>(evaluationWithoutExogenousVariables).powerSet()
-                .stream().map(s -> s.toImmutable().castToSet())
-                .sorted(Comparator.comparingInt(Set::size))
-                .collect(Collectors.toList());
-        // remove empty set (index 0 as list is ordered!)
-        allPotentialCauses.remove(0);
-        Set<CausalitySolverResult> allCauses = new HashSet<>();
-        for (Set<Literal> cause : allPotentialCauses) {
-            /*
-             * if a subset of the currently analyzed potential cause is already a cause, we don't need to check the
-             * current one since it will not fulfill AC3 (minimality!) */
-            if (allCauses.stream().noneMatch(c -> cause.containsAll(c.getCause()))) {
-                CausalitySolverResult causalitySolverResult = solve(causalModel, context, phi, cause, SolvingStrategy.EVAL);
-                if (causalitySolverResult.isAc1() && causalitySolverResult.isAc2() && causalitySolverResult.isAc3()) {
-                    // if all ACs fulfilled, it is a cause
-                    allCauses.add(causalitySolverResult);
-                }
-            }
-
-        }
-        return allCauses;
-    }
-
-    /**
      * Checks if AC2 is fulfilled given a solving strategy. Wrapper for the actual fulfillsAC2 method.
      *
      * @param causalModel     the underlying causal model

@@ -250,7 +250,7 @@ public class EvalCausalitySolverTest {
                         new HashSet<>(Collections.singletonList(f.literal("BH", false)))),
                 new CausalitySolverResult(true, true, true,
                         new HashSet<>(Collections.singletonList(f.variable("BS"))), new HashSet<>())));
-        Set<CausalitySolverResult> allCausesActual = evalCausalitySolver.getAllCauses(billySuzy, context, phi);
+        Set<CausalitySolverResult> allCausesActual = evalCausalitySolver.getAllCauses(billySuzy, context, phi, SolvingStrategy.EVAL);
         assertEquals(allCausesExpected, allCausesActual);
     }
 
@@ -261,7 +261,7 @@ public class EvalCausalitySolverTest {
                 f.literal("BT_exo", false), f.literal("ST_exo", false)));
         Formula phi = f.variable("BS");
         Set<CausalitySolverResult> allCausesExpected = new HashSet<>();
-        Set<CausalitySolverResult> allCausesActual = evalCausalitySolver.getAllCauses(billySuzy, context, phi);
+        Set<CausalitySolverResult> allCausesActual = evalCausalitySolver.getAllCauses(billySuzy, context, phi, SolvingStrategy.EVAL);
         assertEquals(allCausesExpected, allCausesActual);
     }
 
@@ -278,7 +278,7 @@ public class EvalCausalitySolverTest {
                         new HashSet<>(Collections.singletonList(f.variable("MD"))), new HashSet<>()),
                 new CausalitySolverResult(true, true, true,
                         new HashSet<>(Collections.singletonList(f.variable("FF"))), new HashSet<>())));
-        Set<CausalitySolverResult> allCausesActual = evalCausalitySolver.getAllCauses(arsonists, context, phi);
+        Set<CausalitySolverResult> allCausesActual = evalCausalitySolver.getAllCauses(arsonists, context, phi, SolvingStrategy.EVAL);
         assertEquals(allCausesExpected, allCausesActual);
     }
 
@@ -293,7 +293,7 @@ public class EvalCausalitySolverTest {
                         new HashSet<>(Arrays.asList(f.variable("L"), f.variable("MD"))), new HashSet<>()),
                 new CausalitySolverResult(true, true, true,
                         new HashSet<>(Collections.singletonList(f.variable("FF"))), new HashSet<>())));
-        Set<CausalitySolverResult> allCausesActual = evalCausalitySolver.getAllCauses(arsonists, context, phi);
+        Set<CausalitySolverResult> allCausesActual = evalCausalitySolver.getAllCauses(arsonists, context, phi, SolvingStrategy.EVAL);
         assertEquals(allCausesExpected, allCausesActual);
     }
 }
