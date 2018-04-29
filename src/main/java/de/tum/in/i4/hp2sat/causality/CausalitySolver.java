@@ -23,7 +23,7 @@ abstract class CausalitySolver {
                                        Set<Literal> cause, SolvingStrategy solvingStrategy)
             throws InvalidCausalModelException {
         Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context);
-        boolean ac1 = CausalitySolver.fulfillsAC1(evaluation, phi, cause);
+        boolean ac1 = fulfillsAC1(evaluation, phi, cause);
         Set<Literal> w = fulfillsAC2(causalModel, phi, cause, evaluation, solvingStrategy);
         boolean ac2 = w != null;
         boolean ac3 = fulfillsAC3(causalModel, phi, cause, evaluation, solvingStrategy);
@@ -39,7 +39,7 @@ abstract class CausalitySolver {
      * @param cause      the cause for which we check AC1
      * @return true if AC1 fulfilled, else false
      */
-    static boolean fulfillsAC1(Set<Literal> evaluation, Formula phi, Set<Literal> cause) {
+    private boolean fulfillsAC1(Set<Literal> evaluation, Formula phi, Set<Literal> cause) {
         Set<Literal> litersOfPhi = phi.literals();
         return evaluation.containsAll(litersOfPhi) && evaluation.containsAll(cause);
     }
@@ -67,7 +67,7 @@ abstract class CausalitySolver {
         // no sub-cause must fulfill AC1 and AC2
         boolean ac3 = allSubsetsOfCause.stream().noneMatch(c -> {
             try {
-                return CausalitySolver.fulfillsAC1(evaluation, phi, cause) &&
+                return fulfillsAC1(evaluation, phi, cause) &&
                         fulfillsAC2(causalModel, phi, c, evaluation, solvingStrategy) != null;
             } catch (InvalidCausalModelException e) {
                 e.printStackTrace();
