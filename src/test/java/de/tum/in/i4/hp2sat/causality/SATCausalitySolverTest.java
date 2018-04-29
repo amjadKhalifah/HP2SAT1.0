@@ -59,4 +59,17 @@ public class SATCausalitySolverTest {
                 causalitySolverResult);
     }
 
+    @Test
+    public void Should_FulfillAC2AC3Only_When_STIsCauseBSAndBH() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", true), f.literal("ST_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
+        Formula phi = f.and(f.variable("BS"), f.variable("BH"));
+        CausalitySolverResult causalitySolverResult = SATCausalitySolver.solve(billySuzy, context, phi, cause);
+        // TODO different result as for eval causality solver! not minimal!
+        assertEquals(new CausalitySolverResult(false, true, true, cause,
+                new HashSet<>(Arrays.asList(f.variable("BS"), f.literal("BH", false)))),
+                causalitySolverResult);
+    }
 }
