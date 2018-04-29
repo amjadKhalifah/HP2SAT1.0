@@ -202,7 +202,7 @@ class CausalitySolver {
      * @param cause      the cause for which we check AC1
      * @return true if AC1 fulfilled, else false
      */
-    private static boolean fulfillsAC1(Set<Literal> evaluation, Formula phi, Set<Literal> cause) {
+    static boolean fulfillsAC1(Set<Literal> evaluation, Formula phi, Set<Literal> cause) {
         Set<Literal> litersOfPhi = phi.literals();
         return evaluation.containsAll(litersOfPhi) && evaluation.containsAll(cause);
     }
