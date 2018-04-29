@@ -1,4 +1,4 @@
-package de.tum.in.i4.hp2sat.testutil;
+package de.tum.in.i4.hp2sat.util;
 
 import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
 import de.tum.in.i4.hp2sat.causality.CausalModel;

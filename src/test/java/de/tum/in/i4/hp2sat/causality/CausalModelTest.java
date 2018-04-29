@@ -1,7 +1,7 @@
 package de.tum.in.i4.hp2sat.causality;
 
 import de.tum.in.i4.hp2sat.exceptions.*;
-import de.tum.in.i4.hp2sat.testutil.ExampleProvider;
+import de.tum.in.i4.hp2sat.util.ExampleProvider;
 import org.junit.Before;
 import org.junit.Test;
 import org.logicng.formulas.*;
