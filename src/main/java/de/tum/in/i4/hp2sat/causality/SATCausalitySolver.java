@@ -120,18 +120,19 @@ class SATCausalitySolver {
                     return w;
                 } else {
                     Set<Literal> changedLiterals = evaluationModifiedW.stream()
-                            .filter(l -> !notInW.contains(l) && !w.contains(l)).map(Literal::negate)
+                            .filter(l -> notInW.contains(l.negate()) && !w.contains(l)).map(Literal::negate)
                             .collect(Collectors.toSet());
                     for (Literal l : changedLiterals) {
                         causalModelModifiedW.getEquations().stream().filter(e -> e.getVariable().equals(l.variable()))
                                 .forEach(e -> e.setFormula(l.phase() ? f.verum() : f.falsum()));
                     }
+                    w.addAll(changedLiterals);
+                    Set<Literal> notInWNew = solution.stream().filter(l -> !w.contains(l)).collect(Collectors.toSet());
                     // TODO check if one re-eval is fine
                     evaluationModifiedW = evaluateEquations(causalModelModifiedW, evaluation.stream()
                             .filter(l -> causalModelModifiedW.getExogenousVariables().contains(l.variable())) // get context
                             .collect(Collectors.toSet()), phi.variables().toArray(new Variable[0]));
-                    if (evaluationModifiedW.containsAll(notInW)) {
-                        w.addAll(changedLiterals);
+                    if (evaluationModifiedW.containsAll(notInWNew)) {
                         return w;
                     }
                 }
@@ -157,7 +158,7 @@ class SATCausalitySolver {
 
                 phiModified = phiModified.substitute(v, literal.phase() ? f.verum() : f.falsum());
             }
-            for (Variable v: phiModified.variables()) {
+            for (Variable v : phiModified.variables()) {
                 Formula correspondingFormula = causalModel.getEquations().stream()
                         .filter(e -> e.getVariable().equals(v)).findFirst().get().getFormula();
                 if (correspondingFormula instanceof Constant) {
