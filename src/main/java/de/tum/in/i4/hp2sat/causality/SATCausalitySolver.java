@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import static de.tum.in.i4.hp2sat.causality.CausalitySolver.evaluateEquations;
 import static de.tum.in.i4.hp2sat.causality.CausalitySolver.fulfillsAC1;
 
-public class SATCausalitySolver {
+class SATCausalitySolver {
     /**
      * Checks AC1, AC2 and AC3 given a causal model, a cause, a context and phi. Solving strategy is STANDARD.
      *
