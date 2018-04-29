@@ -20,6 +20,7 @@ class EvalCausalitySolver extends CausalitySolver {
      * @param evaluation      the original evaluation of variables
      * @param solvingStrategy the solving strategy
      * @return returns W if AC2 fulfilled, else null
+     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
     Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
                              Set<Literal> evaluation, SolvingStrategy solvingStrategy)
@@ -30,7 +31,7 @@ class EvalCausalitySolver extends CausalitySolver {
                     .filter(l -> !causalModel.getExogenousVariables().contains(l.variable()))
                     .collect(Collectors.toSet());
             // get all possible Ws, i.e create power set of the evaluation
-            List<Set<Literal>> allW = (new Util<Literal>()).generatePowerSet(evaluationWithoutExogenousVariables);;
+            List<Set<Literal>> allW = (new Util<Literal>()).generatePowerSet(evaluationWithoutExogenousVariables);
             return fulfillsAC2(causalModel, phi, cause, context, allW);
         } else {
             return null;
@@ -46,6 +47,7 @@ class EvalCausalitySolver extends CausalitySolver {
      * @param context     the context
      * @param allW        set of all relevant W
      * @return W if AC2 fulfilled, else null
+     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
     private Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
                                      List<Set<Literal>> allW)

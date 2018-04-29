@@ -25,6 +25,7 @@ class SATCausalitySolver extends CausalitySolver {
      * @param evaluation      the original evaluation of variables
      * @param solvingStrategy the solving strategy
      * @return returns W if AC2 fulfilled, else null
+     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
     Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
                              Set<Literal> evaluation, SolvingStrategy solvingStrategy)

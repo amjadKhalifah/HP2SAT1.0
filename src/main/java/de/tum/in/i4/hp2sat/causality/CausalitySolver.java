@@ -18,6 +18,7 @@ abstract class CausalitySolver {
      * @param cause           the cause
      * @param solvingStrategy the applied solving strategy
      * @return for each AC, true if fulfilled, false else
+     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
     CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
                                 Set<Literal> cause, SolvingStrategy solvingStrategy)
@@ -54,6 +55,7 @@ abstract class CausalitySolver {
      * @param evaluation      the original evaluation of variables
      * @param solvingStrategy the solving strategy
      * @return returns W if AC2 fulfilled, else null
+     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
     abstract Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
                                       Set<Literal> evaluation, SolvingStrategy solvingStrategy)
@@ -96,6 +98,7 @@ abstract class CausalitySolver {
      * @param context     the context
      * @param phi         the phi
      * @return set of all causes, i.e. AC1-AC3 fulfilled, as set of results
+     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
     Set<CausalitySolverResult> getAllCauses(CausalModel causalModel, Set<Literal> context, Formula phi,
                                             SolvingStrategy solvingStrategy) throws InvalidCausalModelException {
