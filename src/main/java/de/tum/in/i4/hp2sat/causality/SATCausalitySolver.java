@@ -32,14 +32,8 @@ class SATCausalitySolver extends CausalitySolver {
         SATSolver satSolver = MiniSat.miniSat(f); // TODO make dynamic?
         Formula phiFormula = f.not(phi); // negate phi
 
-        // TODO create method to avoid code duplication
         // create copy of original causal model
-        CausalModel causalModelModified = new CausalModel(causalModel);
-        // replace equation of each part of the cause with its negation, i.e. setting x'
-        for (Literal l : cause) {
-            causalModelModified.getEquations().stream().filter(e -> e.getVariable().equals(l.variable()))
-                    .forEach(e -> e.setFormula(l.negate().phase() ? f.verum() : f.falsum()));
-        }
+        CausalModel causalModelModified = createModifiedCausalModelForCause(causalModel, cause, f);
 
         // evaluate causal model with setting x' for cause
         Set<Literal> evaluationModified = evaluateEquations(causalModelModified, context);
@@ -114,11 +108,7 @@ class SATCausalitySolver extends CausalitySolver {
                         .filter(l -> evaluation.contains(l) && evaluationModified.contains(l.negate()))
                         .collect(Collectors.toSet());
                 // create modified causal model by applying W, i.e. replace respective equations with true/false
-                CausalModel causalModelModifiedW = new CausalModel(causalModel);
-                for (Literal l : w) {
-                    causalModelModifiedW.getEquations().stream().filter(e -> e.getVariable().equals(l.variable()))
-                            .forEach(e -> e.setFormula(l.phase() ? f.verum() : f.falsum()));
-                }
+                CausalModel causalModelModifiedW = createModifiedCausalModelForW(causalModel, w, f);
                 // create set of literals that are not in W
                 Set<Literal> notInW = solution.stream().filter(l -> !w.contains(l)).collect(Collectors.toSet());
                 // evaluate the variables in phi again given the modified causal model that incorporates W

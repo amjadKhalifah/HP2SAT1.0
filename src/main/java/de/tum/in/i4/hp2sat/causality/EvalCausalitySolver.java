@@ -56,12 +56,7 @@ class EvalCausalitySolver extends CausalitySolver {
         Formula phiFormula = f.not(phi); // negate phi
 
         // create copy of original causal model
-        CausalModel causalModelModified = new CausalModel(causalModel);
-        // replace equation of each part of the cause with its negation, i.e. setting x'
-        for (Literal l : cause) {
-            causalModelModified.getEquations().stream().filter(e -> e.getVariable().equals(l.variable()))
-                    .forEach(e -> e.setFormula(l.negate().phase() ? f.verum() : f.falsum()));
-        }
+        CausalModel causalModelModified = createModifiedCausalModelForCause(causalModel, cause, f);
 
         // evaluate causal model with setting x' for cause
         Set<Literal> evaluationModified = CausalitySolver.evaluateEquations(causalModelModified, context,
@@ -73,12 +68,7 @@ class EvalCausalitySolver extends CausalitySolver {
 
         for (Set<Literal> w : allW) {
             // create copy of modified causal model
-            CausalModel causalModelModifiedW = new CausalModel(causalModelModified);
-            // replace equations of variables in W with true/false
-            for (Literal l : w) {
-                causalModelModifiedW.getEquations().stream().filter(e -> e.getVariable().equals(l.variable()))
-                        .forEach(e -> e.setFormula(l.phase() ? f.verum() : f.falsum()));
-            }
+            CausalModel causalModelModifiedW = createModifiedCausalModelForW(causalModelModified, w, f);
             // evaluate all variables in the negated phi
             evaluationModified = CausalitySolver.evaluateEquations(causalModelModifiedW, context,
                     phiFormula.variables().toArray(new Variable[0]));

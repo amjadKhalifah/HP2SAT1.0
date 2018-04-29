@@ -237,4 +237,26 @@ abstract class CausalitySolver {
             return assignment.literals();
         }
     }
+
+    CausalModel createModifiedCausalModelForCause(CausalModel causalModel, Set<Literal> cause, FormulaFactory f)
+            throws InvalidCausalModelException {
+        CausalModel causalModelModified = new CausalModel(causalModel);
+        // replace equation of each part of the cause with its negation, i.e. setting x'
+        for (Literal l : cause) {
+            causalModelModified.getEquations().stream().filter(e -> e.getVariable().equals(l.variable()))
+                    .forEach(e -> e.setFormula(l.negate().phase() ? f.verum() : f.falsum()));
+        }
+        return causalModelModified;
+    }
+
+    CausalModel createModifiedCausalModelForW(CausalModel causalModel, Set<Literal> w, FormulaFactory f)
+            throws InvalidCausalModelException {
+        CausalModel causalModelModified = new CausalModel(causalModel);
+        // replace equation of each part of the cause with its negation, i.e. setting x'
+        for (Literal l : w) {
+            causalModelModified.getEquations().stream().filter(e -> e.getVariable().equals(l.variable()))
+                    .forEach(e -> e.setFormula(l.phase() ? f.verum() : f.falsum()));
+        }
+        return causalModelModified;
+    }
 }
