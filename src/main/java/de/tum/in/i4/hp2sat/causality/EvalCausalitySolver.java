@@ -8,19 +8,20 @@ import org.logicng.formulas.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-class EvalCausalitySolver extends CausalitySolver{
+class EvalCausalitySolver extends CausalitySolver {
     /**
-     * Checks if AC2 is fulfilled given a solving strategy. Wrapper for the actual fulfillsAC2 method.
+     * Checks if AC2 is fulfilled.
      *
      * @param causalModel     the underlying causal model
      * @param phi             the phi
      * @param cause           the cause for which we check AC2
+     * @param context         the context
      * @param evaluation      the original evaluation of variables
      * @param solvingStrategy the solving strategy
-     * @return internally calls another method the checks for AC2; returns true if AC2 fulfilled, else false
+     * @return returns W if AC2 fulfilled, else null
      */
-    Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause,
-                                            Set<Literal> evaluation, SolvingStrategy solvingStrategy)
+    Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
+                             Set<Literal> evaluation, SolvingStrategy solvingStrategy)
             throws InvalidCausalModelException {
         if (solvingStrategy == SolvingStrategy.EVAL) {
             // remove exogenous variables from evaluation as they are not needed for computing the Ws
@@ -32,7 +33,7 @@ class EvalCausalitySolver extends CausalitySolver{
                     .map(s -> s.toImmutable().castToSet())
                     .sorted(Comparator.comparingInt(Set::size))
                     .collect(Collectors.toList());
-            return fulfillsAC2(causalModel, phi, cause, evaluation, allW);
+            return fulfillsAC2(causalModel, phi, cause, context, evaluation, allW);
         } else {
             return null;
         }
@@ -48,8 +49,8 @@ class EvalCausalitySolver extends CausalitySolver{
      * @param allW        set of all relevant W
      * @return true if AC2 fulfilled, else false
      */
-    private Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause,
-                                            Set<Literal> evaluation, List<Set<Literal>> allW)
+    private Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
+                                     Set<Literal> evaluation, List<Set<Literal>> allW)
             throws InvalidCausalModelException {
         FormulaFactory f = new FormulaFactory();
         Formula phiFormula = f.not(phi); // negate phi
@@ -63,9 +64,8 @@ class EvalCausalitySolver extends CausalitySolver{
         }
 
         // evaluate causal model with setting x' for cause
-        Set<Literal> evaluationModified = CausalitySolver.evaluateEquations(causalModelModified, evaluation.stream()
-                .filter(l -> causalModelModified.getExogenousVariables().contains(l.variable())) // get context
-                .collect(Collectors.toSet()), phiFormula.variables().toArray(new Variable[0]));
+        Set<Literal> evaluationModified = CausalitySolver.evaluateEquations(causalModelModified, context,
+                phiFormula.variables().toArray(new Variable[0]));
         // check if not(phi) evaluates to true for empty W -> if yes, no further investigation necessary
         if (phiFormula.evaluate(new Assignment(evaluationModified))) {
             return new HashSet<>();
@@ -80,9 +80,8 @@ class EvalCausalitySolver extends CausalitySolver{
                         .forEach(e -> e.setFormula(l.phase() ? f.verum() : f.falsum()));
             }
             // evaluate all variables in the negated phi
-            evaluationModified = CausalitySolver.evaluateEquations(causalModelModifiedW, evaluation.stream()
-                    .filter(l -> causalModelModifiedW.getExogenousVariables().contains(l.variable())) // get context
-                    .collect(Collectors.toSet()), phiFormula.variables().toArray(new Variable[0]));
+            evaluationModified = CausalitySolver.evaluateEquations(causalModelModifiedW, context,
+                    phiFormula.variables().toArray(new Variable[0]));
             /*
              * if the negated phi evaluates to true given the values of the variables in the modified causal model,
              * AC2 is fulfilled an we return the W for which it is fulfilled. */

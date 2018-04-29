@@ -20,13 +20,13 @@ abstract class CausalitySolver {
      * @return for each AC, true if fulfilled, false else
      */
     CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
-                                       Set<Literal> cause, SolvingStrategy solvingStrategy)
+                                Set<Literal> cause, SolvingStrategy solvingStrategy)
             throws InvalidCausalModelException {
         Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context);
         boolean ac1 = fulfillsAC1(evaluation, phi, cause);
-        Set<Literal> w = fulfillsAC2(causalModel, phi, cause, evaluation, solvingStrategy);
+        Set<Literal> w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy);
         boolean ac2 = w != null;
-        boolean ac3 = fulfillsAC3(causalModel, phi, cause, evaluation, solvingStrategy);
+        boolean ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy);
         CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3, cause, w);
         return causalitySolverResult;
     }
@@ -44,9 +44,21 @@ abstract class CausalitySolver {
         return evaluation.containsAll(litersOfPhi) && evaluation.containsAll(cause);
     }
 
-    abstract Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause,
-                                          Set<Literal> evaluation, SolvingStrategy solvingStrategy)
+    /**
+     * Checks if AC2 is fulfilled.
+     *
+     * @param causalModel     the underlying causal model
+     * @param phi             the phi
+     * @param cause           the cause for which we check AC2
+     * @param context         the context
+     * @param evaluation      the original evaluation of variables
+     * @param solvingStrategy the solving strategy
+     * @return returns W if AC2 fulfilled, else null
+     */
+    abstract Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
+                                      Set<Literal> evaluation, SolvingStrategy solvingStrategy)
             throws InvalidCausalModelException;
+
     /**
      * Checks if AC3 is fulfilled.
      *
@@ -57,8 +69,8 @@ abstract class CausalitySolver {
      * @param solvingStrategy the solving strategy
      * @return true if A3 fulfilled, else false
      */
-    private boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause,
-                                       Set<Literal> evaluation, SolvingStrategy solvingStrategy) {
+    private boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
+                                Set<Literal> evaluation, SolvingStrategy solvingStrategy) {
         // get all subsets of cause
         Set<Set<Literal>> allSubsetsOfCause = new UnifiedSet<>(cause).powerSet().stream()
                 .map(s -> s.toImmutable().castToSet())
@@ -68,7 +80,7 @@ abstract class CausalitySolver {
         boolean ac3 = allSubsetsOfCause.stream().noneMatch(c -> {
             try {
                 return fulfillsAC1(evaluation, phi, cause) &&
-                        fulfillsAC2(causalModel, phi, c, evaluation, solvingStrategy) != null;
+                        fulfillsAC2(causalModel, phi, c, context, evaluation, solvingStrategy) != null;
             } catch (InvalidCausalModelException e) {
                 e.printStackTrace();
                 return false;

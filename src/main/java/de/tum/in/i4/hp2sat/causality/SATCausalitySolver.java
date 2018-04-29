@@ -13,20 +13,21 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-class SATCausalitySolver extends CausalitySolver{
+class SATCausalitySolver extends CausalitySolver {
     /**
-     * Checks if AC2 is fulfilled. Wrapper for the actual fulfillsAC2 method.
+     * Checks if AC2 is fulfilled.
      *
-     * @param causalModel the underlying causal model
-     * @param phi         the phi
-     * @param cause       the cause for which we check AC2
-     * @param evaluation  the original evaluation of variables
-     * @return internally calls another method the checks for AC2; returns W if AC2 fulfilled, else null
+     * @param causalModel     the underlying causal model
+     * @param phi             the phi
+     * @param cause           the cause for which we check AC2
+     * @param context         the context
+     * @param evaluation      the original evaluation of variables
+     * @param solvingStrategy the solving strategy
+     * @return returns W if AC2 fulfilled, else null
      */
-    Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause,
-                                            Set<Literal> evaluation, SolvingStrategy solvingStrategy)
+    Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
+                             Set<Literal> evaluation, SolvingStrategy solvingStrategy)
             throws InvalidCausalModelException {
-        // TODO get context as arg
         FormulaFactory f = new FormulaFactory();
         SATSolver satSolver = MiniSat.miniSat(f); // TODO make dynamic?
         Formula phiFormula = f.not(phi); // negate phi
@@ -41,16 +42,14 @@ class SATCausalitySolver extends CausalitySolver{
         }
 
         // evaluate causal model with setting x' for cause
-        Set<Literal> evaluationModified = evaluateEquations(causalModelModified, evaluation.stream()
-                .filter(l -> causalModelModified.getExogenousVariables().contains(l.variable())) // get context
-                .collect(Collectors.toSet()));
+        Set<Literal> evaluationModified = evaluateEquations(causalModelModified, context);
         // check if not(phi) evaluates to true for empty W -> if yes, no further investigation necessary
         if (phiFormula.evaluate(new Assignment(evaluationModified))) {
             return new HashSet<>();
         }
 
         // IMPORTANT: we call the helper with the negated phi!
-        return fulfillsAC2Helper(causalModelModified, phiFormula, evaluation, evaluationModified, f, satSolver,
+        return fulfillsAC2Helper(causalModelModified, phiFormula, context, evaluation, evaluationModified, f, satSolver,
                 new HashSet<>());
     }
 
@@ -67,9 +66,9 @@ class SATCausalitySolver extends CausalitySolver{
      * @return called recursively; returns W if AC2 fulfilled, else null
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
-    private Set<Literal> fulfillsAC2Helper(CausalModel causalModel, Formula phi, Set<Literal> evaluation,
-                                                  Set<Literal> evaluationModified, FormulaFactory f,
-                                                  SATSolver satSolver, Set<Formula> checkedFormulas)
+    private Set<Literal> fulfillsAC2Helper(CausalModel causalModel, Formula phi, Set<Literal> context,
+                                           Set<Literal> evaluation, Set<Literal> evaluationModified, FormulaFactory f,
+                                           SATSolver satSolver, Set<Formula> checkedFormulas)
             throws InvalidCausalModelException {
         // reset SAT solver
         satSolver.reset();
@@ -123,9 +122,8 @@ class SATCausalitySolver extends CausalitySolver{
                 // create set of literals that are not in W
                 Set<Literal> notInW = solution.stream().filter(l -> !w.contains(l)).collect(Collectors.toSet());
                 // evaluate the variables in phi again given the modified causal model that incorporates W
-                Set<Literal> evaluationModifiedW = evaluateEquations(causalModelModifiedW, evaluation.stream()
-                        .filter(l -> causalModelModifiedW.getExogenousVariables().contains(l.variable())) // get context
-                        .collect(Collectors.toSet()), phi.variables().toArray(new Variable[0]));
+                Set<Literal> evaluationModifiedW = evaluateEquations(causalModelModifiedW, context,
+                        phi.variables().toArray(new Variable[0]));
 
                 if (evaluationModifiedW.containsAll(notInW)) {
                     /*
@@ -154,9 +152,8 @@ class SATCausalitySolver extends CausalitySolver{
                     Set<Literal> notInWNew = solution.stream().filter(l -> !w.contains(l)).collect(Collectors.toSet());
                     // TODO check if one re-eval is fine or if we need more or recursion
                     // re-evaluate
-                    evaluationModifiedW = evaluateEquations(causalModelModifiedW, evaluation.stream()
-                            .filter(l -> causalModelModifiedW.getExogenousVariables().contains(l.variable())) // get context
-                            .collect(Collectors.toSet()), phi.variables().toArray(new Variable[0]));
+                    evaluationModifiedW = evaluateEquations(causalModelModifiedW, context,
+                            phi.variables().toArray(new Variable[0]));
                     // check again if the new W affected the variables not in W
                     if (evaluationModifiedW.containsAll(notInWNew)) {
                         return w;
@@ -211,7 +208,7 @@ class SATCausalitySolver extends CausalitySolver{
             }
 
             // check if AC2 can be fulfilled using the modified phi
-            Set<Literal> w = fulfillsAC2Helper(causalModel, phiModified, evaluation, evaluationModified, f,
+            Set<Literal> w = fulfillsAC2Helper(causalModel, phiModified, context, evaluation, evaluationModified, f,
                     satSolver, checkedFormulas);
             if (w != null) {
                 return w;
