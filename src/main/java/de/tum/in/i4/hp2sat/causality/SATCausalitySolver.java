@@ -3,11 +3,7 @@ package de.tum.in.i4.hp2sat.causality;
 import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.logicng.datastructures.Assignment;
-import org.logicng.datastructures.Tristate;
-import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFactory;
-import org.logicng.formulas.Literal;
-import org.logicng.formulas.Variable;
+import org.logicng.formulas.*;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
 
@@ -86,13 +82,14 @@ public class SATCausalitySolver {
                 .filter(l -> causalModelModified.getExogenousVariables().contains(l.variable())) // get context
                 .collect(Collectors.toSet()));
 
-        return fulfillsAC2Helper(causalModelModified, phiFormula, evaluation, evaluationModified, f, satSolver);
+        return fulfillsAC2Helper(causalModelModified, phiFormula, evaluation, evaluationModified, f, satSolver,
+                new HashSet<>());
     }
 
     // TODO doc
     private static Set<Literal> fulfillsAC2Helper(CausalModel causalModel, Formula phi, Set<Literal> evaluation,
                                                   Set<Literal> evaluationModified, FormulaFactory f,
-                                                  SATSolver satSolver)
+                                                  SATSolver satSolver, Set<Formula> checkedFormulas)
             throws InvalidCausalModelException {
         satSolver.reset();
         satSolver.add(phi);
@@ -118,9 +115,25 @@ public class SATCausalitySolver {
                 Set<Literal> notInW = solution.stream().filter(l -> !w.contains(l)).collect(Collectors.toSet());
                 Set<Literal> evaluationModifiedW = evaluateEquations(causalModelModifiedW, evaluation.stream()
                         .filter(l -> causalModelModifiedW.getExogenousVariables().contains(l.variable())) // get context
-                        .collect(Collectors.toSet()));
+                        .collect(Collectors.toSet()), phi.variables().toArray(new Variable[0]));
                 if (evaluationModifiedW.containsAll(notInW)) {
                     return w;
+                } else {
+                    Set<Literal> changedLiterals = evaluationModifiedW.stream()
+                            .filter(l -> !notInW.contains(l) && !w.contains(l)).map(Literal::negate)
+                            .collect(Collectors.toSet());
+                    for (Literal l : changedLiterals) {
+                        causalModelModifiedW.getEquations().stream().filter(e -> e.getVariable().equals(l.variable()))
+                                .forEach(e -> e.setFormula(l.phase() ? f.verum() : f.falsum()));
+                    }
+                    // TODO check if one re-eval is fine
+                    evaluationModifiedW = evaluateEquations(causalModelModifiedW, evaluation.stream()
+                            .filter(l -> causalModelModifiedW.getExogenousVariables().contains(l.variable())) // get context
+                            .collect(Collectors.toSet()), phi.variables().toArray(new Variable[0]));
+                    if (evaluationModifiedW.containsAll(notInW)) {
+                        w.addAll(changedLiterals);
+                        return w;
+                    }
                 }
             }
         }
@@ -133,17 +146,35 @@ public class SATCausalitySolver {
         allCombinationOfVariables.remove(0);
 
         for (Set<Variable> variables : allCombinationOfVariables) {
+            Formula phiModified = phi;
             for (Variable v : variables) {
                 Equation correspondingEquation = causalModel.getEquations().stream()
                         .filter(e -> e.getVariable().equals(v)).findFirst().get();
-                phi = phi.substitute(v, correspondingEquation.getFormula());
+                phiModified = phiModified.substitute(v, correspondingEquation.getFormula());
             }
             for (Variable v : causalModel.getExogenousVariables()) {
                 Literal literal = evaluation.stream().filter(l -> l.variable().equals(v)).findFirst().get();
-                phi = phi.substitute(v, literal.phase() ? f.verum() : f.falsum());
+
+                phiModified = phiModified.substitute(v, literal.phase() ? f.verum() : f.falsum());
+            }
+            for (Variable v: phiModified.variables()) {
+                Formula correspondingFormula = causalModel.getEquations().stream()
+                        .filter(e -> e.getVariable().equals(v)).findFirst().get().getFormula();
+                if (correspondingFormula instanceof Constant) {
+                    phiModified = phiModified.substitute(v, correspondingFormula);
+                }
+            }
+            if (checkedFormulas.contains(phiModified)) {
+                continue;
+            } else {
+                checkedFormulas.add(phiModified);
             }
 
-            return fulfillsAC2Helper(causalModel, phi, evaluation, evaluationModified, f, satSolver);
+            Set<Literal> w = fulfillsAC2Helper(causalModel, phiModified, evaluation, evaluationModified, f,
+                    satSolver, checkedFormulas);
+            if (w != null) {
+                return w;
+            }
         }
 
         return null;
