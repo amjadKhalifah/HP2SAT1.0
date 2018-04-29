@@ -168,7 +168,7 @@ public class ExampleProvider {
                 FEquation, GFEquation));
         Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(AExo, BExo));
 
-        CausalModel causalModel = new CausalModel("Guns", equations, exogenousVariables);
+        CausalModel causalModel = new CausalModel("Dummy", equations, exogenousVariables);
         return causalModel;
     }
 
