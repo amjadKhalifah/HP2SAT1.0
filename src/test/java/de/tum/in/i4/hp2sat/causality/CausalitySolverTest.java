@@ -39,6 +39,21 @@ public class CausalitySolverTest {
         }
     }
 
+    private void testGetAllCauses(CausalModel causalModel, Set<Literal> context, Formula phi,
+                           Set<CausalitySolverResult> causalitySolverResultsExpected) throws Exception {
+        for (SolvingStrategy solvingStrategy : solvingStrategies) {
+            Set<CausalitySolverResult> causalitySolverResultsActual;
+            if (solvingStrategy == SolvingStrategy.EVAL) {
+                causalitySolverResultsActual =
+                        evalCausalitySolver.getAllCauses(causalModel, context, phi, solvingStrategy);
+            } else {
+                causalitySolverResultsActual =
+                        satCausalitySolver.getAllCauses(causalModel, context, phi, solvingStrategy);
+            }
+            assertEquals(causalitySolverResultsExpected, causalitySolverResultsActual);
+        }
+    }
+
     @Test
     public void Should_FulfillAC1AC3Only_When_BTIsCauseForBS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
@@ -300,8 +315,8 @@ public class CausalitySolverTest {
                         new HashSet<>(Collections.singletonList(f.literal("BH", false)))),
                 new CausalitySolverResult(true, true, true,
                         new HashSet<>(Collections.singletonList(f.variable("BS"))), new HashSet<>())));
-        Set<CausalitySolverResult> allCausesActual = evalCausalitySolver.getAllCauses(billySuzy, context, phi, SolvingStrategy.EVAL);
-        assertEquals(allCausesExpected, allCausesActual);
+
+        testGetAllCauses(billySuzy, context, phi, allCausesExpected);
     }
 
     @Test
@@ -311,8 +326,8 @@ public class CausalitySolverTest {
                 f.literal("BT_exo", false), f.literal("ST_exo", false)));
         Formula phi = f.variable("BS");
         Set<CausalitySolverResult> allCausesExpected = new HashSet<>();
-        Set<CausalitySolverResult> allCausesActual = evalCausalitySolver.getAllCauses(billySuzy, context, phi, SolvingStrategy.EVAL);
-        assertEquals(allCausesExpected, allCausesActual);
+
+        testGetAllCauses(billySuzy, context, phi, allCausesExpected);
     }
 
     @Test
@@ -328,8 +343,8 @@ public class CausalitySolverTest {
                         new HashSet<>(Collections.singletonList(f.variable("MD"))), new HashSet<>()),
                 new CausalitySolverResult(true, true, true,
                         new HashSet<>(Collections.singletonList(f.variable("FF"))), new HashSet<>())));
-        Set<CausalitySolverResult> allCausesActual = evalCausalitySolver.getAllCauses(arsonists, context, phi, SolvingStrategy.EVAL);
-        assertEquals(allCausesExpected, allCausesActual);
+
+        testGetAllCauses(arsonists, context, phi, allCausesExpected);
     }
 
     @Test
@@ -343,7 +358,7 @@ public class CausalitySolverTest {
                         new HashSet<>(Arrays.asList(f.variable("L"), f.variable("MD"))), new HashSet<>()),
                 new CausalitySolverResult(true, true, true,
                         new HashSet<>(Collections.singletonList(f.variable("FF"))), new HashSet<>())));
-        Set<CausalitySolverResult> allCausesActual = evalCausalitySolver.getAllCauses(arsonists, context, phi, SolvingStrategy.EVAL);
-        assertEquals(allCausesExpected, allCausesActual);
+
+        testGetAllCauses(arsonists, context, phi, allCausesExpected);
     }
 }
