@@ -83,7 +83,10 @@ class SATCausalitySolver {
         Set<Literal> evaluationModified = evaluateEquations(causalModelModified, evaluation.stream()
                 .filter(l -> causalModelModified.getExogenousVariables().contains(l.variable())) // get context
                 .collect(Collectors.toSet()));
-        // TODO directly return true if !phi is fulfilled with empty W
+        // check if not(phi) evaluates to true for empty W -> if yes, no further investigation necessary
+        if (phiFormula.evaluate(new Assignment(evaluationModified))) {
+            return new HashSet<>();
+        }
 
         // IMPORTANT: we call the helper with the negated phi!
         return fulfillsAC2Helper(causalModelModified, phiFormula, evaluation, evaluationModified, f, satSolver,

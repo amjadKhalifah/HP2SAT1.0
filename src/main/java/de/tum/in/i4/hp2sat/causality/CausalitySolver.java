@@ -259,7 +259,15 @@ class CausalitySolver {
             causalModelModified.getEquations().stream().filter(e -> e.getVariable().equals(l.variable()))
                     .forEach(e -> e.setFormula(l.negate().phase() ? f.verum() : f.falsum()));
         }
-        // TODO check if AC2 is already fulfilled when W empty
+
+        // evaluate causal model with setting x' for cause
+        Set<Literal> evaluationModified = evaluateEquations(causalModelModified, evaluation.stream()
+                .filter(l -> causalModelModified.getExogenousVariables().contains(l.variable())) // get context
+                .collect(Collectors.toSet()), phiFormula.variables().toArray(new Variable[0]));
+        // check if not(phi) evaluates to true for empty W -> if yes, no further investigation necessary
+        if (phiFormula.evaluate(new Assignment(evaluationModified))) {
+            return new HashSet<>();
+        }
 
         for (Set<Literal> w : allW) {
             // create copy of modified causal model
@@ -270,7 +278,7 @@ class CausalitySolver {
                         .forEach(e -> e.setFormula(l.phase() ? f.verum() : f.falsum()));
             }
             // evaluate all variables in the negated phi
-            Set<Literal> evaluationModified = evaluateEquations(causalModelModifiedW, evaluation.stream()
+            evaluationModified = evaluateEquations(causalModelModifiedW, evaluation.stream()
                     .filter(l -> causalModelModifiedW.getExogenousVariables().contains(l.variable())) // get context
                     .collect(Collectors.toSet()), phiFormula.variables().toArray(new Variable[0]));
             /*
