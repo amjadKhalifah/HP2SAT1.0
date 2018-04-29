@@ -238,22 +238,52 @@ abstract class CausalitySolver {
         }
     }
 
+    /**
+     * Creates a modified causal model by replacing all equations referring to parts of the cause with the negation
+     * of the phase of the respective part of the cause, i.e. with setting x'
+     *
+     * @param causalModel the causal model
+     * @param cause       the cause
+     * @param f           a formula factory
+     * @return the modified causal model
+     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
+     */
     CausalModel createModifiedCausalModelForCause(CausalModel causalModel, Set<Literal> cause, FormulaFactory f)
             throws InvalidCausalModelException {
-        CausalModel causalModelModified = new CausalModel(causalModel);
-        // replace equation of each part of the cause with its negation, i.e. setting x'
-        for (Literal l : cause) {
-            causalModelModified.getEquations().stream().filter(e -> e.getVariable().equals(l.variable()))
-                    .forEach(e -> e.setFormula(l.negate().phase() ? f.verum() : f.falsum()));
-        }
-        return causalModelModified;
+        return createModifiedCausalModel(causalModel, cause.stream().map(Literal::negate)
+                .collect(Collectors.toSet()), f);
     }
 
+    /**
+     * Creates a modified causal model by replacing all equations referring to set W with the phase of the literal in
+     * W, i.e. its value in the original context.
+     *
+     * @param causalModel the causal model
+     * @param w           the set W
+     * @param f           a formula factory
+     * @return the modified causal model
+     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
+     */
     CausalModel createModifiedCausalModelForW(CausalModel causalModel, Set<Literal> w, FormulaFactory f)
             throws InvalidCausalModelException {
+        return createModifiedCausalModel(causalModel, w, f);
+    }
+
+    /**
+     * Helper method for {@link CausalitySolver#createModifiedCausalModelForCause(CausalModel, Set, FormulaFactory)}
+     * and {@link CausalitySolver#createModifiedCausalModelForW(CausalModel, Set, FormulaFactory)}.
+     *
+     * @param causalModel the causal model
+     * @param literals    the set of literals used to replace equations
+     * @param f           a formula factory
+     * @return the modified causal model
+     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
+     */
+    private CausalModel createModifiedCausalModel(CausalModel causalModel, Set<Literal> literals, FormulaFactory f)
+            throws InvalidCausalModelException {
         CausalModel causalModelModified = new CausalModel(causalModel);
-        // replace equation of each part of the cause with its negation, i.e. setting x'
-        for (Literal l : w) {
+        // replace each equation with the phase of the literal
+        for (Literal l : literals) {
             causalModelModified.getEquations().stream().filter(e -> e.getVariable().equals(l.variable()))
                     .forEach(e -> e.setFormula(l.phase() ? f.verum() : f.falsum()));
         }
