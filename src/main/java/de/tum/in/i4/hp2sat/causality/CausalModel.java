@@ -6,7 +6,6 @@ import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -73,7 +72,7 @@ public class CausalModel {
             throw new InvalidPhiException();
         if (!isLiteralsInEquations(cause))
             throw new InvalidCauseException();
-        return CausalitySolver.solve(this, context, phi, cause);
+        return EvalCausalitySolver.solve(this, context, phi, cause);
     }
 
     /**

@@ -11,7 +11,7 @@ import java.util.*;
 
 import static org.junit.Assert.*;
 
-public class CausalitySolverTest {
+public class EvalCausalitySolverTest {
     FormulaFactory f;
 
     @Before
@@ -26,7 +26,7 @@ public class CausalitySolverTest {
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
         Formula phi = f.variable("BS");
-        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
+        CausalitySolverResult causalitySolverResult = EvalCausalitySolver.solve(billySuzy, context, phi, cause);
         assertEquals(new CausalitySolverResult(true, false, true, cause, null), causalitySolverResult);
     }
 
@@ -37,7 +37,7 @@ public class CausalitySolverTest {
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
         Formula phi = f.variable("BS");
-        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
+        CausalitySolverResult causalitySolverResult = EvalCausalitySolver.solve(billySuzy, context, phi, cause);
         assertEquals(new CausalitySolverResult(true, true, true, cause,
                 new HashSet<>(Collections.singletonList(f.literal("BH", false)))), causalitySolverResult);
     }
@@ -49,7 +49,7 @@ public class CausalitySolverTest {
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("SH")));
         Formula phi = f.variable("BS");
-        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
+        CausalitySolverResult causalitySolverResult = EvalCausalitySolver.solve(billySuzy, context, phi, cause);
         assertEquals(new CausalitySolverResult(true, true, true, cause,
                 new HashSet<>(Collections.singletonList(f.literal("BH", false)))), causalitySolverResult);
     }
@@ -61,7 +61,7 @@ public class CausalitySolverTest {
                 f.literal("BT_exo", false), f.literal("ST_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("BT", false)));
         Formula phi = f.literal("BS", false);
-        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
+        CausalitySolverResult causalitySolverResult = EvalCausalitySolver.solve(billySuzy, context, phi, cause);
         assertEquals(new CausalitySolverResult(true, true, true, cause, new HashSet<>()),
                 causalitySolverResult);
     }
@@ -73,7 +73,7 @@ public class CausalitySolverTest {
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("BT"), f.variable("ST")));
         Formula phi = f.variable("BS");
-        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
+        CausalitySolverResult causalitySolverResult = EvalCausalitySolver.solve(billySuzy, context, phi, cause);
         assertEquals(new CausalitySolverResult(true, true, false, cause, new HashSet<>()),
                 causalitySolverResult);
     }
@@ -85,7 +85,7 @@ public class CausalitySolverTest {
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("BT", false)));
         Formula phi = f.variable("BS");
-        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
+        CausalitySolverResult causalitySolverResult = EvalCausalitySolver.solve(billySuzy, context, phi, cause);
         assertEquals(new CausalitySolverResult(false, false, true, cause, null), causalitySolverResult);
     }
 
@@ -96,7 +96,7 @@ public class CausalitySolverTest {
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
         Formula phi = f.or(f.variable("BS"), f.variable("SH"));
-        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
+        CausalitySolverResult causalitySolverResult = EvalCausalitySolver.solve(billySuzy, context, phi, cause);
         assertEquals(new CausalitySolverResult(true, true, true, cause,
                 new HashSet<>(Collections.singletonList(f.literal("BH", false)))), causalitySolverResult);
     }
@@ -108,7 +108,7 @@ public class CausalitySolverTest {
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
         Formula phi = f.and(f.variable("BS"), f.variable("BH"));
-        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
+        CausalitySolverResult causalitySolverResult = EvalCausalitySolver.solve(billySuzy, context, phi, cause);
         assertEquals(new CausalitySolverResult(false, true, true, cause,
                 new HashSet<>(Collections.singletonList(f.literal("ST", true)))), causalitySolverResult);
     }
@@ -120,7 +120,7 @@ public class CausalitySolverTest {
                 f.literal("L_exo", true), f.literal("MD_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("L")));
         Formula phi = f.variable("FF");
-        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(arsonists, context, phi, cause);
+        CausalitySolverResult causalitySolverResult = EvalCausalitySolver.solve(arsonists, context, phi, cause);
         assertEquals(new CausalitySolverResult(true, false, true, cause, null), causalitySolverResult);
     }
 
@@ -131,7 +131,7 @@ public class CausalitySolverTest {
                 f.literal("L_exo", true), f.literal("MD_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("L"), f.variable("MD")));
         Formula phi = f.variable("FF");
-        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(arsonists, context, phi, cause);
+        CausalitySolverResult causalitySolverResult = EvalCausalitySolver.solve(arsonists, context, phi, cause);
         assertEquals(new CausalitySolverResult(true, true, true, cause, new HashSet<>()),
                 causalitySolverResult);
     }
@@ -144,7 +144,7 @@ public class CausalitySolverTest {
                 f.literal("W_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
         Formula phi = f.variable("BS");
-        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
+        CausalitySolverResult causalitySolverResult = EvalCausalitySolver.solve(billySuzy, context, phi, cause);
         assertEquals(new CausalitySolverResult(true, true, true, cause,
                 new HashSet<>(Collections.singletonList(f.literal("BH", false)))), causalitySolverResult);
     }
@@ -157,7 +157,7 @@ public class CausalitySolverTest {
                 f.literal("W_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
         Formula phi = f.variable("BS");
-        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(billySuzy, context, phi, cause);
+        CausalitySolverResult causalitySolverResult = EvalCausalitySolver.solve(billySuzy, context, phi, cause);
         assertEquals(new CausalitySolverResult(false, true, true, cause, new HashSet<>()),
                 causalitySolverResult);
     }
@@ -170,7 +170,7 @@ public class CausalitySolverTest {
                 f.literal("C_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("C")));
         Formula phi = f.variable("D");
-        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(guns, context, phi, cause);
+        CausalitySolverResult causalitySolverResult = EvalCausalitySolver.solve(guns, context, phi, cause);
         assertEquals(new CausalitySolverResult(true, true, true, cause, new HashSet<>()),
                 causalitySolverResult);
     }
@@ -182,7 +182,7 @@ public class CausalitySolverTest {
                 f.literal("A_exo", true), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("A")));
         Formula phi = f.variable("F");
-        CausalitySolverResult causalitySolverResult = CausalitySolver.solve(dummyModel, context, phi, cause);
+        CausalitySolverResult causalitySolverResult = EvalCausalitySolver.solve(dummyModel, context, phi, cause);
         assertEquals(new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Arrays.asList(f.literal("E", false),
                                 f.literal("B", false), f.literal("G", false)))),
@@ -248,7 +248,7 @@ public class CausalitySolverTest {
                         new HashSet<>(Collections.singletonList(f.literal("BH", false)))),
                 new CausalitySolverResult(true, true, true,
                         new HashSet<>(Collections.singletonList(f.variable("BS"))), new HashSet<>())));
-        Set<CausalitySolverResult> allCausesActual = CausalitySolver.getAllCauses(billySuzy, context, phi);
+        Set<CausalitySolverResult> allCausesActual = EvalCausalitySolver.getAllCauses(billySuzy, context, phi);
         assertEquals(allCausesExpected, allCausesActual);
     }
 
@@ -259,7 +259,7 @@ public class CausalitySolverTest {
                 f.literal("BT_exo", false), f.literal("ST_exo", false)));
         Formula phi = f.variable("BS");
         Set<CausalitySolverResult> allCausesExpected = new HashSet<>();
-        Set<CausalitySolverResult> allCausesActual = CausalitySolver.getAllCauses(billySuzy, context, phi);
+        Set<CausalitySolverResult> allCausesActual = EvalCausalitySolver.getAllCauses(billySuzy, context, phi);
         assertEquals(allCausesExpected, allCausesActual);
     }
 
@@ -276,7 +276,7 @@ public class CausalitySolverTest {
                         new HashSet<>(Collections.singletonList(f.variable("MD"))), new HashSet<>()),
                 new CausalitySolverResult(true, true, true,
                         new HashSet<>(Collections.singletonList(f.variable("FF"))), new HashSet<>())));
-        Set<CausalitySolverResult> allCausesActual = CausalitySolver.getAllCauses(arsonists, context, phi);
+        Set<CausalitySolverResult> allCausesActual = EvalCausalitySolver.getAllCauses(arsonists, context, phi);
         assertEquals(allCausesExpected, allCausesActual);
     }
 
@@ -291,7 +291,7 @@ public class CausalitySolverTest {
                         new HashSet<>(Arrays.asList(f.variable("L"), f.variable("MD"))), new HashSet<>()),
                 new CausalitySolverResult(true, true, true,
                         new HashSet<>(Collections.singletonList(f.variable("FF"))), new HashSet<>())));
-        Set<CausalitySolverResult> allCausesActual = CausalitySolver.getAllCauses(arsonists, context, phi);
+        Set<CausalitySolverResult> allCausesActual = EvalCausalitySolver.getAllCauses(arsonists, context, phi);
         assertEquals(allCausesExpected, allCausesActual);
     }
 }
