@@ -259,6 +259,7 @@ class CausalitySolver {
             causalModelModified.getEquations().stream().filter(e -> e.getVariable().equals(l.variable()))
                     .forEach(e -> e.setFormula(l.negate().phase() ? f.verum() : f.falsum()));
         }
+        // TODO check if AC2 is already fulfilled when W empty
 
         for (Set<Literal> w : allW) {
             // create copy of modified causal model
