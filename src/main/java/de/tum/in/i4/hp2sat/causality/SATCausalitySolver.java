@@ -74,7 +74,6 @@ public class SATCausalitySolver {
         Formula phiFormula = f.not(phi); // negate phi
 
         // TODO create method to avoid code duplication
-        // TODO do only once
         // create copy of original causal model
         CausalModel causalModelModified = new CausalModel(causalModel);
         // replace equation of each part of the cause with its negation, i.e. setting x'
@@ -83,12 +82,20 @@ public class SATCausalitySolver {
                     .forEach(e -> e.setFormula(l.negate().phase() ? f.verum() : f.falsum()));
         }
 
-        // TODO do only once
         Set<Literal> evaluationModified = evaluateEquations(causalModelModified, evaluation.stream()
                 .filter(l -> causalModelModified.getExogenousVariables().contains(l.variable())) // get context
                 .collect(Collectors.toSet()));
 
-        satSolver.add(phiFormula);
+        return fulfillsAC2Helper(causalModelModified, phiFormula, evaluation, evaluationModified, f, satSolver);
+    }
+
+    // TODO doc
+    private static Set<Literal> fulfillsAC2Helper(CausalModel causalModel, Formula phi, Set<Literal> evaluation,
+                                                  Set<Literal> evaluationModified, FormulaFactory f,
+                                                  SATSolver satSolver)
+            throws InvalidCausalModelException {
+        satSolver.reset();
+        satSolver.add(phi);
         // TODO maybe not all solutions at a time, but "lazy"
         Set<Set<Literal>> solutions = satSolver.enumerateAllModels().stream().map(Assignment::literals)
                 .collect(Collectors.toSet());
@@ -98,12 +105,12 @@ public class SATCausalitySolver {
 
         for (Set<Literal> solution : solutions) {
             boolean plausible = solution.stream()
-                    .allMatch(l -> evaluation.contains(l) ||evaluationModified.contains(l));
+                    .allMatch(l -> evaluation.contains(l) || evaluationModified.contains(l));
             if (plausible) {
                 Set<Literal> w = solution.stream()
                         .filter(l -> evaluation.contains(l) && evaluationModified.contains(l.negate()))
                         .collect(Collectors.toSet());
-                CausalModel causalModelModifiedW = new CausalModel(causalModelModified);
+                CausalModel causalModelModifiedW = new CausalModel(causalModel);
                 for (Literal l : w) {
                     causalModelModifiedW.getEquations().stream().filter(e -> e.getVariable().equals(l.variable()))
                             .forEach(e -> e.setFormula(l.phase() ? f.verum() : f.falsum()));
@@ -119,7 +126,7 @@ public class SATCausalitySolver {
         }
 
         // TODO powerset method
-        List<Set<Variable>> allCombinationOfVariables = new UnifiedSet<>(phiFormula.variables()).powerSet()
+        List<Set<Variable>> allCombinationOfVariables = new UnifiedSet<>(phi.variables()).powerSet()
                 .stream().map(s -> s.toImmutable().castToSet())
                 .sorted(Comparator.comparingInt(Set::size))
                 .collect(Collectors.toList());
@@ -127,26 +134,18 @@ public class SATCausalitySolver {
 
         for (Set<Variable> variables : allCombinationOfVariables) {
             for (Variable v : variables) {
-                Equation correspondingEquation = causalModelModified.getEquations().stream()
+                Equation correspondingEquation = causalModel.getEquations().stream()
                         .filter(e -> e.getVariable().equals(v)).findFirst().get();
-                phiFormula = phiFormula.substitute(v, correspondingEquation.getFormula());
+                phi = phi.substitute(v, correspondingEquation.getFormula());
             }
-            for (Variable v : causalModelModified.getExogenousVariables()) {
+            for (Variable v : causalModel.getExogenousVariables()) {
                 Literal literal = evaluation.stream().filter(l -> l.variable().equals(v)).findFirst().get();
-                phiFormula = phiFormula.substitute(v, literal.phase() ? f.verum() : f.falsum());
+                phi = phi.substitute(v, literal.phase() ? f.verum() : f.falsum());
             }
 
-            return fulfillsAC2(causalModelModified, phiFormula.negate(), cause, evaluation);
+            return fulfillsAC2Helper(causalModel, phi, evaluation, evaluationModified, f, satSolver);
         }
 
-        // TODO
-        return null;
-    }
-
-    private static Set<Literal> fulfillsAC2Helper(CausalModel causalModel, Formula phi, Set<Literal> cause,
-                                            Set<Literal> evaluation)
-            throws InvalidCausalModelException {
-        
         return null;
     }
 
