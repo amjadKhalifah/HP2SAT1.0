@@ -171,9 +171,9 @@ class SATCausalitySolver {
                     return w;
                 } else {
                     /*
-                    * It might happen that the variables in W affect other variables such that the current solution
-                    * is not fulfilled anymore. We can than try to add all those variables that have changed their
-                    * value to W as well. */
+                     * It might happen that the variables in W affect other variables such that the current solution
+                     * is not fulfilled anymore. We can than try to add all those variables that have changed their
+                     * value to W as well. */
 
                     // get the literals that changed and negate them such that we obtain their original value
                     Set<Literal> changedLiterals = evaluationModifiedW.stream()
@@ -201,10 +201,14 @@ class SATCausalitySolver {
             }
         }
 
-        // TODO doc
+        /*
+         * If for the current phi no solution was found that is plausible and valid, we need to simplify/modify phi in
+         * order to reach other variables that we can include into W. The simplification can be done using the
+         * equations from the causal model. */
 
         // TODO powerset method
         // TODO can we optimize that and consider "relevant" variables only?
+        // get all possible combinations of current variables in phi
         List<Set<Variable>> allCombinationOfVariables = new UnifiedSet<>(phi.variables()).powerSet()
                 .stream().map(s -> s.toImmutable().castToSet())
                 .sorted(Comparator.comparingInt(Set::size))
@@ -213,16 +217,19 @@ class SATCausalitySolver {
 
         for (Set<Variable> variables : allCombinationOfVariables) {
             Formula phiModified = phi;
+            // replace all variables by their corresponding equation as defined by the causal model
             for (Variable v : variables) {
                 Equation correspondingEquation = causalModel.getEquations().stream()
                         .filter(e -> e.getVariable().equals(v)).findFirst().get();
                 phiModified = phiModified.substitute(v, correspondingEquation.getFormula());
             }
+            // replace exogenous variables by true/false
             for (Variable v : causalModel.getExogenousVariables()) {
                 Literal literal = evaluation.stream().filter(l -> l.variable().equals(v)).findFirst().get();
 
                 phiModified = phiModified.substitute(v, literal.phase() ? f.verum() : f.falsum());
             }
+            // replace variables that are constants by true/false
             for (Variable v : phiModified.variables()) {
                 Formula correspondingFormula = causalModel.getEquations().stream()
                         .filter(e -> e.getVariable().equals(v)).findFirst().get().getFormula();
@@ -230,12 +237,16 @@ class SATCausalitySolver {
                     phiModified = phiModified.substitute(v, correspondingFormula);
                 }
             }
+
             if (checkedFormulas.contains(phiModified)) {
+                // if the current simplified phi has already been checked, we do not need to check it again
                 continue;
             } else {
+                // add the simplified phi to the checked formulas
                 checkedFormulas.add(phiModified);
             }
 
+            // check if AC2 can be fulfilled using the modified phi
             Set<Literal> w = fulfillsAC2Helper(causalModel, phiModified, evaluation, evaluationModified, f,
                     satSolver, checkedFormulas);
             if (w != null) {
