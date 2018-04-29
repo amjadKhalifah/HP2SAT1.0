@@ -64,7 +64,8 @@ public class CausalModel {
      *                                 the equations
      * @throws InvalidPhiException     thrown if phi is invalid: each literal of phi needs to be defined in the equations
      */
-    public CausalitySolverResult isCause(Set<Literal> context, Formula phi, Set<Literal> cause)
+    public CausalitySolverResult isCause(Set<Literal> context, Formula phi, Set<Literal> cause,
+                                         SolvingStrategy solvingStrategy)
             throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
         if (!isContextValid(context))
             throw new InvalidContextException();
@@ -72,8 +73,13 @@ public class CausalModel {
             throw new InvalidPhiException();
         if (!isLiteralsInEquations(cause))
             throw new InvalidCauseException();
-        // TODO set strategy based on solving strategy
-        return (new EvalCausalitySolver()).solve(this, context, phi, cause, SolvingStrategy.STANDARD);
+        CausalitySolver causalitySolver;
+        if (solvingStrategy == SolvingStrategy.EVAL) {
+            causalitySolver = new EvalCausalitySolver();
+        } else {
+            causalitySolver = new SATCausalitySolver();
+        }
+        return causalitySolver.solve(this, context, phi, cause, solvingStrategy);
     }
 
     /**

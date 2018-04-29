@@ -113,7 +113,7 @@ public class CausalModelTest {
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
         Formula phi = f.variable("BS");
-        billySuzy.isCause(context, phi, cause);
+        billySuzy.isCause(context, phi, cause, SolvingStrategy.EVAL);
     }
 
     @Test(expected = InvalidContextException.class)
@@ -122,7 +122,7 @@ public class CausalModelTest {
         Set<Literal> context = new HashSet<>(Collections.singletonList(f.literal("BT_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
         Formula phi = f.variable("BS");
-        billySuzy.isCause(context, phi, cause);
+        billySuzy.isCause(context, phi, cause, SolvingStrategy.EVAL);
     }
 
     @Test(expected = InvalidPhiException.class)
@@ -132,7 +132,7 @@ public class CausalModelTest {
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
         Formula phi = f.variable("ST_exo");
-        billySuzy.isCause(context, phi, cause);
+        billySuzy.isCause(context, phi, cause, SolvingStrategy.EVAL);
     }
 
     @Test(expected = InvalidContextException.class)
@@ -142,7 +142,7 @@ public class CausalModelTest {
                 f.literal("BT_exo", true), f.literal("BT", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
         Formula phi = f.variable("BS");
-        billySuzy.isCause(context, phi, cause);
+        billySuzy.isCause(context, phi, cause, SolvingStrategy.EVAL);
     }
 
     @Test(expected = InvalidCauseException.class)
@@ -152,6 +152,6 @@ public class CausalModelTest {
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("AnInvalidVar")));
         Formula phi = f.variable("BS");
-        billySuzy.isCause(context, phi, cause);
+        billySuzy.isCause(context, phi, cause, SolvingStrategy.EVAL);
     }
 }

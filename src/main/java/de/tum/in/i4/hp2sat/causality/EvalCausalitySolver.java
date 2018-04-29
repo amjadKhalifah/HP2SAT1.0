@@ -36,7 +36,7 @@ class EvalCausalitySolver extends CausalitySolver{
              * if a subset of the currently analyzed potential cause is already a cause, we don't need to check the
              * current one since it will not fulfill AC3 (minimality!) */
             if (allCauses.stream().noneMatch(c -> cause.containsAll(c.getCause()))) {
-                CausalitySolverResult causalitySolverResult = solve(causalModel, context, phi, cause, SolvingStrategy.STANDARD);
+                CausalitySolverResult causalitySolverResult = solve(causalModel, context, phi, cause, SolvingStrategy.EVAL);
                 if (causalitySolverResult.isAc1() && causalitySolverResult.isAc2() && causalitySolverResult.isAc3()) {
                     // if all ACs fulfilled, it is a cause
                     allCauses.add(causalitySolverResult);
@@ -60,7 +60,7 @@ class EvalCausalitySolver extends CausalitySolver{
     Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause,
                                             Set<Literal> evaluation, SolvingStrategy solvingStrategy)
             throws InvalidCausalModelException {
-        if (solvingStrategy == SolvingStrategy.STANDARD) {
+        if (solvingStrategy == SolvingStrategy.EVAL) {
             // remove exogenous variables from evaluation as they are not needed for computing the Ws
             Set<Literal> evaluationWithoutExogenousVariables = evaluation.stream()
                     .filter(l -> !causalModel.getExogenousVariables().contains(l.variable()))
