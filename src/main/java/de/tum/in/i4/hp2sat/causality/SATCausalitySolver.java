@@ -1,6 +1,7 @@
 package de.tum.in.i4.hp2sat.causality;
 
 import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
+import de.tum.in.i4.hp2sat.util.Util;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.*;
@@ -157,13 +158,9 @@ class SATCausalitySolver extends CausalitySolver {
          * order to reach other variables that we can include into W. The simplification can be done using the
          * equations from the causal model. */
 
-        // TODO powerset method
         // TODO can we optimize that and consider "relevant" variables only?
         // get all possible combinations of current variables in phi
-        List<Set<Variable>> allCombinationOfVariables = new UnifiedSet<>(phi.variables()).powerSet()
-                .stream().map(s -> s.toImmutable().castToSet())
-                .sorted(Comparator.comparingInt(Set::size))
-                .collect(Collectors.toList());
+        List<Set<Variable>> allCombinationOfVariables = (new Util<Variable>()).generatePowerSet(phi.variables());
         allCombinationOfVariables.remove(0);
 
         for (Set<Variable> variables : allCombinationOfVariables) {

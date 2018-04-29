@@ -1,6 +1,7 @@
 package de.tum.in.i4.hp2sat.causality;
 
 import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
+import de.tum.in.i4.hp2sat.util.Util;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.*;
@@ -29,10 +30,7 @@ class EvalCausalitySolver extends CausalitySolver {
                     .filter(l -> !causalModel.getExogenousVariables().contains(l.variable()))
                     .collect(Collectors.toSet());
             // get all possible Ws, i.e create power set of the evaluation
-            List<Set<Literal>> allW = new UnifiedSet<>(evaluationWithoutExogenousVariables).powerSet().stream()
-                    .map(s -> s.toImmutable().castToSet())
-                    .sorted(Comparator.comparingInt(Set::size))
-                    .collect(Collectors.toList());
+            List<Set<Literal>> allW = (new Util<Literal>()).generatePowerSet(evaluationWithoutExogenousVariables);;
             return fulfillsAC2(causalModel, phi, cause, context, allW);
         } else {
             return null;
