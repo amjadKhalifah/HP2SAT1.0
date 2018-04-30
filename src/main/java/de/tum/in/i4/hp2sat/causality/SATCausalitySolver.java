@@ -2,13 +2,11 @@ package de.tum.in.i4.hp2sat.causality;
 
 import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
 import de.tum.in.i4.hp2sat.util.Util;
-import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.*;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
 
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -45,7 +43,8 @@ class SATCausalitySolver extends CausalitySolver {
         }
 
         // IMPORTANT: we call the helper with the negated phi!
-        return fulfillsAC2Helper(causalModelModified, phiFormula, context, evaluation, evaluationModified, f, satSolver,
+        return fulfillsAC2Helper(causalModelModified, phiFormula, phiFormula, context, evaluation, evaluationModified,
+                f, satSolver,
                 new HashSet<>());
     }
 
@@ -54,6 +53,8 @@ class SATCausalitySolver extends CausalitySolver {
      *
      * @param causalModel        the underlying causal model
      * @param phi                the phi
+     * @param originalPhi        TODO
+     * @param context            TODO
      * @param evaluation         the original evaluation of variables
      * @param evaluationModified the evaluation of variables with setting x'
      * @param f                  formula factory instance
@@ -62,9 +63,10 @@ class SATCausalitySolver extends CausalitySolver {
      * @return called recursively; returns W if AC2 fulfilled, else null
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
-    private Set<Literal> fulfillsAC2Helper(CausalModel causalModel, Formula phi, Set<Literal> context,
-                                           Set<Literal> evaluation, Set<Literal> evaluationModified, FormulaFactory f,
-                                           SATSolver satSolver, Set<Formula> checkedFormulas)
+    private Set<Literal> fulfillsAC2Helper(CausalModel causalModel, Formula phi, Formula originalPhi,
+                                           Set<Literal> context, Set<Literal> evaluation,
+                                           Set<Literal> evaluationModified, FormulaFactory f, SATSolver satSolver,
+                                           Set<Formula> checkedFormulas)
             throws InvalidCausalModelException {
         // reset SAT solver
         satSolver.reset();
@@ -114,10 +116,10 @@ class SATCausalitySolver extends CausalitySolver {
                 // create set of literals that are not in W
                 Set<Literal> notInW = solution.stream().filter(l -> !w.contains(l)).collect(Collectors.toSet());
                 // evaluate the variables in phi again given the modified causal model that incorporates W
-                Set<Literal> evaluationModifiedW = evaluateEquations(causalModelModifiedW, context,
-                        phi.variables().toArray(new Variable[0]));
+                Set<Literal> evaluationModifiedW = evaluateEquations(causalModelModifiedW, context);
+                // TODO include all vars until phi reached originalPhi.variables().toArray(new Variable[0])
 
-                if (evaluationModifiedW.containsAll(notInW)) {
+                if (originalPhi.evaluate(new Assignment(evaluationModifiedW))) {
                     /*
                      * if all variables not in W did not change their value, then we know that we have found a valid
                      * solution: We can construct a set W such that the combination of W and notW matches the solution
@@ -128,27 +130,10 @@ class SATCausalitySolver extends CausalitySolver {
                      * It might happen that the variables in W affect other variables such that the current solution
                      * is not fulfilled anymore. We can than try to add all those variables that have changed their
                      * value to W as well. */
-
-                    // get the literals that changed and negate them such that we obtain their original value
-                    Set<Literal> changedLiterals = evaluationModifiedW.stream()
-                            .filter(l -> notInW.contains(l.negate()) && !w.contains(l)).map(Literal::negate)
-                            .collect(Collectors.toSet());
-                    // add the changed literals to W
-                    w.addAll(changedLiterals);
-                    // apply the new parts of W to the modified causal model
-                    for (Literal l : changedLiterals) {
-                        causalModelModifiedW.getEquations().stream().filter(e -> e.getVariable().equals(l.variable()))
-                                .forEach(e -> e.setFormula(l.phase() ? f.verum() : f.falsum()));
-                    }
-                    // re-compute the literals not in W
-                    Set<Literal> notInWNew = solution.stream().filter(l -> !w.contains(l)).collect(Collectors.toSet());
-                    // TODO check if one re-eval is fine or if we need more or recursion
-                    // re-evaluate
-                    evaluationModifiedW = evaluateEquations(causalModelModifiedW, context,
-                            phi.variables().toArray(new Variable[0]));
-                    // check again if the new W affected the variables not in W
-                    if (evaluationModifiedW.containsAll(notInWNew)) {
-                        return w;
+                    Set<Literal> wNew = retry(w, causalModelModifiedW, solution, context, evaluationModifiedW,
+                            originalPhi, f);
+                    if (wNew != null) {
+                        return wNew;
                     }
                 }
             }
@@ -196,13 +181,43 @@ class SATCausalitySolver extends CausalitySolver {
             }
 
             // check if AC2 can be fulfilled using the modified phi
-            Set<Literal> w = fulfillsAC2Helper(causalModel, phiModified, context, evaluation, evaluationModified, f,
-                    satSolver, checkedFormulas);
+            Set<Literal> w = fulfillsAC2Helper(causalModel, phiModified, originalPhi, context, evaluation,
+                    evaluationModified, f, satSolver, checkedFormulas);
             if (w != null) {
                 return w;
             }
         }
 
         return null;
+    }
+
+    // TODO doc
+    private Set<Literal> retry(Set<Literal> w, CausalModel causalModel, Set<Literal> solution, Set<Literal> context,
+                               Set<Literal> evaluationModifiedW, Formula originalPhi, FormulaFactory f) {
+        // get the literals that are currently not in W
+        Set<Literal> notInW = solution.stream().filter(l -> !w.contains(l)).collect(Collectors.toSet());
+        // get the literals that changed and negate them such that we obtain their original value
+        Set<Literal> changedLiterals = evaluationModifiedW.stream()
+                .filter(l -> notInW.contains(l.negate()) && !w.contains(l)).map(Literal::negate)
+                .collect(Collectors.toSet());
+        if (changedLiterals.size() == 0) {
+            return null;
+        }
+        // add the changed literals to W
+        w.addAll(changedLiterals);
+        // apply the new parts of W to the modified causal model
+        for (Literal l : changedLiterals) {
+            causalModel.getEquations().stream().filter(e -> e.getVariable().equals(l.variable()))
+                    .forEach(e -> e.setFormula(l.phase() ? f.verum() : f.falsum()));
+        }
+        // re-evaluate
+        evaluationModifiedW = evaluateEquations(causalModel, context);
+        // check again if the new W affected the variables not in W
+        if (originalPhi.evaluate(new Assignment(evaluationModifiedW))) {
+            return w;
+        } else {
+            return retry(w, causalModel, solution, context, evaluationModifiedW, originalPhi, f);
+        }
+
     }
 }

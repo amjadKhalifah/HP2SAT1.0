@@ -164,8 +164,9 @@ public class CausalitySolverTest {
                 evalCausalitySolver.solve(billySuzy, context, phi, cause, SolvingStrategy.EVAL);
         assertEquals(causalitySolverResultExpectedEval, causalitySolverResultActualEval);
         // TODO different result -> is this a problem?
-        CausalitySolverResult causalitySolverResultExpectedSAT = new CausalitySolverResult(false, true, true, cause,
-                new HashSet<>(Arrays.asList(f.variable("BS"), f.literal("BH", false))));
+        CausalitySolverResult causalitySolverResultExpectedSAT =
+                new CausalitySolverResult(false, true, true, cause,
+                new HashSet<>(Collections.singletonList(f.literal("BH", false))));
         CausalitySolverResult causalitySolverResultActualSAT =
                 satCausalitySolver.solve(billySuzy, context, phi, cause, SolvingStrategy.SAT);
         assertEquals(causalitySolverResultExpectedSAT, causalitySolverResultActualSAT);
@@ -251,7 +252,8 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Arrays.asList(f.literal("E", false),
-                                f.literal("B", false), f.literal("G", false))));
+                                f.literal("B", false), f.literal("G", false),
+                                f.literal("H", false))));
         testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected);
     }
 

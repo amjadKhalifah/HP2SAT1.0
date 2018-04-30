@@ -147,14 +147,16 @@ public class ExampleProvider {
         Variable E = f.variable("E");
         Variable F = f.variable("F");
         Variable G = f.variable("G");
+        Variable H = f.variable("H");
 
         Formula AFormula = AExo;
         Formula BFormula = f.and(BExo, f.not(A));
         Formula CFormula = f.or(A, B);
         Formula DFormula = A;
         Formula EFormula = f.not(A);
-        Formula FFormula = f.or(C, D, E, G);
+        Formula FFormula = f.or(C, D, E, G, H);
         Formula GFormula = f.not(C);
+        Formula HFormula = f.and(f.not(C), f.not(G));
 
         Equation AEquation = new Equation(A, AFormula);
         Equation BEquation = new Equation(B, BFormula);
@@ -162,10 +164,11 @@ public class ExampleProvider {
         Equation DEquation = new Equation(D, DFormula);
         Equation EEquation = new Equation(E, EFormula);
         Equation FEquation = new Equation(F, FFormula);
-        Equation GFEquation = new Equation(G, GFormula);
+        Equation GEquation = new Equation(G, GFormula);
+        Equation HEquation = new Equation(H, HFormula);
 
         Set<Equation> equations = new HashSet<>(Arrays.asList(AEquation, BEquation, CEquation, DEquation, EEquation,
-                FEquation, GFEquation));
+                FEquation, GEquation, HEquation));
         Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(AExo, BExo));
 
         CausalModel causalModel = new CausalModel("Dummy", equations, exogenousVariables);
