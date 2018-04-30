@@ -337,8 +337,7 @@ public class CausalitySolverTest {
 
         assertEquals(evaluationExpected, evaluationActual);
     }
-
-    // TODO all strategies
+    
     @Test
     public void Should_ReturnAllCauses_WhenSuzyBillyThrow() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
