@@ -271,6 +271,30 @@ public class CausalitySolverTest {
     }
 
     @Test
+    public void Should_FulfillAllACs_When_BIsCauseInDummyModel2() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummy2();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", true),
+                f.literal("C_exo", true), f.literal("D_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B1")));
+        Formula phi = f.variable("X");
+
+        CausalitySolverResult causalitySolverResultExpectedEval =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Collections.singletonList(f.literal("D1", false))));
+        CausalitySolverResult causalitySolverResultActualEval =
+                evalCausalitySolver.solve(dummyModel, context, phi, cause, SolvingStrategy.EVAL);
+        assertEquals(causalitySolverResultExpectedEval, causalitySolverResultActualEval);
+        // TODO different result -> is this a problem? ->  not minimal
+        CausalitySolverResult causalitySolverResultExpectedSAT =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Arrays.asList(f.variable("B2"),f.literal("C2", false))));
+        CausalitySolverResult causalitySolverResultActualSAT =
+                satCausalitySolver.solve(dummyModel, context, phi, cause, SolvingStrategy.SAT);
+        assertEquals(causalitySolverResultExpectedSAT, causalitySolverResultActualSAT);
+    }
+
+    @Test
     public void Should_ReturnEvaluationForEquationsInBillySuzy_When_BillyAndSuzyThrow() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
