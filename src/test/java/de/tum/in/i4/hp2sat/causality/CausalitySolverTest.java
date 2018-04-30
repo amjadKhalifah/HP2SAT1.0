@@ -35,7 +35,7 @@ public class CausalitySolverTest {
                 causalitySolverResultActual =
                         satCausalitySolver.solve(causalModel, context, phi, cause, solvingStrategy);
             }
-            assertEquals(causalitySolverResultExpected, causalitySolverResultActual);
+            assertEquals("Error for " + solvingStrategy, causalitySolverResultExpected, causalitySolverResultActual);
         }
     }
 
