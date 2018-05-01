@@ -22,6 +22,7 @@ class EvalCausalitySolver extends CausalitySolver {
      * @return returns W if AC2 fulfilled, else null
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
+    @Override
     Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
                              Set<Literal> evaluation, SolvingStrategy solvingStrategy)
             throws InvalidCausalModelException {
