@@ -6,7 +6,6 @@ import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -65,7 +64,8 @@ public class CausalModel {
      *                                 the equations
      * @throws InvalidPhiException     thrown if phi is invalid: each literal of phi needs to be defined in the equations
      */
-    public CausalitySolverResult isCause(Set<Literal> context, Formula phi, Set<Literal> cause)
+    public CausalitySolverResult isCause(Set<Literal> context, Formula phi, Set<Literal> cause,
+                                         SolvingStrategy solvingStrategy)
             throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
         if (!isContextValid(context))
             throw new InvalidContextException();
@@ -73,7 +73,13 @@ public class CausalModel {
             throw new InvalidPhiException();
         if (!isLiteralsInEquations(cause))
             throw new InvalidCauseException();
-        return CausalitySolver.solve(this, context, phi, cause);
+        CausalitySolver causalitySolver;
+        if (solvingStrategy == SolvingStrategy.EVAL) {
+            causalitySolver = new EvalCausalitySolver();
+        } else {
+            causalitySolver = new SATCausalitySolver();
+        }
+        return causalitySolver.solve(this, context, phi, cause, solvingStrategy);
     }
 
     /**
