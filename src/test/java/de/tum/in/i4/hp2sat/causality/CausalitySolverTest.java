@@ -399,6 +399,25 @@ public class CausalitySolverTest {
     }
 
     @Test
+    public void Should_FulfillAC1AC3Only_When_SIsCauseInBenchmarkModel() throws Exception {
+        CausalModel benchmarkModel = ExampleProvider.benchmarkModel();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("S_exo", true), f.literal("T_exo", true),
+                f.literal("U_exo", true), f.literal("V_exo", true),
+                f.literal("W_exo", true), f.literal("X_exo", true),
+                f.literal("Y_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("S")));
+        Formula phi = f.variable("A");
+
+        // test for real SAT approach only as for the others this is taking too long
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        CausalitySolverResult causalitySolverResultActual = realSATCausalitySolver.solve(benchmarkModel, context, phi,
+                cause, SolvingStrategy.REAL_SAT);
+        assertEquals(causalitySolverResultExpected, causalitySolverResultActual);
+    }
+
+    @Test
     public void Should_ReturnEvaluationForEquationsInBillySuzy_When_BillyAndSuzyThrow() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
