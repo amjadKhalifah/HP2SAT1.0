@@ -16,6 +16,18 @@ import java.util.stream.Collectors;
 
 // TODO rename
 class RealSATCausalitySolver extends CausalitySolver {
+    /**
+     * Checks if AC2 is fulfilled.
+     *
+     * @param causalModel     the underlying causal model
+     * @param phi             the phi
+     * @param cause           the cause for which we check AC2
+     * @param context         the context
+     * @param evaluation      the original evaluation of variables
+     * @param solvingStrategy the solving strategy
+     * @return returns W if AC2 fulfilled, else null
+     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
+     */
     @Override
     Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
                              Set<Literal> evaluation, SolvingStrategy solvingStrategy)
@@ -33,12 +45,15 @@ class RealSATCausalitySolver extends CausalitySolver {
         if (phiFormula.evaluate(new Assignment(evaluationModified))) {
             return new HashSet<>();
         }
+        // generate SAT query
         Formula formula = generateSATQuery(causalModel, phiFormula, cause, context, evaluation, f);
-
+        // add query to solver
         satSolver.add(formula);
         if (satSolver.sat() == Tristate.TRUE) {
+            // if satisfiable, get the assignment for which the formula is satisfiable
             Assignment assignment = satSolver.model();
             // TODO minimal w? currently, we take the maximum W -> need to check, if it works for a smaller one as well
+            // generate (maximum) W
             Set<Literal> w = assignment.literals().stream()
                     .filter(l -> evaluation.contains(l) && (evaluationModified.contains(l.negate()) ||
                             (evaluationModified.contains(l) &&
@@ -46,20 +61,37 @@ class RealSATCausalitySolver extends CausalitySolver {
                     .collect(Collectors.toSet());
             return w;
         } else {
+            // if not satisfiable
             return null;
         }
     }
 
+    /**
+     * Generates a formula whose satisfiability indicates whether AC2 is fulfilled or not.
+     *
+     * @param causalModel the causal model
+     * @param notPhi      the negated phi
+     * @param cause       the cause
+     * @param context     the context
+     * @param evaluation  the original evaluation under the given context
+     * @param f           a formula factory
+     * @return a formula
+     */
     private Formula generateSATQuery(CausalModel causalModel, Formula notPhi, Set<Literal> cause, Set<Literal> context,
                                      Set<Literal> evaluation, FormulaFactory f) {
+        // get all variables in cause
         Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
+        // create formula: !phi AND context AND !cause
         Formula formula = f.and(notPhi, f.and(context), f.not(f.and(cause)));
         for (Equation equation : causalModel.getEquations()) {
             if (!causeVariables.contains(equation.getVariable())) {
-                // we know that it exists!
+                // get value of variable in original iteration
                 Literal originalValue = evaluation.stream().filter(l -> l.variable().equals(equation.getVariable()))
-                        .findFirst().get();
-                Formula equationFormula = f.or(originalValue, f.equivalence(equation.getVariable(), equation.getFormula()));
+                        .findFirst().get(); // we know that it exists! -> no need to check isPresent()
+                // create formula: V_originalValue OR (V <=> Formula_V)
+                Formula equationFormula = f.or(originalValue,
+                        f.equivalence(equation.getVariable(), equation.getFormula()));
+                // add created formula to global formula by AND
                 formula = f.and(formula, equationFormula);
             }
         }
