@@ -233,7 +233,6 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResultExpectedEval =
                 new CausalitySolverResult(false, true, true, cause,
                         new HashSet<>(Collections.singletonList(f.literal("ST", true))));
-        // TODO different result -> is this a problem?
         CausalitySolverResult causalitySolverResultExpectedSAT =
                 new CausalitySolverResult(false, true, true, cause,
                         new HashSet<>(Collections.singletonList(f.literal("BH", false))));
@@ -379,7 +378,6 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResultExpectedEval =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Collections.singletonList(f.literal("D1", false))));
-        // TODO different result -> is this a problem? ->  not minimal
         CausalitySolverResult causalitySolverResultExpectedSAT =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Arrays.asList(f.variable("B2"), f.literal("C2", false))));
@@ -480,9 +478,6 @@ public class CausalitySolverTest {
                 };
 
         testGetAllCauses(billySuzy, context, phi, allCausesExpected);
-
-        // TODO fix and allow for different expected results
-        // testGetAllCauses(billySuzy, context, phi, allCausesExpectedEval);
     }
 
     @Test
