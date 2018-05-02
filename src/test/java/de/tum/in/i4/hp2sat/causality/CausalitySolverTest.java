@@ -8,49 +8,79 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.*;
 import static org.junit.Assert.*;
 
 public class CausalitySolverTest {
     FormulaFactory f;
     EvalCausalitySolver evalCausalitySolver;
     SATCausalitySolver satCausalitySolver;
-    List<SolvingStrategy> solvingStrategies = Arrays.asList(SolvingStrategy.EVAL, SolvingStrategy.SAT);
+    RealSATCausalitySolver realSATCausalitySolver;
+    List<SolvingStrategy> solvingStrategies = Arrays.asList(EVAL, SAT, REAL_SAT);
 
     @Before
     public void setUp() throws Exception {
         f = new FormulaFactory();
         evalCausalitySolver = new EvalCausalitySolver();
         satCausalitySolver = new SATCausalitySolver();
+        realSATCausalitySolver = new RealSATCausalitySolver();
     }
 
     private void testSolve(CausalModel causalModel, Set<Literal> context, Formula phi, Set<Literal> cause,
                            CausalitySolverResult causalitySolverResultExpected) throws Exception {
+        // all have same expected result
+        Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected = solvingStrategies.stream()
+                .collect(Collectors.toMap(Function.identity(), s -> causalitySolverResultExpected));
+        testSolve(causalModel, context, phi, cause, causalitySolverResultsExpected);
+    }
+
+    private void testSolve(CausalModel causalModel, Set<Literal> context, Formula phi, Set<Literal> cause,
+                           Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected) throws Exception {
         for (SolvingStrategy solvingStrategy : solvingStrategies) {
-            CausalitySolverResult causalitySolverResultActual;
-            if (solvingStrategy == SolvingStrategy.EVAL) {
+            CausalitySolverResult causalitySolverResultActual = null;
+            if (solvingStrategy == EVAL) {
                 causalitySolverResultActual =
                         evalCausalitySolver.solve(causalModel, context, phi, cause, solvingStrategy);
-            } else {
+            } else if (solvingStrategy == REAL_SAT) {
+                causalitySolverResultActual =
+                        realSATCausalitySolver.solve(causalModel, context, phi, cause, solvingStrategy);
+            } else if (solvingStrategy == SAT) {
                 causalitySolverResultActual =
                         satCausalitySolver.solve(causalModel, context, phi, cause, solvingStrategy);
             }
-            assertEquals("Error for " + solvingStrategy, causalitySolverResultExpected, causalitySolverResultActual);
+            assertEquals("Error for " + solvingStrategy, causalitySolverResultsExpected.get(solvingStrategy),
+                    causalitySolverResultActual);
         }
     }
 
     private void testGetAllCauses(CausalModel causalModel, Set<Literal> context, Formula phi,
-                           Set<CausalitySolverResult> causalitySolverResultsExpected) throws Exception {
+                                  Set<CausalitySolverResult> causalitySolverResultsExpected) throws Exception {
+        // all have same expected result
+        Map<SolvingStrategy, Set<CausalitySolverResult>> causalitySolverResultsExpectedMap = solvingStrategies.stream()
+                .collect(Collectors.toMap(Function.identity(), s -> causalitySolverResultsExpected));
+        testGetAllCauses(causalModel, context, phi, causalitySolverResultsExpectedMap);
+    }
+
+    private void testGetAllCauses(CausalModel causalModel, Set<Literal> context, Formula phi,
+                                  Map<SolvingStrategy, Set<CausalitySolverResult>> causalitySolverResultsExpected)
+            throws Exception {
         for (SolvingStrategy solvingStrategy : solvingStrategies) {
             Set<CausalitySolverResult> causalitySolverResultsActual;
-            if (solvingStrategy == SolvingStrategy.EVAL) {
+            if (solvingStrategy == EVAL) {
                 causalitySolverResultsActual =
                         evalCausalitySolver.getAllCauses(causalModel, context, phi, solvingStrategy);
+            } else if (solvingStrategy == REAL_SAT) {
+                causalitySolverResultsActual =
+                        realSATCausalitySolver.getAllCauses(causalModel, context, phi, solvingStrategy);
             } else {
                 causalitySolverResultsActual =
                         satCausalitySolver.getAllCauses(causalModel, context, phi, solvingStrategy);
             }
-            assertEquals(causalitySolverResultsExpected, causalitySolverResultsActual);
+            assertEquals("Error for " + solvingStrategy, causalitySolverResultsExpected.get(solvingStrategy),
+                    causalitySolverResultsActual);
         }
     }
 
@@ -75,10 +105,23 @@ public class CausalitySolverTest {
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
         Formula phi = f.variable("BS");
 
-        CausalitySolverResult causalitySolverResultExpected =
+        CausalitySolverResult causalitySolverResultExpectedEval =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Collections.singletonList(f.literal("BH", false))));
-        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+        CausalitySolverResult causalitySolverResultExpectedSAT = causalitySolverResultExpectedEval;
+        CausalitySolverResult causalitySolverResultExpectedREALSAT =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false))));
+        Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected =
+                new HashMap<SolvingStrategy, CausalitySolverResult>() {
+                    {
+                        put(EVAL, causalitySolverResultExpectedEval);
+                        put(SAT, causalitySolverResultExpectedSAT);
+                        put(REAL_SAT, causalitySolverResultExpectedREALSAT);
+                    }
+                };
+
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultsExpected);
     }
 
     @Test
@@ -92,8 +135,25 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Collections.singletonList(f.literal("BH", false))));
-        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
 
+        CausalitySolverResult causalitySolverResultExpectedEval =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Collections.singletonList(f.literal("BH", false))));
+        CausalitySolverResult causalitySolverResultExpectedSAT = causalitySolverResultExpectedEval;
+        CausalitySolverResult causalitySolverResultExpectedREALSAT =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Arrays.asList(f.variable("BT"), f.variable("ST"),
+                                f.literal("BH", false))));
+        Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected =
+                new HashMap<SolvingStrategy, CausalitySolverResult>() {
+                    {
+                        put(EVAL, causalitySolverResultExpectedEval);
+                        put(SAT, causalitySolverResultExpectedSAT);
+                        put(REAL_SAT, causalitySolverResultExpectedREALSAT);
+                    }
+                };
+
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultsExpected);
     }
 
     @Test
@@ -143,10 +203,23 @@ public class CausalitySolverTest {
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
         Formula phi = f.or(f.variable("BS"), f.variable("SH"));
 
-        CausalitySolverResult causalitySolverResultExpected =
+        CausalitySolverResult causalitySolverResultExpectedEval =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Collections.singletonList(f.literal("BH", false))));
-        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+        CausalitySolverResult causalitySolverResultExpectedSAT = causalitySolverResultExpectedEval;
+        CausalitySolverResult causalitySolverResultExpectedREALSAT =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false))));
+        Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected =
+                new HashMap<SolvingStrategy, CausalitySolverResult>() {
+                    {
+                        put(EVAL, causalitySolverResultExpectedEval);
+                        put(SAT, causalitySolverResultExpectedSAT);
+                        put(REAL_SAT, causalitySolverResultExpectedREALSAT);
+                    }
+                };
+
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultsExpected);
     }
 
     @Test
@@ -160,16 +233,22 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResultExpectedEval =
                 new CausalitySolverResult(false, true, true, cause,
                         new HashSet<>(Collections.singletonList(f.literal("ST", true))));
-        CausalitySolverResult causalitySolverResultActualEval =
-                evalCausalitySolver.solve(billySuzy, context, phi, cause, SolvingStrategy.EVAL);
-        assertEquals(causalitySolverResultExpectedEval, causalitySolverResultActualEval);
-        // TODO different result -> is this a problem?
         CausalitySolverResult causalitySolverResultExpectedSAT =
                 new CausalitySolverResult(false, true, true, cause,
-                new HashSet<>(Collections.singletonList(f.literal("BH", false))));
-        CausalitySolverResult causalitySolverResultActualSAT =
-                satCausalitySolver.solve(billySuzy, context, phi, cause, SolvingStrategy.SAT);
-        assertEquals(causalitySolverResultExpectedSAT, causalitySolverResultActualSAT);
+                        new HashSet<>(Collections.singletonList(f.literal("BH", false))));
+        CausalitySolverResult causalitySolverResultExpectedREALSAT =
+                new CausalitySolverResult(false, true, true, cause,
+                        new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false))));
+        Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected =
+                new HashMap<SolvingStrategy, CausalitySolverResult>() {
+                    {
+                        put(EVAL, causalitySolverResultExpectedEval);
+                        put(SAT, causalitySolverResultExpectedSAT);
+                        put(REAL_SAT, causalitySolverResultExpectedREALSAT);
+                    }
+                };
+
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultsExpected);
     }
 
     @Test
@@ -210,7 +289,24 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Collections.singletonList(f.literal("BH", false))));
-        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+
+        CausalitySolverResult causalitySolverResultExpectedEval =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Collections.singletonList(f.literal("BH", false))));
+        CausalitySolverResult causalitySolverResultExpectedSAT = causalitySolverResultExpectedEval;
+        CausalitySolverResult causalitySolverResultExpectedREALSAT =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false))));
+        Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected =
+                new HashMap<SolvingStrategy, CausalitySolverResult>() {
+                    {
+                        put(EVAL, causalitySolverResultExpectedEval);
+                        put(SAT, causalitySolverResultExpectedSAT);
+                        put(REAL_SAT, causalitySolverResultExpectedREALSAT);
+                    }
+                };
+
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultsExpected);
     }
 
     @Test
@@ -282,16 +378,43 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResultExpectedEval =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Collections.singletonList(f.literal("D1", false))));
-        CausalitySolverResult causalitySolverResultActualEval =
-                evalCausalitySolver.solve(dummyModel, context, phi, cause, SolvingStrategy.EVAL);
-        assertEquals(causalitySolverResultExpectedEval, causalitySolverResultActualEval);
-        // TODO different result -> is this a problem? ->  not minimal
         CausalitySolverResult causalitySolverResultExpectedSAT =
                 new CausalitySolverResult(true, true, true, cause,
-                        new HashSet<>(Arrays.asList(f.variable("B2"),f.literal("C2", false))));
-        CausalitySolverResult causalitySolverResultActualSAT =
-                satCausalitySolver.solve(dummyModel, context, phi, cause, SolvingStrategy.SAT);
-        assertEquals(causalitySolverResultExpectedSAT, causalitySolverResultActualSAT);
+                        new HashSet<>(Arrays.asList(f.variable("B2"), f.literal("C2", false))));
+        CausalitySolverResult causalitySolverResultExpectedREALSAT =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Arrays.asList(f.literal("D1", false),
+                                f.literal("C1", false), f.literal("D2", false),
+                                f.literal("C2", false))));
+        Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected =
+                new HashMap<SolvingStrategy, CausalitySolverResult>() {
+                    {
+                        put(EVAL, causalitySolverResultExpectedEval);
+                        put(SAT, causalitySolverResultExpectedSAT);
+                        put(REAL_SAT, causalitySolverResultExpectedREALSAT);
+                    }
+                };
+
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultsExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC1AC3Only_When_SIsCauseInBenchmarkModel() throws Exception {
+        CausalModel benchmarkModel = ExampleProvider.benchmarkModel();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("S_exo", true), f.literal("T_exo", true),
+                f.literal("U_exo", true), f.literal("V_exo", true),
+                f.literal("W_exo", true), f.literal("X_exo", true),
+                f.literal("Y_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("S")));
+        Formula phi = f.variable("A");
+
+        // test for real SAT approach only as for the others this is taking too long
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        CausalitySolverResult causalitySolverResultActual = realSATCausalitySolver.solve(benchmarkModel, context, phi,
+                cause, SolvingStrategy.REAL_SAT);
+        assertEquals(causalitySolverResultExpected, causalitySolverResultActual);
     }
 
     @Test
@@ -337,14 +460,14 @@ public class CausalitySolverTest {
 
         assertEquals(evaluationExpected, evaluationActual);
     }
-    
+
     @Test
     public void Should_ReturnAllCauses_WhenSuzyBillyThrow() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Formula phi = f.variable("BS");
-        Set<CausalitySolverResult> allCausesExpected = new HashSet<>(Arrays.asList(
+        Set<CausalitySolverResult> allCausesExpectedEval = new HashSet<>(Arrays.asList(
                 new CausalitySolverResult(true, true, true,
                         new HashSet<>(Collections.singletonList(f.variable("ST"))),
                         new HashSet<>(Collections.singletonList(f.literal("BH", false)))),
@@ -353,6 +476,25 @@ public class CausalitySolverTest {
                         new HashSet<>(Collections.singletonList(f.literal("BH", false)))),
                 new CausalitySolverResult(true, true, true,
                         new HashSet<>(Collections.singletonList(f.variable("BS"))), new HashSet<>())));
+        Set<CausalitySolverResult> allCausesExpectedSAT = allCausesExpectedEval;
+        Set<CausalitySolverResult> allCausesExpectedREALSAT = new HashSet<>(Arrays.asList(
+                new CausalitySolverResult(true, true, true,
+                        new HashSet<>(Collections.singletonList(f.variable("ST"))),
+                        new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false)))),
+                new CausalitySolverResult(true, true, true,
+                        new HashSet<>(Collections.singletonList(f.variable("SH"))),
+                        new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("BT"),
+                                f.literal("BH", false)))),
+                new CausalitySolverResult(true, true, true,
+                        new HashSet<>(Collections.singletonList(f.variable("BS"))), new HashSet<>())));
+        Map<SolvingStrategy, Set<CausalitySolverResult>> allCausesExpected =
+                new HashMap<SolvingStrategy, Set<CausalitySolverResult>>() {
+                    {
+                        put(EVAL, allCausesExpectedEval);
+                        put(SAT, allCausesExpectedSAT);
+                        put(REAL_SAT, allCausesExpectedREALSAT);
+                    }
+                };
 
         testGetAllCauses(billySuzy, context, phi, allCausesExpected);
     }

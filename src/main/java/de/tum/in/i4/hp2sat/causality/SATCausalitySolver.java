@@ -25,6 +25,7 @@ class SATCausalitySolver extends CausalitySolver {
      * @return returns W if AC2 fulfilled, else null
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
+    @Override
     Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
                              Set<Literal> evaluation, SolvingStrategy solvingStrategy)
             throws InvalidCausalModelException {
@@ -52,9 +53,9 @@ class SATCausalitySolver extends CausalitySolver {
      * Checks if AC2 is fulfilled.
      *
      * @param causalModel        the underlying causal model
-     * @param phi                the phi
-     * @param originalPhi        TODO
-     * @param context            TODO
+     * @param phi                the current phi (will be modified due to recursion)
+     * @param originalPhi        the original phi
+     * @param context            the context
      * @param evaluation         the original evaluation of variables
      * @param evaluationModified the evaluation of variables with setting x'
      * @param f                  formula factory instance
@@ -191,13 +192,24 @@ class SATCausalitySolver extends CausalitySolver {
         return null;
     }
 
-    // TODO doc
+    /**
+     * Retry whether current solution is valid by adding more variables to W.
+     *
+     * @param w                   the current w
+     * @param causalModel         the causal model
+     * @param solution            the current solution
+     * @param context             the context
+     * @param evaluationModified the modified evaluation
+     * @param originalPhi         the original phi
+     * @param f                   a formula factory
+     * @return called recursively; returns W if AC2 fulfilled, else null
+     */
     private Set<Literal> retry(Set<Literal> w, CausalModel causalModel, Set<Literal> solution, Set<Literal> context,
-                               Set<Literal> evaluationModifiedW, Formula originalPhi, FormulaFactory f) {
+                               Set<Literal> evaluationModified, Formula originalPhi, FormulaFactory f) {
         // get the literals that are currently not in W
         Set<Literal> notInW = solution.stream().filter(l -> !w.contains(l)).collect(Collectors.toSet());
         // get the literals that changed and negate them such that we obtain their original value
-        Set<Literal> changedLiterals = evaluationModifiedW.stream()
+        Set<Literal> changedLiterals = evaluationModified.stream()
                 .filter(l -> notInW.contains(l.negate()) && !w.contains(l)).map(Literal::negate)
                 .collect(Collectors.toSet());
         if (changedLiterals.size() == 0) {
@@ -211,12 +223,12 @@ class SATCausalitySolver extends CausalitySolver {
                     .forEach(e -> e.setFormula(l.phase() ? f.verum() : f.falsum()));
         }
         // re-evaluate
-        evaluationModifiedW = evaluateEquations(causalModel, context);
+        evaluationModified = evaluateEquations(causalModel, context);
         // check again if the new W affected the variables not in W
-        if (originalPhi.evaluate(new Assignment(evaluationModifiedW))) {
+        if (originalPhi.evaluate(new Assignment(evaluationModified))) {
             return w;
         } else {
-            return retry(w, causalModel, solution, context, evaluationModifiedW, originalPhi, f);
+            return retry(w, causalModel, solution, context, evaluationModified, originalPhi, f);
         }
 
     }
