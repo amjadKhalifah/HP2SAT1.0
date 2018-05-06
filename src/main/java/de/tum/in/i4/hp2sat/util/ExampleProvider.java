@@ -7,9 +7,9 @@ import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class ExampleProvider {
     public static CausalModel billySuzy() throws InvalidCausalModelException {
@@ -290,5 +290,50 @@ public class ExampleProvider {
 
         CausalModel causalModel = new CausalModel("BenchmarkModel", equations, exogenousVariables);
         return causalModel;
+    }
+
+    public static CausalModel generateBinaryTreeBenchmarkModel(int depth) throws InvalidCausalModelException {
+        // TODO doc
+        FormulaFactory f = new FormulaFactory();
+        String name = "BinaryTreeBenchmarkModel";
+        if (depth >= 0) {
+            int numberOfNodes = (int) Math.pow(2, depth + 1) - 1;
+            int numberOfLeaves = (numberOfNodes + 1) / 2; // no double needed; is always integer for full binary tree
+
+            int[] rangeArray = IntStream.range(numberOfNodes - numberOfLeaves, numberOfNodes)
+                    .map(i -> numberOfNodes - i + (numberOfNodes - numberOfLeaves) - 1) // reverse
+                    .toArray();
+            List<Variable> exogenousVariables = Arrays.stream(rangeArray).mapToObj(i -> f.variable(i + "_exo"))
+                    .collect(Collectors.toList());
+
+            Set<Equation> equations = new HashSet<>();
+            List<Variable> variablesInPreviousLevel = new ArrayList<>();
+            for (int i = 0; i < rangeArray.length; i++) {
+                Variable endogenousVariable = f.variable("" + rangeArray[i]);
+                variablesInPreviousLevel.add(endogenousVariable);
+                Equation equation = new Equation(endogenousVariable, exogenousVariables.get(i));
+                equations.add(equation);
+            }
+
+            int count = numberOfNodes - numberOfLeaves - 1;
+            for (int i = depth - 1; i >= 0; i--) {
+                int numberOfNodesInCurrentLevel = ((int) Math.pow(2, i + 1) - 1 + 1) / 2;
+                List<Variable> variablesInPreviousLevelNew = new ArrayList<>();
+                for (int k = 0; k < numberOfNodesInCurrentLevel; k++) {
+                    Variable endogenousVariable = f.variable("" + count--);
+                    variablesInPreviousLevelNew.add(endogenousVariable);
+
+                    Formula formula = f.or(variablesInPreviousLevel.get(2 * k),
+                            variablesInPreviousLevel.get(2 * k + 1));
+                    Equation equation = new Equation(endogenousVariable, formula);
+                    equations.add(equation);
+                }
+                variablesInPreviousLevel = variablesInPreviousLevelNew;
+            }
+            CausalModel causalModel = new CausalModel(name, equations, new HashSet<>(exogenousVariables));
+            return causalModel;
+        } else {
+            return null;
+        }
     }
 }
