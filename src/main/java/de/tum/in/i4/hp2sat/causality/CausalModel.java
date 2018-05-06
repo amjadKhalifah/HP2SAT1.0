@@ -1,6 +1,8 @@
 package de.tum.in.i4.hp2sat.causality;
 
 import de.tum.in.i4.hp2sat.exceptions.*;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.SingleGraph;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
@@ -131,6 +133,26 @@ public class CausalModel {
         }
 
         return false;
+    }
+
+    /**
+     * Converts this causal model into a graph. Needed for evaluation.
+     *
+     * @return the causal model as graph
+     */
+    Graph toGraph() {
+        Graph graph = new SingleGraph(this.name);
+        // create all nodes
+        this.getEquations().forEach(e -> graph.addNode(e.getVariable().name()));
+        this.getExogenousVariables().forEach(e -> graph.addNode(e.name()));
+        // create edges
+        for (Equation equation : this.equations) {
+            String equationVariableName = equation.getVariable().name();
+            Formula formula = equation.getFormula();
+            formula.variables().forEach(v -> graph.addEdge(equationVariableName + "-" + v.name(), v.name(),
+                    equationVariableName, true));
+        }
+        return graph;
     }
 
     /**

@@ -2,6 +2,10 @@ package de.tum.in.i4.hp2sat.causality;
 
 import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.graphstream.algorithm.TopologicalSortDFS;
+import org.graphstream.algorithm.TopologicalSortKahn;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.*;
 
@@ -156,46 +160,29 @@ abstract class CausalitySolver {
      */
     private static Set<Literal> evaluateEquationsHelper(CausalModel causalModel, Set<Equation> equations,
                                                         Assignment assignment, Variable... variables) {
-        // assume that causal model is valid!
+        // create graph from causal model
+        Graph graph = causalModel.toGraph();
         /*
          * Following to HP, we can sort variables in an acyclic causal model according to their dependence on other
          * variables. The following applies: "If X < Y, then the value of X may affect the value of Y , but the value
          * of Y cannot affect the value of X"
+         * The problem is that this sorting is NOT transitive. Therefore, we convert the causal model into a graph
+         * and to a topological sort.
          * */
-        List<Equation> equationsSorted = new ArrayList<>(equations).stream()
-                .sorted((equation1, equation2) -> {
-                    // the following comments assume: X is defined by equation1 and Y is defined by equation2
-                    if (causalModel.isVariableInEquation(equation2.getVariable(), equation1)) {
-                        // if Y is used in the formula of X, then Y < X -> return 1
-                        return 1;
-                    } else if (causalModel.isVariableInEquation(equation1.getVariable(), equation2)) {
-                        // if X is used in the formula of Y, then X < Y -> return -1
-                        return -1;
-                    } else {
-                        Set<Variable> exoVars = causalModel.getExogenousVariables();
-                        /*
-                         * We need to ensure that variables defined by exogenous variables only always come before
-                         * variables defined by endo- AND exogenous variables (or possibly endogenous variables only)
-                         * and that variables defined by exo- and endogenous variables come before variables defined
-                         * by endogenous variables only. On that way, we ensure that we can properly evaluate all
-                         * variables given a context */
-                        if (exoVars.containsAll(equation1.getFormula().variables()) &&
-                                !exoVars.containsAll(equation2.getFormula().variables())) {
-                            return -1;
-                        } else if (exoVars.containsAll(equation2.getFormula().variables()) &&
-                                !exoVars.containsAll(equation1.getFormula().variables())) {
-                            return 1;
-                        } else if (equation1.getFormula().variables().stream().anyMatch(exoVars::contains) &&
-                                equation2.getFormula().variables().stream().noneMatch(exoVars::contains)) {
-                            return -1;
-                        } else if (equation2.getFormula().variables().stream().anyMatch(exoVars::contains) &&
-                                equation1.getFormula().variables().stream().noneMatch(exoVars::contains)) {
-                            return 1;
-                        } else {
-                            return 0;
-                        }
-                    }
-                }).collect(Collectors.toList());
+        TopologicalSortDFS topologicalSortDFS = new TopologicalSortDFS();
+        topologicalSortDFS.init(graph);
+        topologicalSortDFS.compute();
+        // get sorted nodes
+        List<Node> sortedNodes = topologicalSortDFS.getSortedNodes();
+        // get set of exogenous variable names
+        Set<String> exogenousVariablesNames = causalModel.getExogenousVariables().stream().map(Literal::name)
+                .collect(Collectors.toSet());
+        // get sorted list of equations
+        List<Equation> equationsSorted = sortedNodes.stream()
+                .filter(n -> !exogenousVariablesNames.contains(n.getId()))
+                .map(n -> equations.stream()
+                        .filter(e -> e.getVariable().name().equals(n.getId())).findFirst().get())
+                .collect(Collectors.toList());
 
         Set<Equation> unevaluatedEquations = new HashSet<>();
         // initially, we can only assign the exogenous variables as defined by the context
