@@ -401,11 +401,8 @@ public class CausalitySolverTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_SIsCauseInBenchmarkModel() throws Exception {
         CausalModel benchmarkModel = ExampleProvider.benchmarkModel();
-        Set<Literal> context = new HashSet<>(Arrays.asList(
-                f.literal("S_exo", true), f.literal("T_exo", true),
-                f.literal("U_exo", true), f.literal("V_exo", true),
-                f.literal("W_exo", true), f.literal("X_exo", true),
-                f.literal("Y_exo", true)));
+        Set<Literal> context = benchmarkModel.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("S")));
         Formula phi = f.variable("A");
 
