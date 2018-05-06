@@ -144,22 +144,6 @@ abstract class CausalitySolver {
      * negative means false
      */
     static Set<Literal> evaluateEquations(CausalModel causalModel, Set<Literal> context, Variable... variables) {
-        Assignment assignment = new Assignment(context);
-        return evaluateEquationsHelper(causalModel, causalModel.getEquations(), assignment, variables);
-    }
-
-    /**
-     * Helper method that can be called recursively to avoid unevaluated equations.
-     *
-     * @param causalModel the causal model
-     * @param equations   the equations that need to be evaluated
-     * @param assignment  the currently known assignment
-     * @param variables   if some variables are given, then only their evaluation is returned
-     * @return evaluation for all variables within the causal model (endo and exo); positive literal means true,
-     * negative means false
-     */
-    private static Set<Literal> evaluateEquationsHelper(CausalModel causalModel, Set<Equation> equations,
-                                                        Assignment assignment, Variable... variables) {
         // create graph from causal model
         Graph graph = causalModel.toGraph();
         /*
@@ -180,12 +164,12 @@ abstract class CausalitySolver {
         // get sorted list of equations
         List<Equation> equationsSorted = sortedNodes.stream()
                 .filter(n -> !exogenousVariablesNames.contains(n.getId()))
-                .map(n -> equations.stream()
+                .map(n -> causalModel.getEquations().stream()
                         .filter(e -> e.getVariable().name().equals(n.getId())).findFirst().get())
                 .collect(Collectors.toList());
 
-        Set<Equation> unevaluatedEquations = new HashSet<>();
         // initially, we can only assign the exogenous variables as defined by the context
+        Assignment assignment = new Assignment(context);
         for (Equation equation : equationsSorted) {
             /*
              * For each equation, we "evaluate" the corresponding formula based on the assignment. Since the equations
@@ -196,11 +180,8 @@ abstract class CausalitySolver {
             // if the causal model is valid than one of the ifs MUST apply!
             if (evaluation instanceof CTrue) {
                 assignment.addLiteral(equation.getVariable());
-            } else if (evaluation instanceof CFalse) {
-                assignment.addLiteral(equation.getVariable().negate());
             } else {
-                // add equation to unevaluated equations
-                unevaluatedEquations.add(equation);
+                assignment.addLiteral(equation.getVariable().negate());
             }
 
             /*
@@ -214,18 +195,10 @@ abstract class CausalitySolver {
                         .filter(l -> Arrays.asList(variables).contains(l.variable())).collect(Collectors.toSet());
             }
         }
-
-        if (unevaluatedEquations.size() != 0) {
-            // if some equations are still unevaluated, recursively call method
-            /*
-             * This does not happen very often. The problem seems to be the sort function. */
-            return evaluateEquationsHelper(causalModel, unevaluatedEquations, assignment, variables);
-        } else {
-            /*
-             * Finally, we return the literals of the assignment. A positive/negative literal indicates that the
-             * corresponding variable evaluates to true/false  */
-            return assignment.literals();
-        }
+        /*
+         * Finally, we return the literals of the assignment. A positive/negative literal indicates that the
+         * corresponding variable evaluates to true/false  */
+        return assignment.literals();
     }
 
     /**
