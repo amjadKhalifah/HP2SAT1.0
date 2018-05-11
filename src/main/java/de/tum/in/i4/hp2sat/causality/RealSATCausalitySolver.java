@@ -55,9 +55,7 @@ class RealSATCausalitySolver extends CausalitySolver {
             // TODO minimal w? currently, we take the maximum W -> need to check, if it works for a smaller one as well
             // generate (maximum) W
             Set<Literal> w = assignment.literals().stream()
-                    .filter(l -> evaluation.contains(l) && (evaluationModified.contains(l.negate()) ||
-                            (evaluationModified.contains(l) &&
-                                    !causalModel.getExogenousVariables().contains(l.variable()))))
+                    .filter(l -> evaluation.contains(l) && !causalModel.getExogenousVariables().contains(l.variable()))
                     .collect(Collectors.toSet());
             return w;
         } else {

@@ -98,6 +98,19 @@ public class CausalitySolverTest {
     }
 
     @Test
+    public void Should_FulfillAC1AC2Only_When_STandBTIsCauseForBS() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", true), f.literal("ST_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("BT"), f.variable("ST")));
+        Formula phi = f.variable("BS");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, false, cause, new HashSet<>());
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
     public void Should_FulfillAllACs_When_STIsCauseBS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
@@ -122,6 +135,32 @@ public class CausalitySolverTest {
                 };
 
         testSolve(billySuzy, context, phi, cause, causalitySolverResultsExpected);
+    }
+
+    @Test
+    public void Should_FulfillAllACs_When_BTIsCauseForBSGivenNotST() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", true), f.literal("ST_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
+        Formula phi = f.variable("BS");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAllACs_When_STIsCauseForBSGivenNotBT() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", false), f.literal("ST_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
+        Formula phi = f.variable("BS");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
     }
 
     @Test
@@ -399,13 +438,11 @@ public class CausalitySolverTest {
     }
 
     @Test
-    public void Should_FulfillAC1AC3Only_When_SIsCauseInBenchmarkModel() throws Exception {
+    public void Should_FulfillAC1AC3Only_When_InBenchmarkModels() throws Exception {
         CausalModel benchmarkModel = ExampleProvider.benchmarkModel();
-        Set<Literal> context = new HashSet<>(Arrays.asList(
-                f.literal("S_exo", true), f.literal("T_exo", true),
-                f.literal("U_exo", true), f.literal("V_exo", true),
-                f.literal("W_exo", true), f.literal("X_exo", true),
-                f.literal("Y_exo", true)));
+        // all exogenous variables are true
+        Set<Literal> context = benchmarkModel.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("S")));
         Formula phi = f.variable("A");
 
@@ -415,6 +452,41 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResultActual = realSATCausalitySolver.solve(benchmarkModel, context, phi,
                 cause, SolvingStrategy.REAL_SAT);
         assertEquals(causalitySolverResultExpected, causalitySolverResultActual);
+
+        CausalModel binaryTreeBenchmarkModelDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
+        CausalModel binaryTreeBenchmarkModelDepth8 = ExampleProvider.generateBinaryTreeBenchmarkModel(8);
+        CausalModel binaryTreeBenchmarkModelDepth9 = ExampleProvider.generateBinaryTreeBenchmarkModel(9);
+        Formula phiBenchmarkModelBinaryTree = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpectedDepth7 =
+                new CausalitySolverResult(true, false, true,
+                        new HashSet<>(Collections.singletonList(f.variable("254"))), null);
+        CausalitySolverResult causalitySolverResultActualDepth7 =
+                realSATCausalitySolver.solve(binaryTreeBenchmarkModelDepth7,
+                        binaryTreeBenchmarkModelDepth7.getExogenousVariables().stream().map(e -> (Literal) e)
+                                .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree,
+                        new HashSet<>(Collections.singletonList(f.variable("254"))), SolvingStrategy.REAL_SAT);
+        assertEquals(causalitySolverResultExpectedDepth7, causalitySolverResultActualDepth7);
+
+        CausalitySolverResult causalitySolverResultExpectedDepth8 =
+                new CausalitySolverResult(true, false, true,
+                        new HashSet<>(Collections.singletonList(f.variable("510"))), null);
+        CausalitySolverResult causalitySolverResultActualDepth8 =
+                realSATCausalitySolver.solve(binaryTreeBenchmarkModelDepth8,
+                        binaryTreeBenchmarkModelDepth8.getExogenousVariables().stream().map(e -> (Literal) e)
+                                .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree,
+                        new HashSet<>(Collections.singletonList(f.variable("510"))), SolvingStrategy.REAL_SAT);
+        assertEquals(causalitySolverResultExpectedDepth8, causalitySolverResultActualDepth8);
+
+        CausalitySolverResult causalitySolverResultExpectedDepth9 =
+                new CausalitySolverResult(true, false, true,
+                        new HashSet<>(Collections.singletonList(f.variable("1022"))), null);
+        CausalitySolverResult causalitySolverResultActualDepth9 =
+                realSATCausalitySolver.solve(binaryTreeBenchmarkModelDepth9,
+                        binaryTreeBenchmarkModelDepth9.getExogenousVariables().stream().map(e -> (Literal) e)
+                                .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree,
+                        new HashSet<>(Collections.singletonList(f.variable("1022"))), SolvingStrategy.REAL_SAT);
+        assertEquals(causalitySolverResultExpectedDepth9, causalitySolverResultActualDepth9);
     }
 
     @Test
