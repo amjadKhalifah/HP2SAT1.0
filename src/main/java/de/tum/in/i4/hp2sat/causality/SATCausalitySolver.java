@@ -92,6 +92,30 @@ class SATCausalitySolver extends CausalitySolver {
     }
 
     /**
+     * Checks AC1, AC2 and AC3 given a causal model, a cause, a context and phi and a solving strategy.
+     *
+     * @param causalModel     the underlying causel model
+     * @param context         the context
+     * @param phi             the phi
+     * @param cause           the cause
+     * @param solvingStrategy the applied solving strategy
+     * @param satSolverType   the to be used SAT solver
+     * @return for each AC, true if fulfilled, false else
+     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
+     */
+    CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
+                                Set<Literal> cause, SolvingStrategy solvingStrategy, SATSolverType satSolverType)
+            throws InvalidCausalModelException {
+        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context);
+        boolean ac1 = fulfillsAC1(evaluation, phi, cause);
+        Set<Literal> w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType);
+        boolean ac2 = w != null;
+        boolean ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy);
+        CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3, cause, w);
+        return causalitySolverResult;
+    }
+
+    /**
      * Generates a formula whose satisfiability indicates whether AC2 is fulfilled or not.
      *
      * @param causalModelModified the causal model
