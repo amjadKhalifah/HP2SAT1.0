@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
 public class CausalitySolverTest {
     FormulaFactory f;
     EvalCausalitySolver evalCausalitySolver;
-    SATCausalitySolver satCausalitySolver;
+    SATBasedCausalitySolverOld satBasedCausalitySolverOld;
     RealSATCausalitySolver realSATCausalitySolver;
     List<SolvingStrategy> solvingStrategies = Arrays.asList(EVAL, SAT, REAL_SAT);
 
@@ -25,7 +25,7 @@ public class CausalitySolverTest {
     public void setUp() throws Exception {
         f = new FormulaFactory();
         evalCausalitySolver = new EvalCausalitySolver();
-        satCausalitySolver = new SATCausalitySolver();
+        satBasedCausalitySolverOld = new SATBasedCausalitySolverOld();
         realSATCausalitySolver = new RealSATCausalitySolver();
     }
 
@@ -49,7 +49,7 @@ public class CausalitySolverTest {
                         realSATCausalitySolver.solve(causalModel, context, phi, cause, solvingStrategy);
             } else if (solvingStrategy == SAT) {
                 causalitySolverResultActual =
-                        satCausalitySolver.solve(causalModel, context, phi, cause, solvingStrategy);
+                        satBasedCausalitySolverOld.solve(causalModel, context, phi, cause, solvingStrategy);
             }
             assertEquals("Error for " + solvingStrategy, causalitySolverResultsExpected.get(solvingStrategy),
                     causalitySolverResultActual);
@@ -77,7 +77,7 @@ public class CausalitySolverTest {
                         realSATCausalitySolver.getAllCauses(causalModel, context, phi, solvingStrategy);
             } else {
                 causalitySolverResultsActual =
-                        satCausalitySolver.getAllCauses(causalModel, context, phi, solvingStrategy);
+                        satBasedCausalitySolverOld.getAllCauses(causalModel, context, phi, solvingStrategy);
             }
             assertEquals("Error for " + solvingStrategy, causalitySolverResultsExpected.get(solvingStrategy),
                     causalitySolverResultsActual);

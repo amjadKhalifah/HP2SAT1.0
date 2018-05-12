@@ -81,7 +81,7 @@ public class CausalModel {
         } else if (solvingStrategy == SolvingStrategy.REAL_SAT) {
             causalitySolver = new RealSATCausalitySolver();
         } else {
-            causalitySolver = new SATCausalitySolver();
+            causalitySolver = new SATBasedCausalitySolverOld();
         }
         return causalitySolver.solve(this, context, phi, cause, solvingStrategy);
     }

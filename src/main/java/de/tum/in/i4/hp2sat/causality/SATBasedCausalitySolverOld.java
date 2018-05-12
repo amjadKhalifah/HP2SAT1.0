@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-class SATCausalitySolver extends CausalitySolver {
+class SATBasedCausalitySolverOld extends CausalitySolver {
     /**
      * Checks if AC2 is fulfilled.
      *
