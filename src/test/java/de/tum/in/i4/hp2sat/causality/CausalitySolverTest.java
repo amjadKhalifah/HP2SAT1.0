@@ -131,16 +131,16 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResultExpectedEval =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Collections.singletonList(f.literal("BH", false))));
-        CausalitySolverResult causalitySolverResultExpectedSAT = causalitySolverResultExpectedEval;
-        CausalitySolverResult causalitySolverResultExpectedREALSAT =
+        CausalitySolverResult causalitySolverResultExpectedSATBASEDOLD = causalitySolverResultExpectedEval;
+        CausalitySolverResult causalitySolverResultExpectedSAT =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false))));
         Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected =
                 new HashMap<SolvingStrategy, CausalitySolverResult>() {
                     {
                         put(EVAL, causalitySolverResultExpectedEval);
-                        put(SAT_BASED_OLD, causalitySolverResultExpectedSAT);
-                        put(SAT, causalitySolverResultExpectedREALSAT);
+                        put(SAT_BASED_OLD, causalitySolverResultExpectedSATBASEDOLD);
+                        put(SAT, causalitySolverResultExpectedSAT);
                     }
                 };
 
@@ -188,8 +188,8 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResultExpectedEval =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Collections.singletonList(f.literal("BH", false))));
-        CausalitySolverResult causalitySolverResultExpectedSAT = causalitySolverResultExpectedEval;
-        CausalitySolverResult causalitySolverResultExpectedREALSAT =
+        CausalitySolverResult causalitySolverResultExpectedSATBASEDOLD = causalitySolverResultExpectedEval;
+        CausalitySolverResult causalitySolverResultExpectedSAT =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Arrays.asList(f.variable("BT"), f.variable("ST"),
                                 f.literal("BH", false))));
@@ -197,8 +197,8 @@ public class CausalitySolverTest {
                 new HashMap<SolvingStrategy, CausalitySolverResult>() {
                     {
                         put(EVAL, causalitySolverResultExpectedEval);
-                        put(SAT_BASED_OLD, causalitySolverResultExpectedSAT);
-                        put(SAT, causalitySolverResultExpectedREALSAT);
+                        put(SAT_BASED_OLD, causalitySolverResultExpectedSATBASEDOLD);
+                        put(SAT, causalitySolverResultExpectedSAT);
                     }
                 };
 
@@ -255,16 +255,16 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResultExpectedEval =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Collections.singletonList(f.literal("BH", false))));
-        CausalitySolverResult causalitySolverResultExpectedSAT = causalitySolverResultExpectedEval;
-        CausalitySolverResult causalitySolverResultExpectedREALSAT =
+        CausalitySolverResult causalitySolverResultExpectedSATBASEDOLD = causalitySolverResultExpectedEval;
+        CausalitySolverResult causalitySolverResultExpectedSAT =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false))));
         Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected =
                 new HashMap<SolvingStrategy, CausalitySolverResult>() {
                     {
                         put(EVAL, causalitySolverResultExpectedEval);
-                        put(SAT_BASED_OLD, causalitySolverResultExpectedSAT);
-                        put(SAT, causalitySolverResultExpectedREALSAT);
+                        put(SAT_BASED_OLD, causalitySolverResultExpectedSATBASEDOLD);
+                        put(SAT, causalitySolverResultExpectedSAT);
                     }
                 };
 
@@ -282,18 +282,18 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResultExpectedEval =
                 new CausalitySolverResult(false, true, true, cause,
                         new HashSet<>(Collections.singletonList(f.literal("ST", true))));
-        CausalitySolverResult causalitySolverResultExpectedSAT =
+        CausalitySolverResult causalitySolverResultExpectedSATBASEDOLD =
                 new CausalitySolverResult(false, true, true, cause,
                         new HashSet<>(Collections.singletonList(f.literal("BH", false))));
-        CausalitySolverResult causalitySolverResultExpectedREALSAT =
+        CausalitySolverResult causalitySolverResultExpectedSAT =
                 new CausalitySolverResult(false, true, true, cause,
                         new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false))));
         Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected =
                 new HashMap<SolvingStrategy, CausalitySolverResult>() {
                     {
                         put(EVAL, causalitySolverResultExpectedEval);
-                        put(SAT_BASED_OLD, causalitySolverResultExpectedSAT);
-                        put(SAT, causalitySolverResultExpectedREALSAT);
+                        put(SAT_BASED_OLD, causalitySolverResultExpectedSATBASEDOLD);
+                        put(SAT, causalitySolverResultExpectedSAT);
                     }
                 };
 
@@ -342,16 +342,16 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResultExpectedEval =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Collections.singletonList(f.literal("BH", false))));
-        CausalitySolverResult causalitySolverResultExpectedSAT = causalitySolverResultExpectedEval;
-        CausalitySolverResult causalitySolverResultExpectedREALSAT =
+        CausalitySolverResult causalitySolverResultExpectedSATBASEDOLD = causalitySolverResultExpectedEval;
+        CausalitySolverResult causalitySolverResultExpectedSAT =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false))));
         Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected =
                 new HashMap<SolvingStrategy, CausalitySolverResult>() {
                     {
                         put(EVAL, causalitySolverResultExpectedEval);
-                        put(SAT_BASED_OLD, causalitySolverResultExpectedSAT);
-                        put(SAT, causalitySolverResultExpectedREALSAT);
+                        put(SAT_BASED_OLD, causalitySolverResultExpectedSATBASEDOLD);
+                        put(SAT, causalitySolverResultExpectedSAT);
                     }
                 };
 
@@ -427,10 +427,10 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResultExpectedEval =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Collections.singletonList(f.literal("D1", false))));
-        CausalitySolverResult causalitySolverResultExpectedSAT =
+        CausalitySolverResult causalitySolverResultExpectedSATBASEDOLD =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Arrays.asList(f.variable("B2"), f.literal("C2", false))));
-        CausalitySolverResult causalitySolverResultExpectedREALSAT =
+        CausalitySolverResult causalitySolverResultExpectedSAT =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Arrays.asList(f.literal("D1", false),
                                 f.literal("C1", false), f.literal("D2", false),
@@ -439,8 +439,8 @@ public class CausalitySolverTest {
                 new HashMap<SolvingStrategy, CausalitySolverResult>() {
                     {
                         put(EVAL, causalitySolverResultExpectedEval);
-                        put(SAT_BASED_OLD, causalitySolverResultExpectedSAT);
-                        put(SAT, causalitySolverResultExpectedREALSAT);
+                        put(SAT_BASED_OLD, causalitySolverResultExpectedSATBASEDOLD);
+                        put(SAT, causalitySolverResultExpectedSAT);
                     }
                 };
 
