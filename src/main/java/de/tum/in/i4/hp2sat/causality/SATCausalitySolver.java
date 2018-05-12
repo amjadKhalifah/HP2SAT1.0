@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINISAT;
 
-// TODO rename
 class SATCausalitySolver extends CausalitySolver {
     /**
      * Checks if AC2 is fulfilled. Uses MiniSAT.
