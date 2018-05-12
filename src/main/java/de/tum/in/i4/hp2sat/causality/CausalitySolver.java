@@ -44,7 +44,7 @@ abstract class CausalitySolver {
      * @param cause      the cause for which we check AC1
      * @return true if AC1 fulfilled, else false
      */
-    private boolean fulfillsAC1(Set<Literal> evaluation, Formula phi, Set<Literal> cause) {
+    boolean fulfillsAC1(Set<Literal> evaluation, Formula phi, Set<Literal> cause) {
         Set<Literal> litersOfPhi = phi.literals();
         return evaluation.containsAll(litersOfPhi) && evaluation.containsAll(cause);
     }
@@ -75,8 +75,8 @@ abstract class CausalitySolver {
      * @param solvingStrategy the solving strategy
      * @return true if A3 fulfilled, else false
      */
-    private boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                                Set<Literal> evaluation, SolvingStrategy solvingStrategy) {
+    boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
+                        Set<Literal> evaluation, SolvingStrategy solvingStrategy) {
         // get all subsets of cause
         Set<Set<Literal>> allSubsetsOfCause = new UnifiedSet<>(cause).powerSet().stream()
                 .map(s -> s.toImmutable().castToSet())

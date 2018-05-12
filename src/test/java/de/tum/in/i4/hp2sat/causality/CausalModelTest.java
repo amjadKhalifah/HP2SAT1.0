@@ -8,6 +8,12 @@ import org.logicng.formulas.*;
 
 import java.util.*;
 
+import static de.tum.in.i4.hp2sat.causality.SATSolverType.GLUCOSE;
+import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINISAT;
+import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.EVAL;
+import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.SAT;
+import static org.junit.Assert.assertEquals;
+
 public class CausalModelTest {
     FormulaFactory f;
 
@@ -114,6 +120,25 @@ public class CausalModelTest {
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
         Formula phi = f.variable("BS");
         billySuzy.isCause(context, phi, cause, SolvingStrategy.EVAL);
+    }
+
+    @Test
+    public void Should_FulfillAllACs_When_STIsCauseBS() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", true), f.literal("ST_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
+        Formula phi = f.variable("BS");
+
+        CausalitySolverResult causalitySolverResultExpectedEval =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Collections.singletonList(f.literal("BH", false))));
+        CausalitySolverResult causalitySolverResultExpectedSAT =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false))));
+        assertEquals(causalitySolverResultExpectedEval, billySuzy.isCause(context, phi, cause, EVAL));
+        assertEquals(causalitySolverResultExpectedSAT, billySuzy.isCause(context, phi, cause, SAT, MINISAT));
+        assertEquals(causalitySolverResultExpectedSAT, billySuzy.isCause(context, phi, cause, SAT, GLUCOSE));
     }
 
     @Test(expected = InvalidContextException.class)

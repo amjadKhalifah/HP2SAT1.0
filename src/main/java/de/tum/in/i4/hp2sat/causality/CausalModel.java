@@ -69,12 +69,7 @@ public class CausalModel {
     public CausalitySolverResult isCause(Set<Literal> context, Formula phi, Set<Literal> cause,
                                          SolvingStrategy solvingStrategy)
             throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
-        if (!isContextValid(context))
-            throw new InvalidContextException();
-        if (!isLiteralsInEquations(phi.literals()))
-            throw new InvalidPhiException();
-        if (!isLiteralsInEquations(cause))
-            throw new InvalidCauseException();
+        validateCausalityCheck(context, phi, cause);
         CausalitySolver causalitySolver;
         if (solvingStrategy == SolvingStrategy.EVAL) {
             causalitySolver = new EvalCausalitySolver();
@@ -85,6 +80,37 @@ public class CausalModel {
         }
         return causalitySolver.solve(this, context, phi, cause, solvingStrategy);
     }
+
+    /**
+     * see {@link #isCause(Set, Formula, Set, SolvingStrategy, SATSolverType)} for a full documentation. The only
+     * difference is that in the current method the to be used SAT solver can be specified. This only works if the
+     * solving strategy refers to {@link SATCausalitySolver}. Otherwise,
+     * {@link #isCause(Set, Formula, Set, SolvingStrategy)} is called, i.e. the SAT solver type is ignored.
+     *
+     * @param context
+     * @param phi
+     * @param cause
+     * @param solvingStrategy
+     * @param satSolverType
+     * @return
+     * @throws InvalidContextException
+     * @throws InvalidCauseException
+     * @throws InvalidPhiException
+     * @throws InvalidCausalModelException
+     */
+    public CausalitySolverResult isCause(Set<Literal> context, Formula phi, Set<Literal> cause,
+                                         SolvingStrategy solvingStrategy, SATSolverType satSolverType)
+            throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
+        if (solvingStrategy != SolvingStrategy.SAT) {
+            // ignore SAT solver type if solving strategy is not SAT related
+            return isCause(context, phi, cause, solvingStrategy);
+        } else {
+            validateCausalityCheck(context, phi, cause);
+            SATCausalitySolver satCausalitySolver = new SATCausalitySolver();
+            return satCausalitySolver.solve(this, context, phi, cause, solvingStrategy, satSolverType);
+        }
+    }
+
 
     /**
      * Checks whether the current causal model is valid.
@@ -177,6 +203,16 @@ public class CausalModel {
     private boolean isLiteralsInEquations(Set<? extends Literal> literals) {
         return equations.stream().map(Equation::getVariable).collect(Collectors.toSet())
                 .containsAll(literals.stream().map(Literal::variable).collect(Collectors.toSet()));
+    }
+
+    private void validateCausalityCheck(Set<Literal> context, Formula phi, Set<Literal> cause)
+            throws InvalidCauseException, InvalidPhiException, InvalidContextException {
+        if (!isContextValid(context))
+            throw new InvalidContextException();
+        if (!isLiteralsInEquations(phi.literals()))
+            throw new InvalidPhiException();
+        if (!isLiteralsInEquations(cause))
+            throw new InvalidCauseException();
     }
 
     public String getName() {

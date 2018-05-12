@@ -14,10 +14,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINISAT;
+
 // TODO rename
 class SATCausalitySolver extends CausalitySolver {
     /**
-     * Checks if AC2 is fulfilled.
+     * Checks if AC2 is fulfilled. Uses MiniSAT.
      *
      * @param causalModel     the underlying causal model
      * @param phi             the phi
@@ -32,8 +34,33 @@ class SATCausalitySolver extends CausalitySolver {
     Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
                              Set<Literal> evaluation, SolvingStrategy solvingStrategy)
             throws InvalidCausalModelException {
+        return fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, MINISAT);
+    }
+
+    /**
+     * Checks if AC2 is fulfilled.
+     *
+     * @param causalModel     the underlying causal model
+     * @param phi             the phi
+     * @param cause           the cause for which we check AC2
+     * @param context         the context
+     * @param evaluation      the original evaluation of variables
+     * @param solvingStrategy the solving strategy
+     * @param satSolverType   the to be used SAT solver
+     * @return returns W if AC2 fulfilled, else null
+     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
+     */
+    Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
+                             Set<Literal> evaluation, SolvingStrategy solvingStrategy, SATSolverType satSolverType)
+            throws InvalidCausalModelException {
         FormulaFactory f = new FormulaFactory();
-        SATSolver satSolver = MiniSat.miniSat(f); // TODO make dynamic?
+
+        SATSolver satSolver;
+        if (satSolverType == MINISAT) {
+            satSolver = MiniSat.miniSat(f);
+        } else {
+            satSolver = MiniSat.glucose(f);
+        }
         Formula phiFormula = f.not(phi); // negate phi
 
         // create copy of original causal model
@@ -62,6 +89,30 @@ class SATCausalitySolver extends CausalitySolver {
             // if not satisfiable
             return null;
         }
+    }
+
+    /**
+     * Checks AC1, AC2 and AC3 given a causal model, a cause, a context and phi and a solving strategy.
+     *
+     * @param causalModel     the underlying causel model
+     * @param context         the context
+     * @param phi             the phi
+     * @param cause           the cause
+     * @param solvingStrategy the applied solving strategy
+     * @param satSolverType   the to be used SAT solver
+     * @return for each AC, true if fulfilled, false else
+     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
+     */
+    CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
+                                Set<Literal> cause, SolvingStrategy solvingStrategy, SATSolverType satSolverType)
+            throws InvalidCausalModelException {
+        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context);
+        boolean ac1 = fulfillsAC1(evaluation, phi, cause);
+        Set<Literal> w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType);
+        boolean ac2 = w != null;
+        boolean ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy);
+        CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3, cause, w);
+        return causalitySolverResult;
     }
 
     /**

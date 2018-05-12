@@ -11,6 +11,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static de.tum.in.i4.hp2sat.causality.SATSolverType.GLUCOSE;
+import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINISAT;
 import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.*;
 import static org.junit.Assert.*;
 
@@ -20,6 +22,7 @@ public class CausalitySolverTest {
     SATBasedCausalitySolverOld satBasedCausalitySolverOld;
     SATCausalitySolver SATCausalitySolver;
     List<SolvingStrategy> solvingStrategies = Arrays.asList(EVAL, SAT_BASED_OLD, SAT);
+    List<SATSolverType> satSolverTypes = Arrays.asList(MINISAT, GLUCOSE);
 
     @Before
     public void setUp() throws Exception {
@@ -45,6 +48,13 @@ public class CausalitySolverTest {
                 causalitySolverResultActual =
                         evalCausalitySolver.solve(causalModel, context, phi, cause, solvingStrategy);
             } else if (solvingStrategy == SAT) {
+                for (SATSolverType satSolverType: satSolverTypes) {
+                    causalitySolverResultActual = SATCausalitySolver.solve(causalModel, context, phi, cause,
+                            solvingStrategy, satSolverType);
+                    assertEquals("Error for " + solvingStrategy + "/" + satSolverType,
+                            causalitySolverResultsExpected.get(solvingStrategy), causalitySolverResultActual);
+                }
+
                 causalitySolverResultActual =
                         SATCausalitySolver.solve(causalModel, context, phi, cause, solvingStrategy);
             } else if (solvingStrategy == SAT_BASED_OLD) {
