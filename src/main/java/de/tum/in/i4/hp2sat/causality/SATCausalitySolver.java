@@ -15,7 +15,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 // TODO rename
-class RealSATCausalitySolver extends CausalitySolver {
+class SATCausalitySolver extends CausalitySolver {
     /**
      * Checks if AC2 is fulfilled.
      *

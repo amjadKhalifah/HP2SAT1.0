@@ -18,7 +18,7 @@ public class CausalitySolverTest {
     FormulaFactory f;
     EvalCausalitySolver evalCausalitySolver;
     SATBasedCausalitySolverOld satBasedCausalitySolverOld;
-    RealSATCausalitySolver realSATCausalitySolver;
+    SATCausalitySolver SATCausalitySolver;
     List<SolvingStrategy> solvingStrategies = Arrays.asList(EVAL, SAT, REAL_SAT);
 
     @Before
@@ -26,7 +26,7 @@ public class CausalitySolverTest {
         f = new FormulaFactory();
         evalCausalitySolver = new EvalCausalitySolver();
         satBasedCausalitySolverOld = new SATBasedCausalitySolverOld();
-        realSATCausalitySolver = new RealSATCausalitySolver();
+        SATCausalitySolver = new SATCausalitySolver();
     }
 
     private void testSolve(CausalModel causalModel, Set<Literal> context, Formula phi, Set<Literal> cause,
@@ -46,7 +46,7 @@ public class CausalitySolverTest {
                         evalCausalitySolver.solve(causalModel, context, phi, cause, solvingStrategy);
             } else if (solvingStrategy == REAL_SAT) {
                 causalitySolverResultActual =
-                        realSATCausalitySolver.solve(causalModel, context, phi, cause, solvingStrategy);
+                        SATCausalitySolver.solve(causalModel, context, phi, cause, solvingStrategy);
             } else if (solvingStrategy == SAT) {
                 causalitySolverResultActual =
                         satBasedCausalitySolverOld.solve(causalModel, context, phi, cause, solvingStrategy);
@@ -74,7 +74,7 @@ public class CausalitySolverTest {
                         evalCausalitySolver.getAllCauses(causalModel, context, phi, solvingStrategy);
             } else if (solvingStrategy == REAL_SAT) {
                 causalitySolverResultsActual =
-                        realSATCausalitySolver.getAllCauses(causalModel, context, phi, solvingStrategy);
+                        SATCausalitySolver.getAllCauses(causalModel, context, phi, solvingStrategy);
             } else {
                 causalitySolverResultsActual =
                         satBasedCausalitySolverOld.getAllCauses(causalModel, context, phi, solvingStrategy);
@@ -449,7 +449,7 @@ public class CausalitySolverTest {
         // test for real SAT approach only as for the others this is taking too long
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
-        CausalitySolverResult causalitySolverResultActual = realSATCausalitySolver.solve(benchmarkModel, context, phi,
+        CausalitySolverResult causalitySolverResultActual = SATCausalitySolver.solve(benchmarkModel, context, phi,
                 cause, SolvingStrategy.REAL_SAT);
         assertEquals(causalitySolverResultExpected, causalitySolverResultActual);
 
@@ -462,7 +462,7 @@ public class CausalitySolverTest {
                 new CausalitySolverResult(true, false, true,
                         new HashSet<>(Collections.singletonList(f.variable("254"))), null);
         CausalitySolverResult causalitySolverResultActualDepth7 =
-                realSATCausalitySolver.solve(binaryTreeBenchmarkModelDepth7,
+                SATCausalitySolver.solve(binaryTreeBenchmarkModelDepth7,
                         binaryTreeBenchmarkModelDepth7.getExogenousVariables().stream().map(e -> (Literal) e)
                                 .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree,
                         new HashSet<>(Collections.singletonList(f.variable("254"))), SolvingStrategy.REAL_SAT);
@@ -472,7 +472,7 @@ public class CausalitySolverTest {
                 new CausalitySolverResult(true, false, true,
                         new HashSet<>(Collections.singletonList(f.variable("510"))), null);
         CausalitySolverResult causalitySolverResultActualDepth8 =
-                realSATCausalitySolver.solve(binaryTreeBenchmarkModelDepth8,
+                SATCausalitySolver.solve(binaryTreeBenchmarkModelDepth8,
                         binaryTreeBenchmarkModelDepth8.getExogenousVariables().stream().map(e -> (Literal) e)
                                 .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree,
                         new HashSet<>(Collections.singletonList(f.variable("510"))), SolvingStrategy.REAL_SAT);
@@ -482,7 +482,7 @@ public class CausalitySolverTest {
                 new CausalitySolverResult(true, false, true,
                         new HashSet<>(Collections.singletonList(f.variable("1022"))), null);
         CausalitySolverResult causalitySolverResultActualDepth9 =
-                realSATCausalitySolver.solve(binaryTreeBenchmarkModelDepth9,
+                SATCausalitySolver.solve(binaryTreeBenchmarkModelDepth9,
                         binaryTreeBenchmarkModelDepth9.getExogenousVariables().stream().map(e -> (Literal) e)
                                 .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree,
                         new HashSet<>(Collections.singletonList(f.variable("1022"))), SolvingStrategy.REAL_SAT);

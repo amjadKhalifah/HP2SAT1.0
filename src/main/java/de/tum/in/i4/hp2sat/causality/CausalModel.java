@@ -79,7 +79,7 @@ public class CausalModel {
         if (solvingStrategy == SolvingStrategy.EVAL) {
             causalitySolver = new EvalCausalitySolver();
         } else if (solvingStrategy == SolvingStrategy.REAL_SAT) {
-            causalitySolver = new RealSATCausalitySolver();
+            causalitySolver = new SATCausalitySolver();
         } else {
             causalitySolver = new SATBasedCausalitySolverOld();
         }
