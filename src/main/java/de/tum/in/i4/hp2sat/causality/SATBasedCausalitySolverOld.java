@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Deprecated
 class SATBasedCausalitySolverOld extends CausalitySolver {
     /**
      * Checks if AC2 is fulfilled.
