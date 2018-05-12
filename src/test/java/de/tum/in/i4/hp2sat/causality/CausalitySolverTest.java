@@ -19,7 +19,7 @@ public class CausalitySolverTest {
     EvalCausalitySolver evalCausalitySolver;
     SATBasedCausalitySolverOld satBasedCausalitySolverOld;
     SATCausalitySolver SATCausalitySolver;
-    List<SolvingStrategy> solvingStrategies = Arrays.asList(EVAL, SAT, REAL_SAT);
+    List<SolvingStrategy> solvingStrategies = Arrays.asList(EVAL, SAT_BASED_OLD, SAT);
 
     @Before
     public void setUp() throws Exception {
@@ -44,10 +44,10 @@ public class CausalitySolverTest {
             if (solvingStrategy == EVAL) {
                 causalitySolverResultActual =
                         evalCausalitySolver.solve(causalModel, context, phi, cause, solvingStrategy);
-            } else if (solvingStrategy == REAL_SAT) {
+            } else if (solvingStrategy == SAT) {
                 causalitySolverResultActual =
                         SATCausalitySolver.solve(causalModel, context, phi, cause, solvingStrategy);
-            } else if (solvingStrategy == SAT) {
+            } else if (solvingStrategy == SAT_BASED_OLD) {
                 causalitySolverResultActual =
                         satBasedCausalitySolverOld.solve(causalModel, context, phi, cause, solvingStrategy);
             }
@@ -72,7 +72,7 @@ public class CausalitySolverTest {
             if (solvingStrategy == EVAL) {
                 causalitySolverResultsActual =
                         evalCausalitySolver.getAllCauses(causalModel, context, phi, solvingStrategy);
-            } else if (solvingStrategy == REAL_SAT) {
+            } else if (solvingStrategy == SAT) {
                 causalitySolverResultsActual =
                         SATCausalitySolver.getAllCauses(causalModel, context, phi, solvingStrategy);
             } else {
@@ -129,8 +129,8 @@ public class CausalitySolverTest {
                 new HashMap<SolvingStrategy, CausalitySolverResult>() {
                     {
                         put(EVAL, causalitySolverResultExpectedEval);
-                        put(SAT, causalitySolverResultExpectedSAT);
-                        put(REAL_SAT, causalitySolverResultExpectedREALSAT);
+                        put(SAT_BASED_OLD, causalitySolverResultExpectedSAT);
+                        put(SAT, causalitySolverResultExpectedREALSAT);
                     }
                 };
 
@@ -187,8 +187,8 @@ public class CausalitySolverTest {
                 new HashMap<SolvingStrategy, CausalitySolverResult>() {
                     {
                         put(EVAL, causalitySolverResultExpectedEval);
-                        put(SAT, causalitySolverResultExpectedSAT);
-                        put(REAL_SAT, causalitySolverResultExpectedREALSAT);
+                        put(SAT_BASED_OLD, causalitySolverResultExpectedSAT);
+                        put(SAT, causalitySolverResultExpectedREALSAT);
                     }
                 };
 
@@ -253,8 +253,8 @@ public class CausalitySolverTest {
                 new HashMap<SolvingStrategy, CausalitySolverResult>() {
                     {
                         put(EVAL, causalitySolverResultExpectedEval);
-                        put(SAT, causalitySolverResultExpectedSAT);
-                        put(REAL_SAT, causalitySolverResultExpectedREALSAT);
+                        put(SAT_BASED_OLD, causalitySolverResultExpectedSAT);
+                        put(SAT, causalitySolverResultExpectedREALSAT);
                     }
                 };
 
@@ -282,8 +282,8 @@ public class CausalitySolverTest {
                 new HashMap<SolvingStrategy, CausalitySolverResult>() {
                     {
                         put(EVAL, causalitySolverResultExpectedEval);
-                        put(SAT, causalitySolverResultExpectedSAT);
-                        put(REAL_SAT, causalitySolverResultExpectedREALSAT);
+                        put(SAT_BASED_OLD, causalitySolverResultExpectedSAT);
+                        put(SAT, causalitySolverResultExpectedREALSAT);
                     }
                 };
 
@@ -340,8 +340,8 @@ public class CausalitySolverTest {
                 new HashMap<SolvingStrategy, CausalitySolverResult>() {
                     {
                         put(EVAL, causalitySolverResultExpectedEval);
-                        put(SAT, causalitySolverResultExpectedSAT);
-                        put(REAL_SAT, causalitySolverResultExpectedREALSAT);
+                        put(SAT_BASED_OLD, causalitySolverResultExpectedSAT);
+                        put(SAT, causalitySolverResultExpectedREALSAT);
                     }
                 };
 
@@ -429,8 +429,8 @@ public class CausalitySolverTest {
                 new HashMap<SolvingStrategy, CausalitySolverResult>() {
                     {
                         put(EVAL, causalitySolverResultExpectedEval);
-                        put(SAT, causalitySolverResultExpectedSAT);
-                        put(REAL_SAT, causalitySolverResultExpectedREALSAT);
+                        put(SAT_BASED_OLD, causalitySolverResultExpectedSAT);
+                        put(SAT, causalitySolverResultExpectedREALSAT);
                     }
                 };
 
@@ -450,7 +450,7 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
         CausalitySolverResult causalitySolverResultActual = SATCausalitySolver.solve(benchmarkModel, context, phi,
-                cause, SolvingStrategy.REAL_SAT);
+                cause, SolvingStrategy.SAT);
         assertEquals(causalitySolverResultExpected, causalitySolverResultActual);
 
         CausalModel binaryTreeBenchmarkModelDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
@@ -465,7 +465,7 @@ public class CausalitySolverTest {
                 SATCausalitySolver.solve(binaryTreeBenchmarkModelDepth7,
                         binaryTreeBenchmarkModelDepth7.getExogenousVariables().stream().map(e -> (Literal) e)
                                 .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree,
-                        new HashSet<>(Collections.singletonList(f.variable("254"))), SolvingStrategy.REAL_SAT);
+                        new HashSet<>(Collections.singletonList(f.variable("254"))), SolvingStrategy.SAT);
         assertEquals(causalitySolverResultExpectedDepth7, causalitySolverResultActualDepth7);
 
         CausalitySolverResult causalitySolverResultExpectedDepth8 =
@@ -475,7 +475,7 @@ public class CausalitySolverTest {
                 SATCausalitySolver.solve(binaryTreeBenchmarkModelDepth8,
                         binaryTreeBenchmarkModelDepth8.getExogenousVariables().stream().map(e -> (Literal) e)
                                 .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree,
-                        new HashSet<>(Collections.singletonList(f.variable("510"))), SolvingStrategy.REAL_SAT);
+                        new HashSet<>(Collections.singletonList(f.variable("510"))), SolvingStrategy.SAT);
         assertEquals(causalitySolverResultExpectedDepth8, causalitySolverResultActualDepth8);
 
         CausalitySolverResult causalitySolverResultExpectedDepth9 =
@@ -485,7 +485,7 @@ public class CausalitySolverTest {
                 SATCausalitySolver.solve(binaryTreeBenchmarkModelDepth9,
                         binaryTreeBenchmarkModelDepth9.getExogenousVariables().stream().map(e -> (Literal) e)
                                 .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree,
-                        new HashSet<>(Collections.singletonList(f.variable("1022"))), SolvingStrategy.REAL_SAT);
+                        new HashSet<>(Collections.singletonList(f.variable("1022"))), SolvingStrategy.SAT);
         assertEquals(causalitySolverResultExpectedDepth9, causalitySolverResultActualDepth9);
     }
 
@@ -563,8 +563,8 @@ public class CausalitySolverTest {
                 new HashMap<SolvingStrategy, Set<CausalitySolverResult>>() {
                     {
                         put(EVAL, allCausesExpectedEval);
-                        put(SAT, allCausesExpectedSAT);
-                        put(REAL_SAT, allCausesExpectedREALSAT);
+                        put(SAT_BASED_OLD, allCausesExpectedSAT);
+                        put(SAT, allCausesExpectedREALSAT);
                     }
                 };
 
