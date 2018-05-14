@@ -149,8 +149,8 @@ abstract class CausalitySolver {
          * Following to HP, we can sort variables in an acyclic causal model according to their dependence on other
          * variables. The following applies: "If X < Y, then the value of X may affect the value of Y , but the value
          * of Y cannot affect the value of X"
-         * The problem is that this sorting is NOT transitive. Therefore, we convert the causal model into a graph
-         * and to a topological sort.
+         * The problem is that we only obtain a partial order if we define < as X is contained in Y (or recursively
+         * in the variables in the equation of Y) if X < Y. Therefore, we use a topological sort.
          * */
         TopologicalSortDFS topologicalSortDFS = new TopologicalSortDFS();
         topologicalSortDFS.init(graph);
