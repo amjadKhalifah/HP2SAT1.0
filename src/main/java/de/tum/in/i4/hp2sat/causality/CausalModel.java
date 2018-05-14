@@ -51,13 +51,16 @@ public class CausalModel {
     }
 
     /**
-     * Creates a copy of the passed causal model.
+     * Creates a copy of the passed causal model in which only the equation that define the passed variables are
+     * copied.
      *
      * @param causalModel the causal model that is copied
+     * @param variables   the variables whose equations are copied
      */
-    public CausalModel(CausalModel causalModel) throws InvalidCausalModelException {
-        this(causalModel.name, causalModel.equations.stream().map(Equation::new).collect(Collectors.toSet()),
-                new HashSet<>(causalModel.exogenousVariables));
+    CausalModel(CausalModel causalModel, Set<Variable> variables) throws InvalidCausalModelException {
+        this(causalModel.name, causalModel.equations.stream()
+                .map(e -> variables.contains(e.getVariable()) ? new Equation(e) : e)
+                .collect(Collectors.toSet()), new HashSet<>(causalModel.exogenousVariables));
     }
 
     /**

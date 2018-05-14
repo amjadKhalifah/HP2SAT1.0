@@ -244,7 +244,8 @@ abstract class CausalitySolver {
      */
     private CausalModel createModifiedCausalModel(CausalModel causalModel, Set<Literal> literals, FormulaFactory f)
             throws InvalidCausalModelException {
-        CausalModel causalModelModified = new CausalModel(causalModel);
+        CausalModel causalModelModified = new CausalModel(causalModel,
+                literals.stream().map(Literal::variable).collect(Collectors.toSet()));
         Map<Variable, Equation> variableEquationMap = causalModelModified.getVariableEquationMap();
         // replace each equation with the phase of the literal
         for (Literal l : literals) {
