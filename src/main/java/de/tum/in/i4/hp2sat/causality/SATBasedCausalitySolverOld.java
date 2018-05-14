@@ -28,9 +28,8 @@ class SATBasedCausalitySolverOld extends CausalitySolver {
      */
     @Override
     Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                             Set<Literal> evaluation, SolvingStrategy solvingStrategy)
+                             Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
             throws InvalidCausalModelException {
-        FormulaFactory f = new FormulaFactory();
         SATSolver satSolver = MiniSat.miniSat(f); // TODO make dynamic?
         Formula phiFormula = f.not(phi); // negate phi
 
@@ -38,7 +37,7 @@ class SATBasedCausalitySolverOld extends CausalitySolver {
         CausalModel causalModelModified = createModifiedCausalModelForCause(causalModel, cause, f);
 
         // evaluate causal model with setting x' for cause
-        Set<Literal> evaluationModified = evaluateEquations(causalModelModified, context);
+        Set<Literal> evaluationModified = evaluateEquations(causalModelModified, context, f);
         // check if not(phi) evaluates to true for empty W -> if yes, no further investigation necessary
         if (phiFormula.evaluate(new Assignment(evaluationModified))) {
             return new HashSet<>();
@@ -118,7 +117,7 @@ class SATBasedCausalitySolverOld extends CausalitySolver {
                 // create set of literals that are not in W
                 Set<Literal> notInW = solution.stream().filter(l -> !w.contains(l)).collect(Collectors.toSet());
                 // evaluate the variables in phi again given the modified causal model that incorporates W
-                Set<Literal> evaluationModifiedW = evaluateEquations(causalModelModifiedW, context);
+                Set<Literal> evaluationModifiedW = evaluateEquations(causalModelModifiedW, context, f);
                 // TODO include all vars until phi reached originalPhi.variables().toArray(new Variable[0])
 
                 if (originalPhi.evaluate(new Assignment(evaluationModifiedW))) {
@@ -224,7 +223,7 @@ class SATBasedCausalitySolverOld extends CausalitySolver {
                     .forEach(e -> e.setFormula(l.phase() ? f.verum() : f.falsum()));
         }
         // re-evaluate
-        evaluationModified = evaluateEquations(causalModel, context);
+        evaluationModified = evaluateEquations(causalModel, context, f);
         // check again if the new W affected the variables not in W
         if (originalPhi.evaluate(new Assignment(evaluationModified))) {
             return w;

@@ -33,9 +33,9 @@ class SATCausalitySolver extends CausalitySolver {
      */
     @Override
     Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                             Set<Literal> evaluation, SolvingStrategy solvingStrategy)
+                             Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
             throws InvalidCausalModelException {
-        return fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, MINISAT);
+        return fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, MINISAT, f);
     }
 
     /**
@@ -52,10 +52,9 @@ class SATCausalitySolver extends CausalitySolver {
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
     Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                             Set<Literal> evaluation, SolvingStrategy solvingStrategy, SATSolverType satSolverType)
+                             Set<Literal> evaluation, SolvingStrategy solvingStrategy, SATSolverType satSolverType,
+                             FormulaFactory f)
             throws InvalidCausalModelException {
-        FormulaFactory f = new FormulaFactory();
-
         SATSolver satSolver;
         if (satSolverType == MINISAT) {
             satSolver = MiniSat.miniSat(f);
@@ -68,7 +67,7 @@ class SATCausalitySolver extends CausalitySolver {
         CausalModel causalModelModified = createModifiedCausalModelForCause(causalModel, cause, f);
 
         // evaluate causal model with setting x' for cause
-        Set<Literal> evaluationModified = evaluateEquations(causalModelModified, context);
+        Set<Literal> evaluationModified = evaluateEquations(causalModelModified, context, f);
         // check if not(phi) evaluates to true for empty W -> if yes, no further investigation necessary
         if (phiFormula.evaluate(new Assignment(evaluationModified))) {
             return new HashSet<>();
@@ -107,11 +106,12 @@ class SATCausalitySolver extends CausalitySolver {
     CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
                                 Set<Literal> cause, SolvingStrategy solvingStrategy, SATSolverType satSolverType)
             throws InvalidCausalModelException {
-        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context);
+        FormulaFactory f = new FormulaFactory();
+        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context, f);
         boolean ac1 = fulfillsAC1(evaluation, phi, cause);
-        Set<Literal> w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType);
+        Set<Literal> w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
         boolean ac2 = w != null;
-        boolean ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy);
+        boolean ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, f);
         CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3, cause, w);
         return causalitySolverResult;
     }
