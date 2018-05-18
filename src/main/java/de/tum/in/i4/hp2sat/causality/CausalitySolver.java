@@ -3,7 +3,6 @@ package de.tum.in.i4.hp2sat.causality;
 import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.graphstream.algorithm.TopologicalSortDFS;
-import org.graphstream.algorithm.TopologicalSortKahn;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.logicng.datastructures.Assignment;
@@ -27,11 +26,12 @@ abstract class CausalitySolver {
     CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
                                 Set<Literal> cause, SolvingStrategy solvingStrategy)
             throws InvalidCausalModelException {
-        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context);
+        FormulaFactory f = new FormulaFactory();
+        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context, f);
         boolean ac1 = fulfillsAC1(evaluation, phi, cause);
-        Set<Literal> w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy);
+        Set<Literal> w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, f);
         boolean ac2 = w != null;
-        boolean ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy);
+        boolean ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, f);
         CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3, cause, w);
         return causalitySolverResult;
     }
@@ -58,11 +58,12 @@ abstract class CausalitySolver {
      * @param context         the context
      * @param evaluation      the original evaluation of variables
      * @param solvingStrategy the solving strategy
+     * @param f               formula factory
      * @return returns W if AC2 fulfilled, else null
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
     abstract Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                                      Set<Literal> evaluation, SolvingStrategy solvingStrategy)
+                                      Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
             throws InvalidCausalModelException;
 
     /**
@@ -76,7 +77,7 @@ abstract class CausalitySolver {
      * @return true if A3 fulfilled, else false
      */
     boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                        Set<Literal> evaluation, SolvingStrategy solvingStrategy) {
+                        Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f) {
         // get all subsets of cause
         Set<Set<Literal>> allSubsetsOfCause = new UnifiedSet<>(cause).powerSet().stream()
                 .map(s -> s.toImmutable().castToSet())
@@ -86,7 +87,7 @@ abstract class CausalitySolver {
         boolean ac3 = allSubsetsOfCause.stream().noneMatch(c -> {
             try {
                 return fulfillsAC1(evaluation, phi, cause) &&
-                        fulfillsAC2(causalModel, phi, c, context, evaluation, solvingStrategy) != null;
+                        fulfillsAC2(causalModel, phi, c, context, evaluation, solvingStrategy, f) != null;
             } catch (InvalidCausalModelException e) {
                 e.printStackTrace();
                 return false;
@@ -105,9 +106,10 @@ abstract class CausalitySolver {
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
     Set<CausalitySolverResult> getAllCauses(CausalModel causalModel, Set<Literal> context, Formula phi,
-                                            SolvingStrategy solvingStrategy) throws InvalidCausalModelException {
+                                            SolvingStrategy solvingStrategy, FormulaFactory f)
+            throws InvalidCausalModelException {
         // compute all possible combination of primitive events
-        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context);
+        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context, f);
         Set<Literal> evaluationWithoutExogenousVariables = evaluation.stream()
                 .filter(l -> !causalModel.getExogenousVariables().contains(l.variable())).collect(Collectors.toSet());
         List<Set<Literal>> allPotentialCauses = new UnifiedSet<>(evaluationWithoutExogenousVariables).powerSet()
@@ -143,29 +145,28 @@ abstract class CausalitySolver {
      * @return evaluation for all variables within the causal model (endo and exo); positive literal means true,
      * negative means false
      */
-    static Set<Literal> evaluateEquations(CausalModel causalModel, Set<Literal> context, Variable... variables) {
+    static Set<Literal> evaluateEquations(CausalModel causalModel, Set<Literal> context, FormulaFactory f,
+                                          Variable... variables) {
         // create graph from causal model
         Graph graph = causalModel.toGraph();
         /*
          * Following to HP, we can sort variables in an acyclic causal model according to their dependence on other
          * variables. The following applies: "If X < Y, then the value of X may affect the value of Y , but the value
          * of Y cannot affect the value of X"
-         * The problem is that this sorting is NOT transitive. Therefore, we convert the causal model into a graph
-         * and to a topological sort.
+         * The problem is that we only obtain a partial order if we define < as X is contained in Y (or recursively
+         * in the variables in the equation of Y) if X < Y. Therefore, we use a topological sort.
          * */
         TopologicalSortDFS topologicalSortDFS = new TopologicalSortDFS();
         topologicalSortDFS.init(graph);
         topologicalSortDFS.compute();
         // get sorted nodes
         List<Node> sortedNodes = topologicalSortDFS.getSortedNodes();
-        // get set of exogenous variable names
-        Set<String> exogenousVariablesNames = causalModel.getExogenousVariables().stream().map(Literal::name)
-                .collect(Collectors.toSet());
         // get sorted list of equations
         List<Equation> equationsSorted = sortedNodes.stream()
-                .filter(n -> !exogenousVariablesNames.contains(n.getId()))
-                .map(n -> causalModel.getEquations().stream()
-                        .filter(e -> e.getVariable().name().equals(n.getId())).findFirst().get())
+                // filter nodes representing endogenous variables
+                .filter(n -> !causalModel.getExogenousVariables().contains(f.variable(n.getId())))
+                // get corresponding equation
+                .map(n -> causalModel.getVariableEquationMap().get(f.variable(n.getId())))
                 .collect(Collectors.toList());
 
         // initially, we can only assign the exogenous variables as defined by the context
@@ -244,11 +245,13 @@ abstract class CausalitySolver {
      */
     private CausalModel createModifiedCausalModel(CausalModel causalModel, Set<Literal> literals, FormulaFactory f)
             throws InvalidCausalModelException {
-        CausalModel causalModelModified = new CausalModel(causalModel);
+        CausalModel causalModelModified = new CausalModel(causalModel,
+                literals.stream().map(Literal::variable).collect(Collectors.toSet()));
+        Map<Variable, Equation> variableEquationMap = causalModelModified.getVariableEquationMap();
         // replace each equation with the phase of the literal
         for (Literal l : literals) {
-            causalModelModified.getEquations().stream().filter(e -> e.getVariable().equals(l.variable()))
-                    .forEach(e -> e.setFormula(l.phase() ? f.verum() : f.falsum()));
+            Equation equation = variableEquationMap.get(l.variable());
+            equation.setFormula(l.phase() ? f.verum() : f.falsum());
         }
         return causalModelModified;
     }

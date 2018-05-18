@@ -1,6 +1,9 @@
 package de.tum.in.i4.hp2sat.causality;
 
-import de.tum.in.i4.hp2sat.exceptions.*;
+import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidCauseException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidContextException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidPhiException;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.logicng.formulas.Formula;
@@ -8,7 +11,9 @@ import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class CausalModel {
@@ -17,6 +22,7 @@ public class CausalModel {
     private Set<Variable> exogenousVariables;
 
     private Set<Variable> variables;
+    private Map<Variable, Equation> variableEquationMap;
 
     /**
      * Creates a new causal model
@@ -38,17 +44,23 @@ public class CausalModel {
         this.equations.forEach(e -> this.variables.addAll(e.getFormula().variables()));
         this.variables.addAll(exogenousVariables);
 
-        isValid(); // possibly throws exception
+        if (isValid()) { // possibly throws exception
+            this.variableEquationMap = this.equations.stream()
+                    .collect(Collectors.toMap(Equation::getVariable, Function.identity()));
+        }
     }
 
     /**
-     * Creates a copy of the passed causal model.
+     * Creates a copy of the passed causal model in which only the equation that define the passed variables are
+     * copied.
      *
      * @param causalModel the causal model that is copied
+     * @param variables   the variables whose equations are copied
      */
-    public CausalModel(CausalModel causalModel) throws InvalidCausalModelException {
-        this(causalModel.name, causalModel.equations.stream().map(Equation::new).collect(Collectors.toSet()),
-                new HashSet<>(causalModel.exogenousVariables));
+    CausalModel(CausalModel causalModel, Set<Variable> variables) throws InvalidCausalModelException {
+        this(causalModel.name, causalModel.equations.stream()
+                .map(e -> variables.contains(e.getVariable()) ? new Equation(e) : e)
+                .collect(Collectors.toSet()), new HashSet<>(causalModel.exogenousVariables));
     }
 
     /**
@@ -117,7 +129,7 @@ public class CausalModel {
      *
      * @throws InvalidCausalModelException thrown if invalid
      */
-    private void isValid() throws InvalidCausalModelException {
+    private boolean isValid() throws InvalidCausalModelException {
         boolean existsDefinitionForEachVariable = equations.size() + exogenousVariables.size() == this.variables.size();
         boolean existsNoDuplicateEquationForEachVariable =
                 equations.size() == equations.stream().map(Equation::getVariable).collect(Collectors.toSet()).size();
@@ -126,6 +138,8 @@ public class CausalModel {
 
         if (!(existsDefinitionForEachVariable && existsNoDuplicateEquationForEachVariable && !existsCircularDependency))
             throw new InvalidCausalModelException();
+
+        return true;
     }
 
     /**
@@ -225,5 +239,9 @@ public class CausalModel {
 
     public Set<Variable> getExogenousVariables() {
         return exogenousVariables;
+    }
+
+    public Map<Variable, Equation> getVariableEquationMap() {
+        return variableEquationMap;
     }
 }

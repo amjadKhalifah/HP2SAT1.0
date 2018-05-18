@@ -24,7 +24,7 @@ class EvalCausalitySolver extends CausalitySolver {
      */
     @Override
     Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                             Set<Literal> evaluation, SolvingStrategy solvingStrategy)
+                             Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
             throws InvalidCausalModelException {
         if (solvingStrategy == SolvingStrategy.EVAL) {
             // remove exogenous variables from evaluation as they are not needed for computing the Ws
@@ -33,7 +33,7 @@ class EvalCausalitySolver extends CausalitySolver {
                     .collect(Collectors.toSet());
             // get all possible Ws, i.e create power set of the evaluation
             List<Set<Literal>> allW = (new Util<Literal>()).generatePowerSet(evaluationWithoutExogenousVariables);
-            return fulfillsAC2(causalModel, phi, cause, context, allW);
+            return fulfillsAC2(causalModel, phi, cause, context, allW, f);
         } else {
             return null;
         }
@@ -51,16 +51,15 @@ class EvalCausalitySolver extends CausalitySolver {
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
     private Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                                     List<Set<Literal>> allW)
+                                     List<Set<Literal>> allW, FormulaFactory f)
             throws InvalidCausalModelException {
-        FormulaFactory f = new FormulaFactory();
         Formula phiFormula = f.not(phi); // negate phi
 
         // create copy of original causal model
         CausalModel causalModelModified = createModifiedCausalModelForCause(causalModel, cause, f);
 
         // evaluate causal model with setting x' for cause
-        Set<Literal> evaluationModified = CausalitySolver.evaluateEquations(causalModelModified, context,
+        Set<Literal> evaluationModified = CausalitySolver.evaluateEquations(causalModelModified, context, f,
                 phiFormula.variables().toArray(new Variable[0]));
         // check if not(phi) evaluates to true for empty W -> if yes, no further investigation necessary
         if (phiFormula.evaluate(new Assignment(evaluationModified))) {
@@ -71,7 +70,7 @@ class EvalCausalitySolver extends CausalitySolver {
             // create copy of modified causal model
             CausalModel causalModelModifiedW = createModifiedCausalModelForW(causalModelModified, w, f);
             // evaluate all variables in the negated phi
-            evaluationModified = CausalitySolver.evaluateEquations(causalModelModifiedW, context,
+            evaluationModified = CausalitySolver.evaluateEquations(causalModelModifiedW, context, f,
                     phiFormula.variables().toArray(new Variable[0]));
             /*
              * if the negated phi evaluates to true given the values of the variables in the modified causal model,
