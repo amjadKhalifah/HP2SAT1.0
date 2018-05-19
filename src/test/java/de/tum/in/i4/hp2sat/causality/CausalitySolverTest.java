@@ -1,6 +1,8 @@
 package de.tum.in.i4.hp2sat.causality;
 
 import de.tum.in.i4.hp2sat.util.ExampleProvider;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.logicng.formulas.Formula;
@@ -35,13 +37,15 @@ public class CausalitySolverTest {
     private void testSolve(CausalModel causalModel, Set<Literal> context, Formula phi, Set<Literal> cause,
                            CausalitySolverResult causalitySolverResultExpected) throws Exception {
         // all have same expected result
-        Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected = solvingStrategies.stream()
-                .collect(Collectors.toMap(Function.identity(), s -> causalitySolverResultExpected));
+        Map<SolvingStrategy, Set<CausalitySolverResult>> causalitySolverResultsExpected = solvingStrategies.stream()
+                .collect(Collectors.toMap(Function.identity(), s -> new HashSet<>
+                        (Collections.singletonList(causalitySolverResultExpected))));
         testSolve(causalModel, context, phi, cause, causalitySolverResultsExpected);
     }
 
     private void testSolve(CausalModel causalModel, Set<Literal> context, Formula phi, Set<Literal> cause,
-                           Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected) throws Exception {
+                           Map<SolvingStrategy, Set<CausalitySolverResult>> causalitySolverResultsExpected) throws
+            Exception {
         for (SolvingStrategy solvingStrategy : solvingStrategies) {
             CausalitySolverResult causalitySolverResultActual = null;
             if (solvingStrategy == EVAL) {
@@ -51,8 +55,10 @@ public class CausalitySolverTest {
                 for (SATSolverType satSolverType: satSolverTypes) {
                     causalitySolverResultActual = SATCausalitySolver.solve(causalModel, context, phi, cause,
                             solvingStrategy, satSolverType);
-                    assertEquals("Error for " + solvingStrategy + "/" + satSolverType,
-                            causalitySolverResultsExpected.get(solvingStrategy), causalitySolverResultActual);
+                    Matcher[] matchers = causalitySolverResultsExpected.get
+                            (solvingStrategy).stream().map(CoreMatchers::is).toArray(Matcher[]::new);
+                    assertThat("Error for " + solvingStrategy + "/" + satSolverType, causalitySolverResultActual,
+                            CoreMatchers.anyOf(matchers));
                 }
 
                 causalitySolverResultActual =
@@ -61,8 +67,10 @@ public class CausalitySolverTest {
                 causalitySolverResultActual =
                         satBasedCausalitySolverOld.solve(causalModel, context, phi, cause, solvingStrategy);
             }
-            assertEquals("Error for " + solvingStrategy, causalitySolverResultsExpected.get(solvingStrategy),
-                    causalitySolverResultActual);
+            Matcher[] matchers = causalitySolverResultsExpected.get
+                    (solvingStrategy).stream().map(CoreMatchers::is).toArray(Matcher[]::new);
+            assertThat("Error for " + solvingStrategy, causalitySolverResultActual,
+                    CoreMatchers.anyOf(matchers));
         }
     }
 
@@ -135,13 +143,13 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResultExpectedSAT =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false))));
-        Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected =
-                new HashMap<SolvingStrategy, CausalitySolverResult>() {
+        Map<SolvingStrategy, Set<CausalitySolverResult>> causalitySolverResultsExpected =
+                new HashMap<SolvingStrategy, Set<CausalitySolverResult>>() {
                     {
-                        put(EVAL, causalitySolverResultExpectedEval);
-                        put(SAT_BASED_OLD, causalitySolverResultExpectedSATBASEDOLD);
-                        put(SAT, causalitySolverResultExpectedSAT);
-                        put(SAT_MINIMAL, causalitySolverResultExpectedEval);
+                        put(EVAL, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                        put(SAT_BASED_OLD, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSATBASEDOLD)));
+                        put(SAT, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSAT)));
+                        put(SAT_MINIMAL, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                     }
                 };
 
@@ -194,13 +202,13 @@ public class CausalitySolverTest {
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Arrays.asList(f.variable("BT"), f.variable("ST"),
                                 f.literal("BH", false))));
-        Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected =
-                new HashMap<SolvingStrategy, CausalitySolverResult>() {
+        Map<SolvingStrategy, Set<CausalitySolverResult>> causalitySolverResultsExpected =
+                new HashMap<SolvingStrategy, Set<CausalitySolverResult>>() {
                     {
-                        put(EVAL, causalitySolverResultExpectedEval);
-                        put(SAT_BASED_OLD, causalitySolverResultExpectedSATBASEDOLD);
-                        put(SAT, causalitySolverResultExpectedSAT);
-                        put(SAT_MINIMAL, causalitySolverResultExpectedEval);
+                        put(EVAL, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                        put(SAT_BASED_OLD, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSATBASEDOLD)));
+                        put(SAT, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSAT)));
+                        put(SAT_MINIMAL, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                     }
                 };
 
@@ -261,13 +269,13 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResultExpectedSAT =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false))));
-        Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected =
-                new HashMap<SolvingStrategy, CausalitySolverResult>() {
+        Map<SolvingStrategy, Set<CausalitySolverResult>> causalitySolverResultsExpected =
+                new HashMap<SolvingStrategy, Set<CausalitySolverResult>>() {
                     {
-                        put(EVAL, causalitySolverResultExpectedEval);
-                        put(SAT_BASED_OLD, causalitySolverResultExpectedSATBASEDOLD);
-                        put(SAT, causalitySolverResultExpectedSAT);
-                        put(SAT_MINIMAL, causalitySolverResultExpectedEval);
+                        put(EVAL, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                        put(SAT_BASED_OLD, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSATBASEDOLD)));
+                        put(SAT, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSAT)));
+                        put(SAT_MINIMAL, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                     }
                 };
 
@@ -352,13 +360,13 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResultExpectedSAT =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false))));
-        Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected =
-                new HashMap<SolvingStrategy, CausalitySolverResult>() {
+        Map<SolvingStrategy, Set<CausalitySolverResult>> causalitySolverResultsExpected =
+                new HashMap<SolvingStrategy, Set<CausalitySolverResult>>() {
                     {
-                        put(EVAL, causalitySolverResultExpectedEval);
-                        put(SAT_BASED_OLD, causalitySolverResultExpectedSATBASEDOLD);
-                        put(SAT, causalitySolverResultExpectedSAT);
-                        put(SAT_MINIMAL, causalitySolverResultExpectedEval);
+                        put(EVAL, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                        put(SAT_BASED_OLD, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSATBASEDOLD)));
+                        put(SAT, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSAT)));
+                        put(SAT_MINIMAL, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                     }
                 };
 
@@ -423,7 +431,7 @@ public class CausalitySolverTest {
     }
 
     // TODO allow for multiple possible results
-    /*@Test
+    @Test
     public void Should_FulfillAllACs_When_BIsCauseInDummyModel2() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummy2();
         Set<Literal> context = new HashSet<>(Arrays.asList(
@@ -443,21 +451,32 @@ public class CausalitySolverTest {
                         new HashSet<>(Arrays.asList(f.literal("D1", false),
                                 f.literal("C1", false), f.literal("D2", false),
                                 f.literal("C2", false))));
-        CausalitySolverResult causalitySolverResultExpectedSATMINIMAL =
+        CausalitySolverResult causalitySolverResultExpectedSATMINIMAL1 =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Collections.singletonList(f.literal("C1", false))));
+        CausalitySolverResult causalitySolverResultExpectedSATMINIMAL2 =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Collections.singletonList(f.literal("C2", false))));
-        Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected =
-                new HashMap<SolvingStrategy, CausalitySolverResult>() {
+        CausalitySolverResult causalitySolverResultExpectedSATMINIMAL3 =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Collections.singletonList(f.literal("D1", false))));
+        CausalitySolverResult causalitySolverResultExpectedSATMINIMAL4 =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Collections.singletonList(f.literal("D2", false))));
+        Map<SolvingStrategy, Set<CausalitySolverResult>> causalitySolverResultsExpected =
+                new HashMap<SolvingStrategy, Set<CausalitySolverResult>>() {
                     {
-                        put(EVAL, causalitySolverResultExpectedEval);
-                        put(SAT_BASED_OLD, causalitySolverResultExpectedSATBASEDOLD);
-                        put(SAT, causalitySolverResultExpectedSAT);
-                        put(SAT_MINIMAL, causalitySolverResultExpectedSATMINIMAL);
+                        put(EVAL, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                        put(SAT_BASED_OLD, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSATBASEDOLD)));
+                        put(SAT, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSAT)));
+                        put(SAT_MINIMAL, new HashSet<>(Arrays.asList(causalitySolverResultExpectedSATMINIMAL1,
+                                causalitySolverResultExpectedSATMINIMAL2, causalitySolverResultExpectedSATMINIMAL3,
+                                causalitySolverResultExpectedSATMINIMAL4)));
                     }
                 };
 
         testSolve(dummyModel, context, phi, cause, causalitySolverResultsExpected);
-    }*/
+    }
 
     @Test
     public void Should_FulfillAC1AC3Only_When_InBenchmarkModels() throws Exception {
