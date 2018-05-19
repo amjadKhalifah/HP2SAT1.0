@@ -106,43 +106,6 @@ class SATCausalitySolver extends CausalitySolver {
         return causalitySolverResult;
     }
 
-    /**
-     * Generates a formula whose satisfiability indicates whether AC2 is fulfilled or not.
-     *
-     * @param causalModelModified the causal model
-     * @param notPhi              the negated phi
-     * @param cause               the cause
-     * @param context             the context
-     * @param evaluation          the original evaluation under the given context
-     * @param f                   a formula factory
-     * @return a formula
-     */
-    private Formula generateSATQuery(CausalModel causalModelModified, Formula notPhi, Set<Literal> cause,
-                                     Set<Literal> context, Set<Literal> evaluation, FormulaFactory f) {
-        // get all variables in cause
-        Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
-        // create map of variables and corresponding evaluation
-        Map<Variable, Literal> variableEvaluationMap = evaluation.stream()
-                .collect(Collectors.toMap(Literal::variable, Function.identity()));
-        // create formula: !phi AND context
-        Formula formula = f.and(notPhi, f.and(context));
-        for (Equation equation : causalModelModified.getEquations()) {
-            // get value of variable in original iteration
-            Literal originalValue = variableEvaluationMap.get(equation.getVariable());
-            /*
-             * create formula: V_originalValue OR (V <=> Formula_V)
-             * if the variable of the current equation is in the cause, then we do not allow for its original value
-             * and just add (V <=> Formula_V). Notice that Formula_V will be a constant if V is in the cause since we
-             * are considering the modified causal model. */
-            Formula equationFormula = causeVariables.contains(equation.getVariable()) ?
-                    f.equivalence(equation.getVariable(), equation.getFormula()) :
-                    f.or(originalValue, f.equivalence(equation.getVariable(), equation.getFormula()));
-            // add created formula to global formula by AND
-            formula = f.and(formula, equationFormula);
-        }
-        return formula;
-    }
-
     // TODO doc
     private Set<Literal> getWStandard(CausalModel causalModelModified, Formula phiFormula, Set<Literal> cause,
                                       Set<Literal> context, Set<Literal> evaluation, SATSolver satSolver,
@@ -209,6 +172,43 @@ class SATCausalitySolver extends CausalitySolver {
         }
 
         return w;
+    }
+
+    /**
+     * Generates a formula whose satisfiability indicates whether AC2 is fulfilled or not.
+     *
+     * @param causalModelModified the causal model
+     * @param notPhi              the negated phi
+     * @param cause               the cause
+     * @param context             the context
+     * @param evaluation          the original evaluation under the given context
+     * @param f                   a formula factory
+     * @return a formula
+     */
+    private Formula generateSATQuery(CausalModel causalModelModified, Formula notPhi, Set<Literal> cause,
+                                     Set<Literal> context, Set<Literal> evaluation, FormulaFactory f) {
+        // get all variables in cause
+        Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
+        // create map of variables and corresponding evaluation
+        Map<Variable, Literal> variableEvaluationMap = evaluation.stream()
+                .collect(Collectors.toMap(Literal::variable, Function.identity()));
+        // create formula: !phi AND context
+        Formula formula = f.and(notPhi, f.and(context));
+        for (Equation equation : causalModelModified.getEquations()) {
+            // get value of variable in original iteration
+            Literal originalValue = variableEvaluationMap.get(equation.getVariable());
+            /*
+             * create formula: V_originalValue OR (V <=> Formula_V)
+             * if the variable of the current equation is in the cause, then we do not allow for its original value
+             * and just add (V <=> Formula_V). Notice that Formula_V will be a constant if V is in the cause since we
+             * are considering the modified causal model. */
+            Formula equationFormula = causeVariables.contains(equation.getVariable()) ?
+                    f.equivalence(equation.getVariable(), equation.getFormula()) :
+                    f.or(originalValue, f.equivalence(equation.getVariable(), equation.getFormula()));
+            // add created formula to global formula by AND
+            formula = f.and(formula, equationFormula);
+        }
+        return formula;
     }
 
     // TODO doc
