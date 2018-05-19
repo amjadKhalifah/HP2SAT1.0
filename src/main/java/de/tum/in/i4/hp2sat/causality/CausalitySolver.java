@@ -62,8 +62,9 @@ abstract class CausalitySolver {
      * @return returns W if AC2 fulfilled, else null
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
-    abstract Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                                      Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
+    protected abstract Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause,
+                                                Set<Literal> context, Set<Literal> evaluation,
+                                                SolvingStrategy solvingStrategy, FormulaFactory f)
             throws InvalidCausalModelException;
 
     /**
@@ -76,7 +77,7 @@ abstract class CausalitySolver {
      * @param solvingStrategy the solving strategy
      * @return true if A3 fulfilled, else false
      */
-    boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
+    protected boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
                         Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f) {
         // get all subsets of cause
         Set<Set<Literal>> allSubsetsOfCause = new UnifiedSet<>(cause).powerSet().stream()

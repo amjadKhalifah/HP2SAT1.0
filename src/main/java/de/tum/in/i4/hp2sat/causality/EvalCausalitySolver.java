@@ -23,8 +23,8 @@ class EvalCausalitySolver extends CausalitySolver {
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
     @Override
-    Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                             Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
+    protected Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
+                                       Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
             throws InvalidCausalModelException {
         if (solvingStrategy == SolvingStrategy.EVAL) {
             // remove exogenous variables from evaluation as they are not needed for computing the Ws

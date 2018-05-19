@@ -11,6 +11,7 @@ import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -32,8 +33,8 @@ class SATCausalitySolver extends CausalitySolver {
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
     @Override
-    Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                             Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
+    protected Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
+                                       Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
             throws InvalidCausalModelException {
         return fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, MINISAT, f);
     }
@@ -51,7 +52,7 @@ class SATCausalitySolver extends CausalitySolver {
      * @return returns W if AC2 fulfilled, else null
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
-    Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
+    private Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
                              Set<Literal> evaluation, SolvingStrategy solvingStrategy, SATSolverType satSolverType,
                              FormulaFactory f)
             throws InvalidCausalModelException {
@@ -72,22 +73,11 @@ class SATCausalitySolver extends CausalitySolver {
         if (phiFormula.evaluate(new Assignment(evaluationModified))) {
             return new HashSet<>();
         }
-        // generate SAT query
-        Formula formula = generateSATQuery(causalModelModified, phiFormula, cause, context, evaluation, f);
-        // add query to solver
-        satSolver.add(formula);
-        if (satSolver.sat() == Tristate.TRUE) {
-            // if satisfiable, get the assignment for which the formula is satisfiable
-            Assignment assignment = satSolver.model();
-            // TODO minimal w? currently, we take the maximum W -> need to check, if it works for a smaller one as well
-            // generate (maximum) W
-            Set<Literal> w = assignment.literals().stream()
-                    .filter(l -> evaluation.contains(l) && !causalModel.getExogenousVariables().contains(l.variable()))
-                    .collect(Collectors.toSet());
-            return w;
+
+        if (solvingStrategy == SolvingStrategy.SAT) {
+            return getWStandard(causalModelModified, phiFormula, cause, context, evaluation, satSolver, f);
         } else {
-            // if not satisfiable
-            return null;
+            return getWMinimal(causalModelModified, phiFormula, cause, context, evaluation, satSolver, f);
         }
     }
 
@@ -114,6 +104,101 @@ class SATCausalitySolver extends CausalitySolver {
         boolean ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, f);
         CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3, cause, w);
         return causalitySolverResult;
+    }
+
+    /**
+     * Compute a not necessarily minimal W.
+     *
+     * @param causalModelModified causal model where the equations of the cause are replaced respectively
+     * @param negatedPhi          negated phi
+     * @param cause               the cause
+     * @param context             the context
+     * @param evaluation          the evaluation in the original causal model
+     * @param satSolver           a SAT solver instance
+     * @param f                   a formula factory instance
+     * @return a set W if AC2 is fulfilled; null otherwise
+     */
+    private Set<Literal> getWStandard(CausalModel causalModelModified, Formula negatedPhi, Set<Literal> cause,
+                                      Set<Literal> context, Set<Literal> evaluation, SATSolver satSolver,
+                                      FormulaFactory f) {
+        // generate SAT query
+        Formula formula = generateSATQuery(causalModelModified, negatedPhi, cause, context, evaluation, f);
+        // add query to solver
+        satSolver.add(formula);
+        if (satSolver.sat() == Tristate.TRUE) {
+            // if satisfiable, get the assignment for which the formula is satisfiable
+            Assignment assignment = satSolver.model();
+            // generate (maximum) W
+            Set<Literal> w = assignment.literals().stream()
+                    .filter(l -> evaluation.contains(l)
+                            && !causalModelModified.getExogenousVariables().contains(l.variable()))
+                    .collect(Collectors.toSet());
+            return w;
+        } else {
+            // if not satisfiable
+            return null;
+        }
+    }
+
+    /**
+     * Computes a minimal W.
+     *
+     * @param causalModelModified causal model where the equations of the cause are replaced respectively
+     * @param negatedPhi          negated phi
+     * @param cause               the cause
+     * @param context             the context
+     * @param evaluation          the evaluation in the original causal model
+     * @param satSolver           a SAT solver instance
+     * @param f                   a formula factory instance
+     * @return a set W if AC2 is fulfilled; null otherwise
+     */
+    private Set<Literal> getWMinimal(CausalModel causalModelModified, Formula negatedPhi, Set<Literal> cause,
+                                     Set<Literal> context, Set<Literal> evaluation, SATSolver satSolver,
+                                     FormulaFactory f) {
+        // generate SAT query
+        Formula formula = generateSATQuery(causalModelModified, negatedPhi, cause, context, evaluation, f);
+        // add query to solver
+        satSolver.add(formula);
+        Set<Literal> w = null;
+        if (satSolver.sat() == Tristate.TRUE) {
+            Map<Variable, Equation> variableEquationMap = causalModelModified.getVariableEquationMap();
+            // if satisfiable, get the assignments for which the formula is satisfiable
+            List<Assignment> assignments = satSolver.enumerateAllModels();
+            // loop through all satisfying assignments; the first one found might not expose a minimal W
+            for (Assignment assignment : assignments) {
+                /*
+                 * we construct a set of literals that are possibly in W. This set is equal to the one constructed in
+                 * the standard approach
+                 * */
+                Set<Literal> wCandidates = assignment.literals().stream()
+                        .filter(l -> evaluation.contains(l)
+                                && !causalModelModified.getExogenousVariables().contains(l.variable()))
+                        .collect(Collectors.toSet());
+
+                Set<Literal> newW = new HashSet<>();
+                for (Literal wCandidate : wCandidates) {
+                    // create an assignment instance where the current wCandidate is removed
+                    Assignment assignmentNew = new Assignment(assignment.literals().stream()
+                            .filter(l -> !l.variable().equals(wCandidate.variable())).collect(Collectors.toSet()));
+                    // compute the value of the current wCandidate using its equation
+                    boolean value = variableEquationMap.get(wCandidate.variable()).getFormula().evaluate(assignmentNew);
+                    /*
+                     * if the value of the satisfying assignment and the value computed from the equation are
+                     * different, than we know that the current variable needs to be in W, since we need to keep it to
+                     * its original value such that the formula can be satisfied. */
+                    if (value != wCandidate.phase()) {
+                        newW.add(wCandidate);
+                    }
+                }
+
+                // update W only if it has not been set so far or if we have found a smaller W
+                if (w == null || newW.size() < w.size()) {
+                    w = newW;
+                }
+            }
+        }
+
+        return w;
     }
 
     /**
