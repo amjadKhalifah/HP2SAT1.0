@@ -282,9 +282,8 @@ public class CausalitySolverTest {
         testSolve(billySuzy, context, phi, cause, causalitySolverResultsExpected);
     }
 
-    // TODO allow for multiple possible results
     // TODO check if this test case is even correct; for EVAL: does it make sense to keep ST=1? it is part of the cause
-    /*@Test
+    @Test
     public void Should_FulfillAC2AC3Only_When_STIsCauseBSAndBH() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
@@ -301,18 +300,25 @@ public class CausalitySolverTest {
         CausalitySolverResult causalitySolverResultExpectedSAT =
                 new CausalitySolverResult(false, true, true, cause,
                         new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false))));
-        Map<SolvingStrategy, CausalitySolverResult> causalitySolverResultsExpected =
-                new HashMap<SolvingStrategy, CausalitySolverResult>() {
+        CausalitySolverResult causalitySolverResultExpectedSATMINIMAL1 =
+                new CausalitySolverResult(false, true, true, cause,
+                        new HashSet<>(Collections.singletonList(f.literal("SH", true))));
+        CausalitySolverResult causalitySolverResultExpectedSATMINIMAL2 =
+                new CausalitySolverResult(false, true, true, cause,
+                        new HashSet<>(Collections.singletonList(f.literal("BH", false))));
+        Map<SolvingStrategy, Set<CausalitySolverResult>> causalitySolverResultsExpected =
+                new HashMap<SolvingStrategy, Set<CausalitySolverResult>>() {
                     {
-                        put(EVAL, causalitySolverResultExpectedEval);
-                        put(SAT_BASED_OLD, causalitySolverResultExpectedSATBASEDOLD);
-                        put(SAT, causalitySolverResultExpectedSAT);
-                        put(SAT_MINIMAL, causalitySolverResultExpectedEval);
+                        put(EVAL, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                        put(SAT_BASED_OLD, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSATBASEDOLD)));
+                        put(SAT, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSAT)));
+                        put(SAT_MINIMAL, new HashSet<>(Arrays.asList(causalitySolverResultExpectedSATMINIMAL1,
+                                causalitySolverResultExpectedSATMINIMAL2)));
                     }
                 };
 
         testSolve(billySuzy, context, phi, cause, causalitySolverResultsExpected);
-    }*/
+    }
 
     @Test
     public void Should_FulfillAC1AC3Only_When_LIsCauseForFF() throws Exception {
