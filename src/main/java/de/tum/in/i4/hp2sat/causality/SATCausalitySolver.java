@@ -106,12 +106,23 @@ class SATCausalitySolver extends CausalitySolver {
         return causalitySolverResult;
     }
 
-    // TODO doc
-    private Set<Literal> getWStandard(CausalModel causalModelModified, Formula phiFormula, Set<Literal> cause,
+    /**
+     * Compute a not necessarily minimal W.
+     *
+     * @param causalModelModified causal model where the equations of the cause are replaced respectively
+     * @param negatedPhi          negated phi
+     * @param cause               the cause
+     * @param context             the context
+     * @param evaluation          the evaluation in the original causal model
+     * @param satSolver           a SAT solver instance
+     * @param f                   a formula factory instance
+     * @return a set W if AC2 is fulfilled; null otherwise
+     */
+    private Set<Literal> getWStandard(CausalModel causalModelModified, Formula negatedPhi, Set<Literal> cause,
                                       Set<Literal> context, Set<Literal> evaluation, SATSolver satSolver,
                                       FormulaFactory f) {
         // generate SAT query
-        Formula formula = generateSATQuery(causalModelModified, phiFormula, cause, context, evaluation, f);
+        Formula formula = generateSATQuery(causalModelModified, negatedPhi, cause, context, evaluation, f);
         // add query to solver
         satSolver.add(formula);
         if (satSolver.sat() == Tristate.TRUE) {
@@ -129,16 +140,33 @@ class SATCausalitySolver extends CausalitySolver {
         }
     }
 
-    // TODO doc
-    private Set<Literal> getWMinimal(CausalModel causalModelModified, Formula phiFormula, Set<Literal> cause,
+    /**
+     * Computes a minimal W.
+     *
+     * @param causalModelModified causal model where the equations of the cause are replaced respectively
+     * @param negatedPhi          negated phi
+     * @param cause               the cause
+     * @param context             the context
+     * @param evaluation          the evaluation in the original causal model
+     * @param satSolver           a SAT solver instance
+     * @param f                   a formula factory instance
+     * @return a set W if AC2 is fulfilled; null otherwise
+     */
+    private Set<Literal> getWMinimal(CausalModel causalModelModified, Formula negatedPhi, Set<Literal> cause,
                                      Set<Literal> context, Set<Literal> evaluation, SATSolver satSolver,
                                      FormulaFactory f) {
+        /*
+         * we introduce some dummy variables that indicate whether a variable took its original value given the
+         * satisfying solution for the constructed SAT formula.
+         * */
+        // HashMap: <var, dummy_var>
         Map<Variable, Variable> variableWIndicatorMap = causalModelModified.getVariableEquationMap().keySet().stream()
                 .collect(Collectors.toMap(Function.identity(), v -> f.variable(v.name() + "_dummy")));
+        // HashMap: <dummy_var, var> -> reverse previous hash map
         Map<Variable, Variable> variableWIndicatorMapReverse = variableWIndicatorMap.entrySet().stream().collect
                 (Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
-        // generate SAT query
-        Formula formula = generateSATQueryMinimalW(causalModelModified, phiFormula, cause, context, evaluation,
+        // generate SAT query using the dummy vars
+        Formula formula = generateSATQueryMinimalW(causalModelModified, negatedPhi, cause, context, evaluation,
                 variableWIndicatorMap, f);
         // add query to solver
         satSolver.add(formula);
@@ -147,6 +175,7 @@ class SATCausalitySolver extends CausalitySolver {
             Map<Variable, Equation> variableEquationMap = causalModelModified.getVariableEquationMap();
             // if satisfiable, get the assignments for which the formula is satisfiable
             List<Assignment> assignments = satSolver.enumerateAllModels();
+            // loop through all satisfying assignments
             for (Assignment assignment : assignments) {
                 Map<Variable, Literal> assignmentMap = assignment.literals().stream()
                         .collect(Collectors.toMap(Literal::variable, Function.identity()));
