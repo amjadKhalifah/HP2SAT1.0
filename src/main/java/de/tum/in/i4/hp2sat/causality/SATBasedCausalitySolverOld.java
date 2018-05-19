@@ -27,8 +27,8 @@ class SATBasedCausalitySolverOld extends CausalitySolver {
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
     @Override
-    Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                             Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
+    protected Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
+                                       Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
             throws InvalidCausalModelException {
         SATSolver satSolver = MiniSat.miniSat(f); // TODO make dynamic?
         Formula phiFormula = f.not(phi); // negate phi
