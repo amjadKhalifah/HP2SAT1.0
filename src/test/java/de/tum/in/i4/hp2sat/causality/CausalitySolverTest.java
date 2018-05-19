@@ -417,7 +417,6 @@ public class CausalitySolverTest {
         testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected);
     }
 
-    // TODO allow for multiple possible results
     @Test
     public void Should_FulfillAllACs_When_BIsCauseInDummyModel2() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummy2();
