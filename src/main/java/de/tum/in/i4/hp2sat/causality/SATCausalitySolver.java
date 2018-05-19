@@ -155,19 +155,8 @@ class SATCausalitySolver extends CausalitySolver {
     private Set<Literal> getWMinimal(CausalModel causalModelModified, Formula negatedPhi, Set<Literal> cause,
                                      Set<Literal> context, Set<Literal> evaluation, SATSolver satSolver,
                                      FormulaFactory f) {
-        /*
-         * we introduce some dummy variables that indicate whether a variable took its original value given the
-         * satisfying solution for the constructed SAT formula.
-         * */
-        // HashMap: <var, dummy_var>
-        Map<Variable, Variable> variableWIndicatorMap = causalModelModified.getVariableEquationMap().keySet().stream()
-                .collect(Collectors.toMap(Function.identity(), v -> f.variable(v.name() + "_dummy")));
-        // HashMap: <dummy_var, var> -> reverse previous hash map
-        Map<Variable, Variable> variableWIndicatorMapReverse = variableWIndicatorMap.entrySet().stream().collect
-                (Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
-        // generate SAT query using the dummy vars
-        Formula formula = generateSATQueryMinimalW(causalModelModified, negatedPhi, cause, context, evaluation,
-                variableWIndicatorMap, f);
+        // generate SAT query
+        Formula formula = generateSATQuery(causalModelModified, negatedPhi, cause, context, evaluation, f);
         // add query to solver
         satSolver.add(formula);
         Set<Literal> w = null;
@@ -175,27 +164,36 @@ class SATCausalitySolver extends CausalitySolver {
             Map<Variable, Equation> variableEquationMap = causalModelModified.getVariableEquationMap();
             // if satisfiable, get the assignments for which the formula is satisfiable
             List<Assignment> assignments = satSolver.enumerateAllModels();
-            // loop through all satisfying assignments
+            // loop through all satisfying assignments; the first one found might not expose a minimal W
             for (Assignment assignment : assignments) {
-                Map<Variable, Literal> assignmentMap = assignment.literals().stream()
-                        .collect(Collectors.toMap(Literal::variable, Function.identity()));
-                Set<Variable> wCandidates = assignment.positiveLiterals().stream()
-                        .filter(variableWIndicatorMap::containsValue)
-                        .map(variableWIndicatorMapReverse::get).collect(Collectors.toSet());
+                /*
+                 * we construct a set of literals that are possibly in W. This set is equal to the one constructed in
+                 * the standard approach
+                 * */
+                Set<Literal> wCandidates = assignment.literals().stream()
+                        .filter(l -> evaluation.contains(l)
+                                && !causalModelModified.getExogenousVariables().contains(l.variable()))
+                        .collect(Collectors.toSet());
 
-                Set<Literal> currentW = new HashSet<>();
-                for (Variable wCandidate : wCandidates) {
+                Set<Literal> newW = new HashSet<>();
+                for (Literal wCandidate : wCandidates) {
+                    // create an assignment instance where the current wCandidate is removed
                     Assignment assignmentNew = new Assignment(assignment.literals().stream()
-                            .filter(l -> !l.variable().equals(wCandidate)).collect(Collectors.toSet()));
-                    boolean value = variableEquationMap.get(wCandidate).getFormula().evaluate(assignmentNew);
-                    Literal literal = assignmentMap.get(wCandidate);
-                    if (value != literal.phase()) {
-                        currentW.add(literal);
+                            .filter(l -> !l.variable().equals(wCandidate.variable())).collect(Collectors.toSet()));
+                    // compute the value of the current wCandidate using its equation
+                    boolean value = variableEquationMap.get(wCandidate.variable()).getFormula().evaluate(assignmentNew);
+                    /*
+                     * if the value of the satisfying assignment and the value computed from the equation are
+                     * different, than we know that the current variable needs to be in W, since we need to keep it to
+                     * its original value such that the formula can be satisfied. */
+                    if (value != wCandidate.phase()) {
+                        newW.add(wCandidate);
                     }
                 }
 
-                if (w == null || currentW.size() < w.size()) {
-                    w = currentW;
+                // update W only if it has not been set so far or if we have found a smaller W
+                if (w == null || newW.size() < w.size()) {
+                    w = newW;
                 }
             }
         }
@@ -234,35 +232,6 @@ class SATCausalitySolver extends CausalitySolver {
             Formula equationFormula = causeVariables.contains(equation.getVariable()) ?
                     f.equivalence(equation.getVariable(), equation.getFormula()) :
                     f.or(originalValue, f.equivalence(equation.getVariable(), equation.getFormula()));
-            // add created formula to global formula by AND
-            formula = f.and(formula, equationFormula);
-        }
-        return formula;
-    }
-
-    // TODO doc
-    private Formula generateSATQueryMinimalW(CausalModel causalModelModified, Formula notPhi, Set<Literal> cause,
-                                             Set<Literal> context, Set<Literal> evaluation,
-                                             Map<Variable, Variable> variableWIndicatorMap, FormulaFactory f) {
-        // get all variables in cause
-        Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
-        // create map of variables and corresponding evaluation
-        Map<Variable, Literal> variableEvaluationMap = evaluation.stream()
-                .collect(Collectors.toMap(Literal::variable, Function.identity()));
-        // create formula: !phi AND context
-        Formula formula = f.and(notPhi, f.and(context));
-        for (Equation equation : causalModelModified.getEquations()) {
-            // get value of variable in original iteration
-            Literal originalValue = variableEvaluationMap.get(equation.getVariable());
-            /*
-             * create formula: V_originalValue OR (V <=> Formula_V)
-             * if the variable of the current equation is in the cause, then we do not allow for its original value
-             * and just add (V <=> Formula_V). Notice that Formula_V will be a constant if V is in the cause since we
-             * are considering the modified causal model. */
-            Formula equationFormula = causeVariables.contains(equation.getVariable()) ?
-                    f.equivalence(equation.getVariable(), equation.getFormula()) :
-                    f.and(f.or(originalValue, f.equivalence(equation.getVariable(), equation.getFormula())), f
-                            .equivalence(variableWIndicatorMap.get(equation.getVariable()), originalValue));
             // add created formula to global formula by AND
             formula = f.and(formula, equationFormula);
         }
