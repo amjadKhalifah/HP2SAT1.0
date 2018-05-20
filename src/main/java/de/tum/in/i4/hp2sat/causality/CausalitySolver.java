@@ -73,12 +73,14 @@ abstract class CausalitySolver {
      * @param causalModel     the underlying causal model
      * @param phi             the phi
      * @param cause           the cause for which we check AC2
+     * @param context         the context
      * @param evaluation      the original evaluation of variables
      * @param solvingStrategy the solving strategy
+     * @param f               a formula factory
      * @return true if A3 fulfilled, else false
      */
     protected boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                        Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f) {
+                                  Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f) {
         // get all subsets of cause
         Set<Set<Literal>> allSubsetsOfCause = new UnifiedSet<>(cause).powerSet().stream()
                 .map(s -> s.toImmutable().castToSet())
