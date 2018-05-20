@@ -146,7 +146,7 @@ class SATCausalitySolver extends CausalitySolver {
                         // compute the value of the current wCandidate using its equation
                         boolean value = causalModel.getVariableEquationMap().get(causeCandidate.variable()).getFormula()
                                 .evaluate(assignmentNew);
-                        // TODO maybe we need to take W into account; is the current approach correct?
+                        // TODO maybe we need to take W into account; is the current approach correct? -> test case?
                         /*
                          * For each cause candidate we now check whether it evaluates according to its equation or is
                          * in W. In this case, we found a solution such that not(phi) is satisfied by a subset of the
