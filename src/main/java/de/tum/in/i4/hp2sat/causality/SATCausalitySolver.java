@@ -297,6 +297,7 @@ class SATCausalitySolver extends CausalitySolver {
      */
     private Formula generateSATQuery(CausalModel causalModel, Formula notPhi, Set<Literal> cause,
                                      Set<Literal> context, Set<Literal> evaluation, boolean ac3, FormulaFactory f) {
+        Variable dummy = f.variable("_dummy");
         // get all variables in cause
         Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
         // create map of variables and corresponding evaluation
@@ -308,6 +309,7 @@ class SATCausalitySolver extends CausalitySolver {
             // get value of variable in original iteration
             Literal originalValue = variableEvaluationMap.get(equation.getVariable());
             Formula equationFormula;
+            // TODO check outside of loop
             if (!ac3) {
                 /*
                  * create formula: V_originalValue OR (V <=> Formula_V)
@@ -319,15 +321,24 @@ class SATCausalitySolver extends CausalitySolver {
             } else {
                 /*
                  * When generating a SAT query for AC3, then for each variable not in the cause, we stick to the same
-                 * scheme as for AC2, i.e. (V_originalValue OR (V <=> Formula_V)). If however the variable of the
-                 * current equation is in the cause, we additionally add an OR with its negation. That is, we allow
-                 * its original value, the negation of the original value. The resulting formula is then
-                 * (V_originalValue OR (V <=> Formula_V) OR not(V_originalValue)) and is equivalent to just TRUE.
-                 * Therefore, we just set it to TRUE. */
+                 * scheme as for AC2, i.e. (V_originalValue OR (V <=> Formula_V)). */
                 if (!causeVariables.contains(equation.getVariable())) {
                     equationFormula = f.or(originalValue, f.equivalence(equation.getVariable(), equation.getFormula()));
-                } else {
-                    equationFormula = f.verum();
+                }
+                /*
+                 * If however the variable of the current equation in in the cause, we additionally add an OR with its
+                 * negation. That is, we allow its original value, the negation of this original value and the
+                 * equivalence with its equation. The resulting formula would be
+                 * (V_originalValue OR (V <=> Formula_V) OR not(V_originalValue)). Obviously, we could replace that
+                 * with TRUE or at least simplify it to (V_originalValue OR not(V_originalValue)). However, when
+                 * replacing it by TRUE, we might run into the problem that some variables are removed completeley
+                 * from the formula which causes problem with the evaluation of some equations later on.
+                 * Therefore, we want to keep at least (V_originalValue OR not(V_originalValue)). Unfortunately,
+                 * LogicNG automatically replaces this formula by TRUE. To avoid this, we introduce a dummy variable
+                 * as follows: (V_originalValue OR (not(V_originalValue) AND dummy))
+                 * The dummy variable has no effect on the final result. */
+                else {
+                    equationFormula = f.or(originalValue, f.and(originalValue.negate(), dummy));
                 }
             }
             // add created formula to global formula by AND
