@@ -142,8 +142,8 @@ class SATCausalitySolver extends CausalitySolver {
                     for (Literal causeCandidate : causeCandidates) {
                         // create an assignment instance where the current wCandidate is removed
                         Assignment assignmentNew = new Assignment(assignment.literals().stream()
-                                .filter(l -> !l.variable().equals(causeCandidate.variable())).collect(Collectors.toSet()));
-                        // compute the value of the current wCandidate using its equation
+                                .filter(l -> !l.variable().equals(causeCandidate.variable()))
+                                .collect(Collectors.toSet()));
                         boolean value = causalModel.getVariableEquationMap().get(causeCandidate.variable()).getFormula()
                                 .evaluate(assignmentNew);
                         // TODO maybe we need to take W into account; is the current approach correct? -> test case?
