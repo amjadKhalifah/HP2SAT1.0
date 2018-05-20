@@ -161,6 +161,43 @@ public class CausalitySolverTest {
     }
 
     @Test
+    public void Should_FulfillAC1Only_When_STandBTandNotBHIsCauseForBS() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", true), f.literal("ST_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("BT"),
+                f.literal("BH", false)));
+        Formula phi = f.variable("BS");
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, false, cause, null);
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC1AC3Only_When_BTandNotBHIsCauseForBS() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", true), f.literal("ST_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false)));
+        Formula phi = f.variable("BS");
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC1A2Only_When_BTandBHIsCauseForBSGivenNotSTExo() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", true), f.literal("ST_exo", false)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("BT"), f.variable("BH")));
+        Formula phi = f.variable("BS");
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, false, cause, new HashSet<>());
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
     public void Should_FulfillAC1AC2Only_When_NotSTandNotBTIsCauseForNotBS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
