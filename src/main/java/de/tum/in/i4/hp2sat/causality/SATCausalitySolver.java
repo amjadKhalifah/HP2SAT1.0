@@ -56,12 +56,7 @@ class SATCausalitySolver extends CausalitySolver {
                                      Set<Literal> evaluation, SolvingStrategy solvingStrategy,
                                      SATSolverType satSolverType, FormulaFactory f)
             throws InvalidCausalModelException {
-        SATSolver satSolver;
-        if (satSolverType == MINISAT) {
-            satSolver = MiniSat.miniSat(f);
-        } else {
-            satSolver = MiniSat.glucose(f);
-        }
+        SATSolver satSolver = selectSATSolver(satSolverType, f);
         Formula phiFormula = f.not(phi); // negate phi
 
         // create copy of original causal model
@@ -117,12 +112,7 @@ class SATCausalitySolver extends CausalitySolver {
                                 SATSolverType satSolverType, FormulaFactory f) {
         if (cause.size() > 1) {
             // TODO implement helper method for selecting SAT Solver
-            SATSolver satSolver;
-            if (satSolverType == MINISAT) {
-                satSolver = MiniSat.miniSat(f);
-            } else {
-                satSolver = MiniSat.glucose(f);
-            }
+            SATSolver satSolver = selectSATSolver(satSolverType, f);
             Formula phiNegated = f.not(phi); // negate phi
             // generate SAT query
             Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation, true, f);
@@ -333,5 +323,20 @@ class SATCausalitySolver extends CausalitySolver {
             formula = f.and(formula, equationFormula);
         }
         return formula;
+    }
+
+    /**
+     * Return a SAT solver instance depending on the given type.
+     *
+     * @param satSolverType the SAT solver type
+     * @param f             a formula factory
+     * @return a SAT solver instance
+     */
+    private SATSolver selectSATSolver(SATSolverType satSolverType, FormulaFactory f) {
+        if (satSolverType == MINISAT) {
+            return MiniSat.miniSat(f);
+        } else {
+            return MiniSat.glucose(f);
+        }
     }
 }
