@@ -53,8 +53,8 @@ class SATCausalitySolver extends CausalitySolver {
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
     private Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                             Set<Literal> evaluation, SolvingStrategy solvingStrategy, SATSolverType satSolverType,
-                             FormulaFactory f)
+                                     Set<Literal> evaluation, SolvingStrategy solvingStrategy,
+                                     SATSolverType satSolverType, FormulaFactory f)
             throws InvalidCausalModelException {
         SATSolver satSolver;
         if (satSolverType == MINISAT) {
@@ -82,6 +82,87 @@ class SATCausalitySolver extends CausalitySolver {
     }
 
     /**
+     * Checks if AC3 is fulfilled and overrides
+     * {@link CausalitySolver#fulfillsAC3(CausalModel, Formula, Set, Set, Set, SolvingStrategy, FormulaFactory)}.
+     * Uses MINISAT as default.
+     *
+     * @param causalModel     the underlying causal model
+     * @param phi             the phi
+     * @param cause           the cause for which we check AC2
+     * @param context         the context
+     * @param evaluation      the original evaluation of variables
+     * @param solvingStrategy the solving strategy
+     * @param f               a formula factory
+     * @return true if AC3 fulfilled, else false
+     */
+    @Override
+    protected boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
+                                  Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f) {
+        return fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, MINISAT, f);
+    }
+
+    /**
+     * @param causalModel     the underlying causal model
+     * @param phi             the phi
+     * @param cause           the cause for which we check AC2
+     * @param context         the context
+     * @param evaluation      the original evaluation of variables
+     * @param solvingStrategy the solving strategy
+     * @param satSolverType   the to be used SAT solver
+     * @param f               a formula factory
+     * @return true if AC3 fulfilled, else false
+     */
+    private boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
+                                Set<Literal> evaluation, SolvingStrategy solvingStrategy,
+                                SATSolverType satSolverType, FormulaFactory f) {
+        if (cause.size() > 1) {
+            // TODO implement helper method for selecting SAT Solver
+            SATSolver satSolver;
+            if (satSolverType == MINISAT) {
+                satSolver = MiniSat.miniSat(f);
+            } else {
+                satSolver = MiniSat.glucose(f);
+            }
+            Formula phiNegated = f.not(phi); // negate phi
+            // generate SAT query
+            Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation, true, f);
+            // add query to solver
+            satSolver.add(formula);
+            if (satSolver.sat() == Tristate.TRUE) {
+                Map<Variable, Literal> variableEvaluationMap = evaluation.stream()
+                        .collect(Collectors.toMap(Literal::variable, Function.identity()));
+
+                Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
+                // if satisfiable, get the assignments for which the formula is satisfiable
+                List<Assignment> assignments = satSolver.enumerateAllModels();
+                // loop through all satisfying assignments
+                for (Assignment assignment : assignments) {
+                    Set<Literal> causeCandidates = assignment.literals().stream()
+                            .filter(l -> causeVariables.contains(l.variable())).collect(Collectors.toSet());
+                    for (Literal causeCandidate : causeCandidates) {
+                        // create an assignment instance where the current wCandidate is removed
+                        Assignment assignmentNew = new Assignment(assignment.literals().stream()
+                                .filter(l -> !l.variable().equals(causeCandidate.variable())).collect(Collectors.toSet()));
+                        // compute the value of the current wCandidate using its equation
+                        boolean value = causalModel.getVariableEquationMap().get(causeCandidate.variable()).getFormula()
+                                .evaluate(assignmentNew);
+                        // TODO maybe we need to take W into account; is the current approach correct?
+                        if (causeCandidate.phase() == value || causeCandidate.phase() == variableEvaluationMap
+                                .get(causeCandidate.variable()).phase()) {
+                            /*
+                             * cause candidate evaluates according to its equation or is in W. In this case, we found
+                             * a solution such that not(phi) is satisfied by a subset of the cause and thus AC3 is
+                             * false. */
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
      * Checks AC1, AC2 and AC3 given a causal model, a cause, a context and phi and a solving strategy.
      *
      * @param causalModel     the underlying causel model
@@ -101,7 +182,7 @@ class SATCausalitySolver extends CausalitySolver {
         boolean ac1 = fulfillsAC1(evaluation, phi, cause);
         Set<Literal> w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
         boolean ac2 = w != null;
-        boolean ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, f);
+        boolean ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
         CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3, cause, w);
         return causalitySolverResult;
     }
@@ -122,7 +203,7 @@ class SATCausalitySolver extends CausalitySolver {
                                       Set<Literal> context, Set<Literal> evaluation, SATSolver satSolver,
                                       FormulaFactory f) {
         // generate SAT query
-        Formula formula = generateSATQuery(causalModelModified, negatedPhi, cause, context, evaluation, f);
+        Formula formula = generateSATQuery(causalModelModified, negatedPhi, cause, context, evaluation, false, f);
         // add query to solver
         satSolver.add(formula);
         if (satSolver.sat() == Tristate.TRUE) {
@@ -156,7 +237,7 @@ class SATCausalitySolver extends CausalitySolver {
                                      Set<Literal> context, Set<Literal> evaluation, SATSolver satSolver,
                                      FormulaFactory f) {
         // generate SAT query
-        Formula formula = generateSATQuery(causalModelModified, negatedPhi, cause, context, evaluation, f);
+        Formula formula = generateSATQuery(causalModelModified, negatedPhi, cause, context, evaluation, false, f);
         // add query to solver
         satSolver.add(formula);
         Set<Literal> w = null;
@@ -204,16 +285,17 @@ class SATCausalitySolver extends CausalitySolver {
     /**
      * Generates a formula whose satisfiability indicates whether AC2 is fulfilled or not.
      *
-     * @param causalModelModified the causal model
-     * @param notPhi              the negated phi
-     * @param cause               the cause
-     * @param context             the context
-     * @param evaluation          the original evaluation under the given context
-     * @param f                   a formula factory
+     * @param causalModel the causal model
+     * @param notPhi      the negated phi
+     * @param cause       the cause
+     * @param context     the context
+     * @param evaluation  the original evaluation under the given context
+     * @param ac3         set to true if used within AC3 check
+     * @param f           a formula factory
      * @return a formula
      */
-    private Formula generateSATQuery(CausalModel causalModelModified, Formula notPhi, Set<Literal> cause,
-                                     Set<Literal> context, Set<Literal> evaluation, FormulaFactory f) {
+    private Formula generateSATQuery(CausalModel causalModel, Formula notPhi, Set<Literal> cause,
+                                     Set<Literal> context, Set<Literal> evaluation, boolean ac3, FormulaFactory f) {
         // get all variables in cause
         Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
         // create map of variables and corresponding evaluation
@@ -221,17 +303,32 @@ class SATCausalitySolver extends CausalitySolver {
                 .collect(Collectors.toMap(Literal::variable, Function.identity()));
         // create formula: !phi AND context
         Formula formula = f.and(notPhi, f.and(context));
-        for (Equation equation : causalModelModified.getEquations()) {
+        for (Equation equation : causalModel.getEquations()) {
             // get value of variable in original iteration
             Literal originalValue = variableEvaluationMap.get(equation.getVariable());
-            /*
-             * create formula: V_originalValue OR (V <=> Formula_V)
-             * if the variable of the current equation is in the cause, then we do not allow for its original value
-             * and just add (V <=> Formula_V). Notice that Formula_V will be a constant if V is in the cause since we
-             * are considering the modified causal model. */
-            Formula equationFormula = causeVariables.contains(equation.getVariable()) ?
-                    f.equivalence(equation.getVariable(), equation.getFormula()) :
-                    f.or(originalValue, f.equivalence(equation.getVariable(), equation.getFormula()));
+            Formula equationFormula;
+            if (!ac3) {
+                /*
+                 * create formula: V_originalValue OR (V <=> Formula_V)
+                 * if the variable of the current equation is in the cause, then we do not allow for its original value
+                 * and just add (V <=> Formula_V).*/
+                equationFormula = causeVariables.contains(equation.getVariable()) ?
+                        f.equivalence(equation.getVariable(), equation.getFormula()) :
+                        f.or(originalValue, f.equivalence(equation.getVariable(), equation.getFormula()));
+            } else {
+                /*
+                 * When generating a SAT query for AC3, then for each variable not in the cause, we stick to the same
+                 * scheme as for AC2, i.e. (V_originalValue OR (V <=> Formula_V)). If however the variable of the
+                 * current equation is in the cause, we additionally add an OR with its negation. That is, we allow
+                 * its original value, the negation of the original value. The resulting formula is then
+                 * (V_originalValue OR (V <=> Formula_V) OR not(V_originalValue)) and is equivalent to just TRUE.
+                 * Therefore, we just set it to TRUE. */
+                if (!causeVariables.contains(equation.getVariable())) {
+                    equationFormula = f.or(originalValue, f.equivalence(equation.getVariable(), equation.getFormula()));
+                } else {
+                    equationFormula = f.verum();
+                }
+            }
             // add created formula to global formula by AND
             formula = f.and(formula, equationFormula);
         }
