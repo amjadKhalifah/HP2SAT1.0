@@ -112,7 +112,7 @@ class SATCausalitySolver extends CausalitySolver {
                                 SATSolverType satSolverType, FormulaFactory f) {
         // if the cause has a size of one, i.e. a singleton-cause, then AC3 is fulfilled automatically
         if (cause.size() > 1) {
-            // get specfified SAT solver
+            // get specified SAT solver
             SATSolver satSolver = selectSATSolver(satSolverType, f);
             // negate phi
             Formula phiNegated = f.not(phi);
@@ -120,7 +120,7 @@ class SATCausalitySolver extends CausalitySolver {
             Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation, true, f);
             // add query to solver
             satSolver.add(formula);
-            // it will be satisfiable; if not something went wrong
+            // it will be satisfiable; if not, something went wrong
             if (satSolver.sat() == Tristate.TRUE) {
                 // create a set of Variables in the cause, i.e. map a set of Literals to Variables
                 Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
@@ -138,7 +138,7 @@ class SATCausalitySolver extends CausalitySolver {
                      * part of the cause. */
                     Set<Literal> causeCandidates = assignment.literals().stream()
                             .filter(l -> causeVariables.contains(l.variable())).collect(Collectors.toSet());
-                    // lopp through all the cause candidates
+                    // loop through all the cause candidates
                     for (Literal causeCandidate : causeCandidates) {
                         // create an assignment instance where the current wCandidate is removed
                         Assignment assignmentNew = new Assignment(assignment.literals().stream()
