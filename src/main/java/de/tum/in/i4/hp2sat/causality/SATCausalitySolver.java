@@ -110,24 +110,35 @@ class SATCausalitySolver extends CausalitySolver {
     private boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
                                 Set<Literal> evaluation, SolvingStrategy solvingStrategy,
                                 SATSolverType satSolverType, FormulaFactory f) {
+        // if the cause has a size of one, i.e. a singleton-cause, then AC3 is fulfilled automatically
         if (cause.size() > 1) {
+            // get specfified SAT solver
             SATSolver satSolver = selectSATSolver(satSolverType, f);
-            Formula phiNegated = f.not(phi); // negate phi
-            // generate SAT query
+            // negate phi
+            Formula phiNegated = f.not(phi);
+            // generate SAT query for AC3
             Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation, true, f);
             // add query to solver
             satSolver.add(formula);
+            // it will be satisfiable; if not something went wrong
             if (satSolver.sat() == Tristate.TRUE) {
-                Map<Variable, Literal> variableEvaluationMap = evaluation.stream()
-                        .collect(Collectors.toMap(Literal::variable, Function.identity()));
-
+                // create a set of Variables in the cause, i.e. map a set of Literals to Variables
                 Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
-                // if satisfiable, get the assignments for which the formula is satisfiable
+                // create a map of variables in the cause and their actual value represented as literal
+                Map<Variable, Literal> variableEvaluationMap = evaluation.stream()
+                        .filter(l -> causeVariables.contains(l.variable()))
+                        .collect(Collectors.toMap(Literal::variable, Function.identity()));
+                // get the assignments for which the formula is satisfiable
                 List<Assignment> assignments = satSolver.enumerateAllModels();
                 // loop through all satisfying assignments
                 for (Assignment assignment : assignments) {
+                    /*
+                     * get the variables in the cause as literals such that we have their evaluation in the current
+                     * satisfying assignment. We call them cause candidates as it is not sure if they are a necessary
+                     * part of the cause. */
                     Set<Literal> causeCandidates = assignment.literals().stream()
                             .filter(l -> causeVariables.contains(l.variable())).collect(Collectors.toSet());
+                    // lopp through all the cause candidates
                     for (Literal causeCandidate : causeCandidates) {
                         // create an assignment instance where the current wCandidate is removed
                         Assignment assignmentNew = new Assignment(assignment.literals().stream()
@@ -136,12 +147,13 @@ class SATCausalitySolver extends CausalitySolver {
                         boolean value = causalModel.getVariableEquationMap().get(causeCandidate.variable()).getFormula()
                                 .evaluate(assignmentNew);
                         // TODO maybe we need to take W into account; is the current approach correct?
+                        /*
+                         * For each cause candidate we now check whether it evaluates according to its equation or is
+                         * in W. In this case, we found a solution such that not(phi) is satisfied by a subset of the
+                         * cause, as we do not necessarily need to negate the current cause candidate such that not
+                         * (phi) is fulfilled. Thus AC3 is false. */
                         if (causeCandidate.phase() == value || causeCandidate.phase() == variableEvaluationMap
                                 .get(causeCandidate.variable()).phase()) {
-                            /*
-                             * cause candidate evaluates according to its equation or is in W. In this case, we found
-                             * a solution such that not(phi) is satisfied by a subset of the cause and thus AC3 is
-                             * false. */
                             return false;
                         }
                     }
