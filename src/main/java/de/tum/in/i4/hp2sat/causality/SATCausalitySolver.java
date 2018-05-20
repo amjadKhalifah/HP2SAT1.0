@@ -111,7 +111,6 @@ class SATCausalitySolver extends CausalitySolver {
                                 Set<Literal> evaluation, SolvingStrategy solvingStrategy,
                                 SATSolverType satSolverType, FormulaFactory f) {
         if (cause.size() > 1) {
-            // TODO implement helper method for selecting SAT Solver
             SATSolver satSolver = selectSATSolver(satSolverType, f);
             Formula phiNegated = f.not(phi); // negate phi
             // generate SAT query
