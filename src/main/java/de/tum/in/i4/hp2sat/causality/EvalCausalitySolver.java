@@ -2,7 +2,6 @@ package de.tum.in.i4.hp2sat.causality;
 
 import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
 import de.tum.in.i4.hp2sat.util.Util;
-import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.*;
 
@@ -19,6 +18,7 @@ class EvalCausalitySolver extends CausalitySolver {
      * @param context         the context
      * @param evaluation      the original evaluation of variables
      * @param solvingStrategy the solving strategy
+     * @param f               a formula factory
      * @return returns W if AC2 fulfilled, else null
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
@@ -27,12 +27,16 @@ class EvalCausalitySolver extends CausalitySolver {
                                        Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
             throws InvalidCausalModelException {
         if (solvingStrategy == SolvingStrategy.EVAL) {
-            // remove exogenous variables from evaluation as they are not needed for computing the Ws
-            Set<Literal> evaluationWithoutExogenousVariables = evaluation.stream()
-                    .filter(l -> !causalModel.getExogenousVariables().contains(l.variable()))
+            Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
+            /*
+             * remove exogenous variables from evaluation as they are not needed for computing the Ws. Furthermore,
+             * all variables in the cause also must not be in W. */
+            Set<Literal> evaluationWithoutExoAndCauseVariables = evaluation.stream()
+                    .filter(l -> !causalModel.getExogenousVariables().contains(l.variable()) &&
+                            !(causeVariables.contains(l.variable())))
                     .collect(Collectors.toSet());
             // get all possible Ws, i.e create power set of the evaluation
-            List<Set<Literal>> allW = (new Util<Literal>()).generatePowerSet(evaluationWithoutExogenousVariables);
+            List<Set<Literal>> allW = (new Util<Literal>()).generatePowerSet(evaluationWithoutExoAndCauseVariables);
             return fulfillsAC2(causalModel, phi, cause, context, allW, f);
         } else {
             return null;
@@ -47,6 +51,7 @@ class EvalCausalitySolver extends CausalitySolver {
      * @param cause       the cause for which we check AC2
      * @param context     the context
      * @param allW        set of all relevant W
+     * @param f           a formula factory
      * @return W if AC2 fulfilled, else null
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */

@@ -308,7 +308,6 @@ public class CausalitySolverTest {
         testSolve(billySuzy, context, phi, cause, causalitySolverResultsExpected);
     }
 
-    // TODO check if this test case is even correct; for EVAL: does it make sense to keep ST=1? it is part of the cause
     @Test
     public void Should_FulfillAC2AC3Only_When_STIsCauseBSAndBH() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
@@ -319,13 +318,11 @@ public class CausalitySolverTest {
 
         CausalitySolverResult causalitySolverResultExpectedEval =
                 new CausalitySolverResult(false, true, true, cause,
-                        new HashSet<>(Collections.singletonList(f.literal("ST", true))));
+                        new HashSet<>(Collections.singletonList(f.literal("SH", true))));
         CausalitySolverResult causalitySolverResultExpectedSAT =
                 new CausalitySolverResult(false, true, true, cause,
                         new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false))));
-        CausalitySolverResult causalitySolverResultExpectedSATMINIMAL1 =
-                new CausalitySolverResult(false, true, true, cause,
-                        new HashSet<>(Collections.singletonList(f.literal("SH", true))));
+        CausalitySolverResult causalitySolverResultExpectedSATMINIMAL1 = causalitySolverResultExpectedEval;
         CausalitySolverResult causalitySolverResultExpectedSATMINIMAL2 =
                 new CausalitySolverResult(false, true, true, cause,
                         new HashSet<>(Collections.singletonList(f.literal("BH", false))));
