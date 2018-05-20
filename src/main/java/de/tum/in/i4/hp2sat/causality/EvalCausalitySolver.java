@@ -18,6 +18,7 @@ class EvalCausalitySolver extends CausalitySolver {
      * @param context         the context
      * @param evaluation      the original evaluation of variables
      * @param solvingStrategy the solving strategy
+     * @param f               a formula factory
      * @return returns W if AC2 fulfilled, else null
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
@@ -50,6 +51,7 @@ class EvalCausalitySolver extends CausalitySolver {
      * @param cause       the cause for which we check AC2
      * @param context     the context
      * @param allW        set of all relevant W
+     * @param f           a formula factory
      * @return W if AC2 fulfilled, else null
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
