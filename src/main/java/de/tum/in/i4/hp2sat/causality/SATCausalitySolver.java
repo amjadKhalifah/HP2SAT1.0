@@ -138,6 +138,7 @@ class SATCausalitySolver extends CausalitySolver {
                      * part of the cause. */
                     Set<Literal> causeCandidates = assignment.literals().stream()
                             .filter(l -> causeVariables.contains(l.variable())).collect(Collectors.toSet());
+                    Set<Variable> notRequiredForCause = new HashSet<>();
                     // loop through all the cause candidates
                     for (Literal causeCandidate : causeCandidates) {
                         // create an assignment instance where the current cause candidate is removed
@@ -150,13 +151,23 @@ class SATCausalitySolver extends CausalitySolver {
                         // TODO maybe we need to take W into account; is the current approach correct? -> test case?
                         /*
                          * For each cause candidate we now check whether it evaluates according to its equation or is
-                         * in W. In this case, we found a solution such that not(phi) is satisfied by a subset of the
+                         * in W. In this case, we found a part of the cause that is not necessarily required, because
+                         * not(phi) is satisfied by a subset of the
                          * cause, as we do not necessarily need to negate the current cause candidate such that not
-                         * (phi) is fulfilled. Thus AC3 is false. */
+                         * (phi) is fulfilled. We collect all those variables to construct a new potential cause
+                         * later on for which we check AC1. */
                         if (causeCandidate.phase() == value || causeCandidate.phase() == variableEvaluationMap
                                 .get(causeCandidate.variable()).phase()) {
-                            return false;
+                            notRequiredForCause.add(causeCandidate.variable());
                         }
+                    }
+
+                    // construct a new potential cause by removing all the irrelevant variables
+                    Set<Literal> causeNew = cause.stream().filter(l -> !notRequiredForCause.contains(l.variable()))
+                            .collect(Collectors.toSet());
+                    // if the new cause is smaller than the passed one and fulfills AC1, AC3 is not fulfilled
+                    if (causeNew.size() < cause.size() && fulfillsAC1(evaluation, phi, causeNew)) {
+                        return false;
                     }
                 }
             }

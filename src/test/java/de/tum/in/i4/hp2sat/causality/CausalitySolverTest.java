@@ -582,6 +582,58 @@ public class CausalitySolverTest {
     }
 
     @Test
+    public void Should_FulfillAllACs_When_AIsCauseForCInDummyXORModel_GivenNotB() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummyXOR();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("A")));
+        Formula phi = f.variable("C");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    // TODO does it make sense that phi is in W?
+    @Test
+    public void Should_FulfillAC2AC3Only_When_AIsCauseForCInDummyXORModel() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummyXOR();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("A")));
+        Formula phi = f.variable("C");
+
+        CausalitySolverResult causalitySolverResultExpectedEval =
+                new CausalitySolverResult(false, true, true, cause,
+                        new HashSet<>(Collections.singletonList(f.literal("C", false))));
+        CausalitySolverResult causalitySolverResultExpectedSAT =
+                new CausalitySolverResult(false, true, true, cause,
+                        new HashSet<>(Arrays.asList(f.literal("C", false), f.variable("B"))));
+        Map<SolvingStrategy, Set<CausalitySolverResult>> causalitySolverResultsExpected =
+                new HashMap<SolvingStrategy, Set<CausalitySolverResult>>() {
+                    {
+                        put(EVAL, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                        put(SAT, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSAT)));
+                        put(SAT_MINIMAL, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                    }
+                };
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultsExpected);
+    }
+
+    @Test
+    public void Should_FulfillNoAC_When_AandBIsCauseForCInDummyXORModel() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummyXOR();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("A"), f.variable("B")));
+        Formula phi = f.variable("C");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
     public void Should_FulfillAC1AC3Only_When_InBenchmarkModels() throws Exception {
         CausalModel benchmarkModel = ExampleProvider.benchmarkModel();
         // all exogenous variables are true
