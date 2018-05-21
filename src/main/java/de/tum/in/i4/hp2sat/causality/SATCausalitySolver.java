@@ -120,7 +120,7 @@ class SATCausalitySolver extends CausalitySolver {
             Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation, true, f);
             // add query to solver
             satSolver.add(formula);
-            // it will be satisfiable; if not, something went wrong
+            // should be satisfiable, if cause fulfills AC2
             if (satSolver.sat() == Tristate.TRUE) {
                 // create a set of Variables in the cause, i.e. map a set of Literals to Variables
                 Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
