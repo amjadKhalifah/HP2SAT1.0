@@ -634,6 +634,19 @@ public class CausalitySolverTest {
     }
 
     @Test
+    public void Should_FulfillAC1Only_When_AandBIsCauseForCInDummyXNORModel() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummyXNOR();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("A"), f.variable("B")));
+        Formula phi = f.variable("C");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, false, cause, null);
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
     public void Should_FulfillAC1AC3Only_When_InBenchmarkModels() throws Exception {
         CausalModel benchmarkModel = ExampleProvider.benchmarkModel();
         // all exogenous variables are true

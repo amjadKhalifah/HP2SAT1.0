@@ -244,6 +244,30 @@ public class ExampleProvider {
         return causalModel;
     }
 
+    public static CausalModel dummyXNOR() throws InvalidCausalModelException {
+        FormulaFactory f = new FormulaFactory();
+        Variable AExo = f.variable("A_exo");
+        Variable BExo = f.variable("B_exo");
+
+        Variable A = f.variable("A");
+        Variable B = f.variable("B");
+        Variable C = f.variable("C");
+
+        Formula AFormula = AExo;
+        Formula BFormula = BExo;
+        Formula CFormula = f.or(f.and(A, B), (f.and(f.not(A), f.not(B)))); // XNOR
+
+        Equation AEquation = new Equation(A, AFormula);
+        Equation BEquation = new Equation(B, BFormula);
+        Equation CEquation = new Equation(C, CFormula);
+
+        Set<Equation> equations = new HashSet<>(Arrays.asList(AEquation, BEquation, CEquation));
+        Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(AExo, BExo));
+
+        CausalModel causalModel = new CausalModel("DummyXNOR", equations, exogenousVariables);
+        return causalModel;
+    }
+
     public static CausalModel benchmarkModel() throws InvalidCausalModelException {
         FormulaFactory f = new FormulaFactory();
         Variable A = f.variable("A");
