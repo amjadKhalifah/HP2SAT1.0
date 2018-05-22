@@ -235,6 +235,18 @@ public class CausalitySolverTest {
     }
 
     @Test
+    public void Should_FulfillAC2Only_When_STandBTIsCauseForBS_GivenNotBT() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", false), f.literal("ST_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("BT")));
+        Formula phi = f.variable("BS");
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, false, cause, new HashSet<>());
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
     public void Should_FulfillAllACs_When_STIsCauseBS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
