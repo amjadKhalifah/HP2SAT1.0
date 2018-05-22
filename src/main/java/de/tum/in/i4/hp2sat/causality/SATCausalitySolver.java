@@ -285,8 +285,11 @@ class SATCausalitySolver extends CausalitySolver {
                     }
                 }
 
-                // update W only if it has not been set so far or if we have found a smaller W
-                if (w == null || newW.size() < w.size()) {
+                if (newW.size() == 1) {
+                    // if we have found a W of size 1, it cannot get smaller and we can directly return it
+                    return newW;
+                } else if (w == null || newW.size() < w.size()) {
+                    // update W only if it has not been set so far or if we have found a smaller W
                     w = newW;
                 }
             }
