@@ -53,8 +53,8 @@ class SATCausalitySolver extends CausalitySolver {
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
     private Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                             Set<Literal> evaluation, SolvingStrategy solvingStrategy, SATSolverType satSolverType,
-                             FormulaFactory f)
+                                     Set<Literal> evaluation, SolvingStrategy solvingStrategy,
+                                     SATSolverType satSolverType, FormulaFactory f)
             throws InvalidCausalModelException {
         SATSolver satSolver;
         if (satSolverType == MINISAT) {
@@ -191,8 +191,11 @@ class SATCausalitySolver extends CausalitySolver {
                     }
                 }
 
-                // update W only if it has not been set so far or if we have found a smaller W
-                if (w == null || newW.size() < w.size()) {
+                if (newW.size() == 1) {
+                    // if we have found a W of size 1, it cannot get smaller and we can directly return it
+                    return newW;
+                } else if (w == null || newW.size() < w.size()) {
+                    // update W only if it has not been set so far or if we have found a smaller W
                     w = newW;
                 }
             }
