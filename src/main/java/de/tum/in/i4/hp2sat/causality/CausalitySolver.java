@@ -45,8 +45,8 @@ abstract class CausalitySolver {
      * @return true if AC1 fulfilled, else false
      */
     boolean fulfillsAC1(Set<Literal> evaluation, Formula phi, Set<Literal> cause) {
-        Set<Literal> litersOfPhi = phi.literals();
-        return evaluation.containsAll(litersOfPhi) && evaluation.containsAll(cause);
+        boolean phiEvaluation = phi.evaluate(new Assignment(evaluation));
+        return phiEvaluation && evaluation.containsAll(cause);
     }
 
     /**
