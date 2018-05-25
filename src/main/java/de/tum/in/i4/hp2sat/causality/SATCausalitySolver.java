@@ -9,6 +9,7 @@ import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
+import org.logicng.util.Pair;
 
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +21,59 @@ import java.util.stream.Collectors;
 import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINISAT;
 
 class SATCausalitySolver extends CausalitySolver {
+    /**
+     * Overrides {@link CausalitySolver#solve(CausalModel, Set, Formula, Set, SolvingStrategy)}
+     *
+     * @param causalModel     the underlying causel model
+     * @param context         the context
+     * @param phi             the phi
+     * @param cause           the cause
+     * @param solvingStrategy the applied solving strategy
+     * @return for each AC, true if fulfilled, false else
+     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
+     */
+    // TODO maybe we should make super.solve abstract as well
+    @Override
+    CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi, Set<Literal> cause,
+                                SolvingStrategy solvingStrategy) throws InvalidCausalModelException {
+        return solve(causalModel, context, phi, cause, solvingStrategy, MINISAT);
+    }
+
+    /**
+     * Checks AC1, AC2 and AC3 given a causal model, a cause, a context and phi and a solving strategy.
+     *
+     * @param causalModel     the underlying causel model
+     * @param context         the context
+     * @param phi             the phi
+     * @param cause           the cause
+     * @param solvingStrategy the applied solving strategy
+     * @param satSolverType   the to be used SAT solver
+     * @return for each AC, true if fulfilled, false else
+     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
+     */
+    CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
+                                Set<Literal> cause, SolvingStrategy solvingStrategy, SATSolverType satSolverType)
+            throws InvalidCausalModelException {
+        FormulaFactory f = new FormulaFactory();
+        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context, f);
+        boolean ac1 = fulfillsAC1(evaluation, phi, cause);
+        Set<Literal> w;
+        boolean ac3;
+        if (solvingStrategy == SolvingStrategy.SAT || solvingStrategy == SolvingStrategy.SAT_MINIMAL) {
+            w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
+            ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
+        } else {
+            Pair<Set<Literal>, Boolean> ac2ac3 = fulfillsAC2AC3(causalModel, phi, cause, context, evaluation,
+                    solvingStrategy, satSolverType, f);
+            w = ac2ac3.first();
+            ac3 = ac2ac3.second();
+        }
+        boolean ac2 = w != null;
+
+        CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3, cause, w);
+        return causalitySolverResult;
+    }
+
     /**
      * Checks if AC2 is fulfilled. Uses MiniSAT.
      *
@@ -175,29 +229,12 @@ class SATCausalitySolver extends CausalitySolver {
         return true;
     }
 
-    /**
-     * Checks AC1, AC2 and AC3 given a causal model, a cause, a context and phi and a solving strategy.
-     *
-     * @param causalModel     the underlying causel model
-     * @param context         the context
-     * @param phi             the phi
-     * @param cause           the cause
-     * @param solvingStrategy the applied solving strategy
-     * @param satSolverType   the to be used SAT solver
-     * @return for each AC, true if fulfilled, false else
-     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
-     */
-    CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
-                                Set<Literal> cause, SolvingStrategy solvingStrategy, SATSolverType satSolverType)
-            throws InvalidCausalModelException {
-        FormulaFactory f = new FormulaFactory();
-        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context, f);
-        boolean ac1 = fulfillsAC1(evaluation, phi, cause);
-        Set<Literal> w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
-        boolean ac2 = w != null;
-        boolean ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
-        CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3, cause, w);
-        return causalitySolverResult;
+    private Pair<Set<Literal>, Boolean> fulfillsAC2AC3(CausalModel causalModel, Formula phi, Set<Literal> cause,
+                                                  Set<Literal> context, Set<Literal> evaluation,
+                                                  SolvingStrategy solvingStrategy, SATSolverType satSolverType,
+                                                  FormulaFactory f) {
+        // TODO
+        return null;
     }
 
     /**
