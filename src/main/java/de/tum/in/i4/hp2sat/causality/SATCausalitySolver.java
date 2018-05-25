@@ -196,7 +196,7 @@ class SATCausalitySolver extends CausalitySolver {
     }
 
     private boolean fulfillsAC3Helper(CausalModel causalModel, Formula phi, Set<Literal> cause,
-                                      Set<Literal> evaluation, List<Assignment> assignments ) {
+                                      Set<Literal> evaluation, List<Assignment> assignments) {
         // create a set of Variables in the cause, i.e. map a set of Literals to Variables
         Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
         // create a map of variables in the cause and their actual value represented as literal
