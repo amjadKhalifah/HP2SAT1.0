@@ -256,7 +256,6 @@ class SATCausalitySolver extends CausalitySolver {
         return true;
     }
 
-    // TODO doc
     /**
      * Checks if AC2 and AC3 are fulfilled. Combined approach that takes advantage of synergies between the separate
      * approaches.
@@ -291,49 +290,51 @@ class SATCausalitySolver extends CausalitySolver {
             // ac3 is true if cause has size 1
             ac3 = true;
         } else {
-            // get specified SAT solver
-            SATSolver satSolver = selectSATSolver(satSolverType, f);
             // negate phi
             Formula phiNegated = f.not(phi);
-            // generate SAT query for AC3 as this SAT query contains also the satisfying assignments for AC2
-            Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation, true, f);
-            // add query to solver
-            satSolver.add(formula);
-            if (satSolver.sat() == Tristate.TRUE) {
-                // flip/negate the cause
-                Set<Literal> causeNegated = cause.stream().map(Literal::negate).collect(Collectors.toSet());
-                List<Assignment> assignments = satSolver.enumerateAllModels();
-                // TODO maybe compute all assignments only if minimal W is required
-                /*
-                 * the SAT query might contain satisfying assignment that are not relevant for AC2. We therefore
-                 * filter those assignments in which the cause variables are flipped as specified. */
-                List<Assignment> assignmentsForAC2 = assignments.stream()
-                        .filter(a -> a.literals().containsAll(causeNegated)).collect(Collectors.toList());
-                // if there exist no assignments relevant for AC2, then AC2 is not fulfilled
-                if (assignmentsForAC2.size() == 0) {
-                    w = null;
-                } else {
-                    // TODO do we need to do that before hand? does it make sense at all to evaluate again?
-                    // TODO can we do this before the SAT check?
-                    // create copy of original causal model
-                    CausalModel causalModelModified = createModifiedCausalModelForCause(causalModel, cause, f);
-                    // evaluate causal model with setting x' for cause
-                    Set<Literal> evaluationModified = evaluateEquations(causalModelModified, context, f);
-                    // check if not(phi) evaluates to true for empty W -> if yes, no further investigation necessary
-                    if (phiNegated.evaluate(new Assignment(evaluationModified))) {
-                        w = new HashSet<>();
-                    } else if (solvingStrategy == SolvingStrategy.SAT_COMBINED) {
-                        w = getWStandard(causalModel, evaluation, assignmentsForAC2.get(0));
-                    } else {
-                        w = getWMinimal(causalModel, evaluation, assignments);
-                    }
-                }
-                // check if AC3 holds
-                ac3 = fulfillsAC3Helper(causalModel, phi, cause, evaluation, assignments);
+            // create copy of original causal model
+            CausalModel causalModelModified = createModifiedCausalModelForCause(causalModel, cause, f);
+            // evaluate causal model with setting x' for cause
+            Set<Literal> evaluationModified = evaluateEquations(causalModelModified, context, f);
+            // check if not(phi) evaluates to true for empty W
+            if (phiNegated.evaluate(new Assignment(evaluationModified))) {
+                w = new HashSet<>();
+                // perform a normal AC3 check
+                ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
             } else {
-                // if the SAT query is not satisfiable at all, then both AC2 and AC3 do not hold
-                w = null;
-                ac3 = true;
+                // get specified SAT solver
+                SATSolver satSolver = selectSATSolver(satSolverType, f);
+                // generate SAT query for AC3 as this SAT query contains also the satisfying assignments for AC2
+                Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation, true, f);
+                // add query to solver
+                satSolver.add(formula);
+                if (satSolver.sat() == Tristate.TRUE) {
+                    // flip/negate the cause
+                    Set<Literal> causeNegated = cause.stream().map(Literal::negate).collect(Collectors.toSet());
+                    List<Assignment> assignments = satSolver.enumerateAllModels();
+                    // TODO maybe compute all assignments only if minimal W is required
+                    /*
+                     * the SAT query might contain satisfying assignment that are not relevant for AC2. We therefore
+                     * filter those assignments in which the cause variables are flipped as specified. */
+                    List<Assignment> assignmentsForAC2 = assignments.stream()
+                            .filter(a -> a.literals().containsAll(causeNegated)).collect(Collectors.toList());
+                    // if there exist no assignments relevant for AC2, then AC2 is not fulfilled
+                    if (assignmentsForAC2.size() == 0) {
+                        w = null;
+                    } else {
+                        if (solvingStrategy == SolvingStrategy.SAT_COMBINED) {
+                            w = getWStandard(causalModel, evaluation, assignmentsForAC2.get(0));
+                        } else {
+                            w = getWMinimal(causalModel, evaluation, assignments);
+                        }
+                    }
+                    // check if AC3 holds
+                    ac3 = fulfillsAC3Helper(causalModel, phi, cause, evaluation, assignments);
+                } else {
+                    // if the SAT query is not satisfiable at all, then both AC2 and AC3 do not hold
+                    w = null;
+                    ac3 = true;
+                }
             }
         }
         return new Pair<>(w, ac3);
