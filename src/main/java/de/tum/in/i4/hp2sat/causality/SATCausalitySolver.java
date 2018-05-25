@@ -246,12 +246,61 @@ class SATCausalitySolver extends CausalitySolver {
         return true;
     }
 
+    // TODO doc
     private Pair<Set<Literal>, Boolean> fulfillsAC2AC3(CausalModel causalModel, Formula phi, Set<Literal> cause,
-                                                  Set<Literal> context, Set<Literal> evaluation,
-                                                  SolvingStrategy solvingStrategy, SATSolverType satSolverType,
-                                                  FormulaFactory f) {
-        // TODO
-        return null;
+                                                       Set<Literal> context, Set<Literal> evaluation,
+                                                       SolvingStrategy solvingStrategy, SATSolverType satSolverType,
+                                                       FormulaFactory f) throws InvalidCausalModelException {
+        Set<Literal> w;
+        boolean ac3;
+        if (cause.size() == 1) {
+            SolvingStrategy solvingStrategyNew;
+            if (solvingStrategy == SolvingStrategy.SAT_COMBINED) {
+                solvingStrategyNew = SolvingStrategy.SAT;
+            } else {
+                solvingStrategyNew = SolvingStrategy.SAT_MINIMAL;
+            }
+            w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategyNew, satSolverType, f);
+            ac3 = true;
+        } else {
+            // get specified SAT solver
+            SATSolver satSolver = selectSATSolver(satSolverType, f);
+            // negate phi
+            Formula phiNegated = f.not(phi);
+            // generate SAT query for AC3
+            Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation, true, f);
+            // add query to solver
+            satSolver.add(formula);
+            if (satSolver.sat() == Tristate.TRUE) {
+                Set<Literal> causeNegated = cause.stream().map(Literal::negate).collect(Collectors.toSet());
+                List<Assignment> assignments = satSolver.enumerateAllModels();
+                // TODO maybe compute all assignments only if minimal W is required
+                List<Assignment> assignmentsForAC2 = assignments.stream()
+                        .filter(a -> a.literals().containsAll(causeNegated)).collect(Collectors.toList());
+                if (assignmentsForAC2.size() == 0) {
+                    w = null;
+                } else {
+                    // TODO do we need to do that before hand? does it make sense at all to evaluate again?
+                    // create copy of original causal model
+                    CausalModel causalModelModified = createModifiedCausalModelForCause(causalModel, cause, f);
+                    // evaluate causal model with setting x' for cause
+                    Set<Literal> evaluationModified = evaluateEquations(causalModelModified, context, f);
+                    // check if not(phi) evaluates to true for empty W -> if yes, no further investigation necessary
+                    if (phiNegated.evaluate(new Assignment(evaluationModified))) {
+                        w = new HashSet<>();
+                    } else if (solvingStrategy == SolvingStrategy.SAT_COMBINED) {
+                        w = getWStandard(causalModel, evaluation, assignmentsForAC2.get(0));
+                    } else {
+                        w = getWMinimal(causalModel, evaluation, assignments);
+                    }
+                }
+                ac3 = fulfillsAC3Helper(causalModel, phi, cause, evaluation, assignments);
+            } else {
+                w = null;
+                ac3 = true;
+            }
+        }
+        return new Pair<>(w, ac3);
     }
 
     /**
