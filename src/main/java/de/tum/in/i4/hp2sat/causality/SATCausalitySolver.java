@@ -187,54 +187,60 @@ class SATCausalitySolver extends CausalitySolver {
             satSolver.add(formula);
             // should be satisfiable, if cause fulfills AC2
             if (satSolver.sat() == Tristate.TRUE) {
-                // create a set of Variables in the cause, i.e. map a set of Literals to Variables
-                Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
-                // create a map of variables in the cause and their actual value represented as literal
-                Map<Variable, Literal> variableEvaluationMap = evaluation.stream()
-                        .filter(l -> causeVariables.contains(l.variable()))
-                        .collect(Collectors.toMap(Literal::variable, Function.identity()));
                 // get the assignments for which the formula is satisfiable
                 List<Assignment> assignments = satSolver.enumerateAllModels();
-                // loop through all satisfying assignments
-                for (Assignment assignment : assignments) {
-                    /*
-                     * get the variables in the cause as literals such that we have their evaluation in the current
-                     * satisfying assignment. We call them cause candidates as it is not sure if they are a necessary
-                     * part of the cause. */
-                    Set<Literal> causeCandidates = assignment.literals().stream()
-                            .filter(l -> causeVariables.contains(l.variable())).collect(Collectors.toSet());
-                    Set<Variable> notRequiredForCause = new HashSet<>();
-                    // loop through all the cause candidates
-                    for (Literal causeCandidate : causeCandidates) {
-                        // create an assignment instance where the current cause candidate is removed
-                        Assignment assignmentNew = new Assignment(assignment.literals().stream()
-                                .filter(l -> !l.variable().equals(causeCandidate.variable()))
-                                .collect(Collectors.toSet()));
-                        // compute the value of the current cause candidate using its equation
-                        boolean value = causalModel.getVariableEquationMap().get(causeCandidate.variable()).getFormula()
-                                .evaluate(assignmentNew);
-                        // TODO maybe we need to take W into account; is the current approach correct? -> test case?
-                        /*
-                         * For each cause candidate we now check whether it evaluates according to its equation or is
-                         * in W. In this case, we found a part of the cause that is not necessarily required, because
-                         * not(phi) is satisfied by a subset of the
-                         * cause, as we do not necessarily need to negate the current cause candidate such that not
-                         * (phi) is fulfilled. We collect all those variables to construct a new potential cause
-                         * later on for which we check AC1. */
-                        if (causeCandidate.phase() == value || causeCandidate.phase() == variableEvaluationMap
-                                .get(causeCandidate.variable()).phase()) {
-                            notRequiredForCause.add(causeCandidate.variable());
-                        }
-                    }
+                return fulfillsAC3Helper(causalModel, phi, cause, evaluation, assignments);
+            }
+        }
+        return true;
+    }
 
-                    // construct a new potential cause by removing all the irrelevant variables
-                    Set<Literal> causeNew = cause.stream().filter(l -> !notRequiredForCause.contains(l.variable()))
-                            .collect(Collectors.toSet());
-                    // if the new cause is smaller than the passed one and fulfills AC1, AC3 is not fulfilled
-                    if (causeNew.size() < cause.size() && fulfillsAC1(evaluation, phi, causeNew)) {
-                        return false;
-                    }
+    private boolean fulfillsAC3Helper(CausalModel causalModel, Formula phi, Set<Literal> cause,
+                                      Set<Literal> evaluation, List<Assignment> assignments ) {
+        // create a set of Variables in the cause, i.e. map a set of Literals to Variables
+        Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
+        // create a map of variables in the cause and their actual value represented as literal
+        Map<Variable, Literal> variableEvaluationMap = evaluation.stream()
+                .filter(l -> causeVariables.contains(l.variable()))
+                .collect(Collectors.toMap(Literal::variable, Function.identity()));
+        // loop through all satisfying assignments
+        for (Assignment assignment : assignments) {
+            /*
+             * get the variables in the cause as literals such that we have their evaluation in the current
+             * satisfying assignment. We call them cause candidates as it is not sure if they are a necessary
+             * part of the cause. */
+            Set<Literal> causeCandidates = assignment.literals().stream()
+                    .filter(l -> causeVariables.contains(l.variable())).collect(Collectors.toSet());
+            Set<Variable> notRequiredForCause = new HashSet<>();
+            // loop through all the cause candidates
+            for (Literal causeCandidate : causeCandidates) {
+                // create an assignment instance where the current cause candidate is removed
+                Assignment assignmentNew = new Assignment(assignment.literals().stream()
+                        .filter(l -> !l.variable().equals(causeCandidate.variable()))
+                        .collect(Collectors.toSet()));
+                // compute the value of the current cause candidate using its equation
+                boolean value = causalModel.getVariableEquationMap().get(causeCandidate.variable()).getFormula()
+                        .evaluate(assignmentNew);
+                // TODO maybe we need to take W into account; is the current approach correct? -> test case?
+                /*
+                 * For each cause candidate we now check whether it evaluates according to its equation or is
+                 * in W. In this case, we found a part of the cause that is not necessarily required, because
+                 * not(phi) is satisfied by a subset of the
+                 * cause, as we do not necessarily need to negate the current cause candidate such that not
+                 * (phi) is fulfilled. We collect all those variables to construct a new potential cause
+                 * later on for which we check AC1. */
+                if (causeCandidate.phase() == value || causeCandidate.phase() == variableEvaluationMap
+                        .get(causeCandidate.variable()).phase()) {
+                    notRequiredForCause.add(causeCandidate.variable());
                 }
+            }
+
+            // construct a new potential cause by removing all the irrelevant variables
+            Set<Literal> causeNew = cause.stream().filter(l -> !notRequiredForCause.contains(l.variable()))
+                    .collect(Collectors.toSet());
+            // if the new cause is smaller than the passed one and fulfills AC1, AC3 is not fulfilled
+            if (causeNew.size() < cause.size() && fulfillsAC1(evaluation, phi, causeNew)) {
+                return false;
             }
         }
         return true;
