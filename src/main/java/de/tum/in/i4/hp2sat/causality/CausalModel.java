@@ -10,6 +10,7 @@ import org.logicng.formulas.Formula;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -85,7 +86,8 @@ public class CausalModel {
         CausalitySolver causalitySolver = null;
         if (solvingStrategy == SolvingStrategy.EVAL) {
             causalitySolver = new EvalCausalitySolver();
-        } else if (solvingStrategy == SolvingStrategy.SAT) {
+        } else if (Arrays.asList(SolvingStrategy.SAT, SolvingStrategy.SAT_MINIMAL, SolvingStrategy.SAT_COMBINED,
+                SolvingStrategy.SAT_COMBINED_MINIMAL).contains(solvingStrategy)) {
             causalitySolver = new SATCausalitySolver();
         }
 
