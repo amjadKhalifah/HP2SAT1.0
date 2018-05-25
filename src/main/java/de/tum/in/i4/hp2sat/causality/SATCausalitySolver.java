@@ -281,6 +281,7 @@ class SATCausalitySolver extends CausalitySolver {
                     w = null;
                 } else {
                     // TODO do we need to do that before hand? does it make sense at all to evaluate again?
+                    // TODO can we do this before the SAT check?
                     // create copy of original causal model
                     CausalModel causalModelModified = createModifiedCausalModelForCause(causalModel, cause, f);
                     // evaluate causal model with setting x' for cause
