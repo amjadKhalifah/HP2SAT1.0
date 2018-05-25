@@ -195,6 +195,16 @@ class SATCausalitySolver extends CausalitySolver {
         return true;
     }
 
+    /**
+     * Helper method used in the AC3 check as well as the combined approach. Checks if AC3 holds.
+     *
+     * @param causalModel the underlying causal model
+     * @param phi         the phi
+     * @param cause       the cause for which we check AC2
+     * @param evaluation  the original evaluation of variables
+     * @param assignments a list of satisfying assignments
+     * @return true if AC3 holds, else false
+     */
     private boolean fulfillsAC3Helper(CausalModel causalModel, Formula phi, Set<Literal> cause,
                                       Set<Literal> evaluation, List<Assignment> assignments) {
         // create a set of Variables in the cause, i.e. map a set of Literals to Variables
@@ -247,13 +257,30 @@ class SATCausalitySolver extends CausalitySolver {
     }
 
     // TODO doc
+    /**
+     * Checks if AC2 and AC3 are fulfilled. Combined approach that takes advantage of synergies between the separate
+     * approaches.
+     *
+     * @param causalModel     the underlying causal model
+     * @param phi             the phi
+     * @param cause           the cause for which we check AC2
+     * @param context         the context
+     * @param evaluation      the original evaluation of variables
+     * @param solvingStrategy the solving strategy
+     * @param satSolverType   the to be used SAT solver
+     * @param f               a formula factory
+     * @return a tuple of set W and a boolean value indicating whether AC3 is fulfilled or not
+     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
+     */
     private Pair<Set<Literal>, Boolean> fulfillsAC2AC3(CausalModel causalModel, Formula phi, Set<Literal> cause,
                                                        Set<Literal> context, Set<Literal> evaluation,
                                                        SolvingStrategy solvingStrategy, SATSolverType satSolverType,
                                                        FormulaFactory f) throws InvalidCausalModelException {
         Set<Literal> w;
         boolean ac3;
+        // if the cause is of size 1, then AC3 is fulfilled automatically. Hence, we just need to check for AC2
         if (cause.size() == 1) {
+            // set new solving strategy
             SolvingStrategy solvingStrategyNew;
             if (solvingStrategy == SolvingStrategy.SAT_COMBINED) {
                 solvingStrategyNew = SolvingStrategy.SAT;
@@ -261,22 +288,28 @@ class SATCausalitySolver extends CausalitySolver {
                 solvingStrategyNew = SolvingStrategy.SAT_MINIMAL;
             }
             w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategyNew, satSolverType, f);
+            // ac3 is true if cause has size 1
             ac3 = true;
         } else {
             // get specified SAT solver
             SATSolver satSolver = selectSATSolver(satSolverType, f);
             // negate phi
             Formula phiNegated = f.not(phi);
-            // generate SAT query for AC3
+            // generate SAT query for AC3 as this SAT query contains also the satisfying assignments for AC2
             Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation, true, f);
             // add query to solver
             satSolver.add(formula);
             if (satSolver.sat() == Tristate.TRUE) {
+                // flip/negate the cause
                 Set<Literal> causeNegated = cause.stream().map(Literal::negate).collect(Collectors.toSet());
                 List<Assignment> assignments = satSolver.enumerateAllModels();
                 // TODO maybe compute all assignments only if minimal W is required
+                /*
+                 * the SAT query might contain satisfying assignment that are not relevant for AC2. We therefore
+                 * filter those assignments in which the cause variables are flipped as specified. */
                 List<Assignment> assignmentsForAC2 = assignments.stream()
                         .filter(a -> a.literals().containsAll(causeNegated)).collect(Collectors.toList());
+                // if there exist no assignments relevant for AC2, then AC2 is not fulfilled
                 if (assignmentsForAC2.size() == 0) {
                     w = null;
                 } else {
@@ -295,8 +328,10 @@ class SATCausalitySolver extends CausalitySolver {
                         w = getWMinimal(causalModel, evaluation, assignments);
                     }
                 }
+                // check if AC3 holds
                 ac3 = fulfillsAC3Helper(causalModel, phi, cause, evaluation, assignments);
             } else {
+                // if the SAT query is not satisfiable at all, then both AC2 and AC3 do not hold
                 w = null;
                 ac3 = true;
             }
