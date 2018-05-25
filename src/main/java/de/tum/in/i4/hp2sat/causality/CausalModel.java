@@ -82,14 +82,13 @@ public class CausalModel {
                                          SolvingStrategy solvingStrategy)
             throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
         validateCausalityCheck(context, phi, cause);
-        CausalitySolver causalitySolver;
+        CausalitySolver causalitySolver = null;
         if (solvingStrategy == SolvingStrategy.EVAL) {
             causalitySolver = new EvalCausalitySolver();
         } else if (solvingStrategy == SolvingStrategy.SAT) {
             causalitySolver = new SATCausalitySolver();
-        } else {
-            causalitySolver = new SATBasedCausalitySolverOld();
         }
+
         return causalitySolver.solve(this, context, phi, cause, solvingStrategy);
     }
 
