@@ -179,4 +179,14 @@ public class CausalModelTest {
         Formula phi = f.variable("BS");
         billySuzy.isCause(context, phi, cause, SolvingStrategy.EVAL);
     }
+
+    @Test(expected = InvalidCauseException.class)
+    public void Should_ThrowException_When_CauseIsEmpty() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", true), f.literal("ST_exo", true)));
+        Set<Literal> cause = new HashSet<>();
+        Formula phi = f.variable("BS");
+        billySuzy.isCause(context, phi, cause, SolvingStrategy.EVAL);
+    }
 }

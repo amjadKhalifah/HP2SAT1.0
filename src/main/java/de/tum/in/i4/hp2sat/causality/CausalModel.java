@@ -226,7 +226,7 @@ public class CausalModel {
             throw new InvalidContextException();
         if (!isLiteralsInEquations(phi.literals()))
             throw new InvalidPhiException();
-        if (!isLiteralsInEquations(cause))
+        if (!isLiteralsInEquations(cause) || cause.size() < 1)
             throw new InvalidCauseException();
     }
 
