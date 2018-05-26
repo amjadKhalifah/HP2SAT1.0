@@ -311,21 +311,31 @@ class SATCausalitySolver extends CausalitySolver {
                 if (satSolver.sat() == Tristate.TRUE) {
                     // flip/negate the cause
                     Set<Literal> causeNegated = cause.stream().map(Literal::negate).collect(Collectors.toSet());
+                    // get all satisfying assignments
                     List<Assignment> assignments = satSolver.enumerateAllModels();
-                    // TODO maybe compute all assignments only if minimal W is required
-                    /*
-                     * the SAT query might contain satisfying assignment that are not relevant for AC2. We therefore
-                     * filter those assignments in which the cause variables are flipped as specified. */
-                    List<Assignment> assignmentsForAC2 = assignments.stream()
-                            .filter(a -> a.literals().containsAll(causeNegated)).collect(Collectors.toList());
-                    // if there exist no assignments relevant for AC2, then AC2 is not fulfilled
-                    if (assignmentsForAC2.size() == 0) {
-                        w = null;
-                    } else {
-                        if (solvingStrategy == SolvingStrategy.SAT_COMBINED) {
-                            w = getWStandard(causalModel, evaluation, assignmentsForAC2.get(0));
+                    
+                    if (solvingStrategy == SolvingStrategy.SAT_COMBINED) {
+                        /*
+                         * the SAT query might contain satisfying assignment that are not relevant for AC2. We therefore
+                         * filter the assignment in which the cause variables are flipped as specified. */
+                        Assignment assignmentForAC2 = assignments.stream()
+                                .filter(a -> a.literals().containsAll(causeNegated)).findFirst().orElse(null);
+                        if (assignmentForAC2 != null) {
+                            w = getWStandard(causalModel, evaluation, assignmentForAC2);
                         } else {
-                            w = getWMinimal(causalModel, evaluation, assignments);
+                            w = null;
+                        }
+                    } else {
+                        // SAT_COMBINED_MINIMAL
+                        /*
+                         * the SAT query might contain satisfying assignment that are not relevant for AC2. We therefore
+                         * filter all those assignments in which the cause variables are flipped as specified. */
+                        List<Assignment> assignmentsForAC2 = assignments.stream()
+                                .filter(a -> a.literals().containsAll(causeNegated)).collect(Collectors.toList());
+                        if (assignmentsForAC2.size() > 0) {
+                            w = getWMinimal(causalModel, evaluation, assignmentsForAC2);
+                        } else {
+                            w = null;
                         }
                     }
                     // check if AC3 holds
