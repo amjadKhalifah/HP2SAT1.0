@@ -87,7 +87,7 @@ abstract class CausalitySolver {
                 .filter(s -> s.size() > 0 && s.size() < cause.size()) // remove empty set and full cause
                 .collect(Collectors.toSet());
         // no sub-cause must fulfill AC1 and AC2
-        for (Set<Literal> c: allSubsetsOfCause) {
+        for (Set<Literal> c : allSubsetsOfCause) {
             if (fulfillsAC1(evaluation, phi, c) &&
                     fulfillsAC2(causalModel, phi, c, context, evaluation, solvingStrategy, f) != null) {
                 return false;
@@ -211,17 +211,28 @@ abstract class CausalitySolver {
         return createModifiedCausalModel(causalModel, w, f);
     }
 
-    // TODO doc
+    /**
+     * Returns only those variables of a causal model that need to be in set W.
+     *
+     * @param causalModel the causal model
+     * @param cause       the cause for which we check the conditions of the HP definition
+     * @param f           a formula factory
+     * @return a set of variables that need to be in W
+     */
     static Set<Variable> getMinimalWVariables(CausalModel causalModel, Set<Literal> cause, FormulaFactory f) {
         Set<Variable> w = new HashSet<>();
         Graph graph = causalModel.getGraph();
+        // the idea is to only include thos variables into W that can be affected by the cause
         for (Literal causeLiteral : cause) {
+            // get the corresponding node in the graph
             Node node = graph.getNode(causeLiteral.name());
             Iterator<Node> iterator = node.getDepthFirstIterator(true);
+            // iterate through all reachable nodes and add then variables to W
             while (iterator.hasNext()) {
                 Node reachableNode = iterator.next();
                 w.add(f.variable(reachableNode.getId()));
             }
+            // remove the cause variable as the cause must not be in W
             w.remove(causeLiteral.variable());
         }
         return w;
