@@ -148,7 +148,7 @@ abstract class CausalitySolver {
     static Set<Literal> evaluateEquations(CausalModel causalModel, Set<Literal> context, FormulaFactory f,
                                           Variable... variables) {
         // create graph from causal model
-        Graph graph = causalModel.toGraph();
+        Graph graph = causalModel.getGraph();
         /*
          * Following to HP, we can sort variables in an acyclic causal model according to their dependence on other
          * variables. The following applies: "If X < Y, then the value of X may affect the value of Y , but the value

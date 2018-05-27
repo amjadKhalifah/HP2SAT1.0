@@ -24,6 +24,7 @@ public class CausalModel {
 
     private Set<Variable> variables;
     private Map<Variable, Equation> variableEquationMap;
+    private Graph graph;
 
     /**
      * Creates a new causal model
@@ -48,6 +49,7 @@ public class CausalModel {
         if (isValid()) { // possibly throws exception
             this.variableEquationMap = this.equations.stream()
                     .collect(Collectors.toMap(Equation::getVariable, Function.identity()));
+            this.graph = this.toGraph();
         }
     }
 
@@ -181,8 +183,8 @@ public class CausalModel {
      *
      * @return the causal model as graph
      */
-    Graph toGraph() {
-        Graph graph = new SingleGraph(this.name);
+    private Graph toGraph() {
+        Graph graph = new SingleGraph(this.name != null ? this.name : "");
         // create all nodes
         this.getEquations().forEach(e -> graph.addNode(e.getVariable().name()));
         this.getExogenousVariables().forEach(e -> graph.addNode(e.name()));
@@ -244,5 +246,9 @@ public class CausalModel {
 
     public Map<Variable, Equation> getVariableEquationMap() {
         return variableEquationMap;
+    }
+
+    public Graph getGraph() {
+        return graph;
     }
 }
