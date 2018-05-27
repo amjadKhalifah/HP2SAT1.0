@@ -21,6 +21,8 @@ import java.util.stream.Collectors;
 import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINISAT;
 
 class SATCausalitySolver extends CausalitySolver {
+    private static final String DUMMY_VAR_NAME = "_dummy";
+
     /**
      * Overrides {@link CausalitySolver#solve(CausalModel, Set, Formula, Set, SolvingStrategy)}
      *
@@ -189,7 +191,7 @@ class SATCausalitySolver extends CausalitySolver {
             if (satSolver.sat() == Tristate.TRUE) {
                 // get the assignments for which the formula is satisfiable
                 List<Assignment> assignments = satSolver.enumerateAllModels().stream()
-                        .filter(a -> a.literals().contains(f.variable("_dummy"))).collect(Collectors.toList());
+                        .filter(a -> a.literals().contains(f.variable(DUMMY_VAR_NAME))).collect(Collectors.toList());
                 return fulfillsAC3Helper(causalModel, phi, cause, evaluation, assignments);
             }
         }
@@ -314,7 +316,7 @@ class SATCausalitySolver extends CausalitySolver {
                     Set<Literal> causeNegated = cause.stream().map(Literal::negate).collect(Collectors.toSet());
                     // get all satisfying assignments
                     List<Assignment> assignments = satSolver.enumerateAllModels().stream()
-                            .filter(a -> a.literals().contains(f.variable("_dummy")))
+                            .filter(a -> a.literals().contains(f.variable(DUMMY_VAR_NAME)))
                             .collect(Collectors.toList());
                     
                     if (solvingStrategy == SolvingStrategy.SAT_COMBINED) {
@@ -459,7 +461,7 @@ class SATCausalitySolver extends CausalitySolver {
             }
         } else {
             // create dummy variable
-            Variable dummy = f.variable("_dummy");
+            Variable dummy = f.variable(DUMMY_VAR_NAME);
             for (Equation equation : causalModel.getEquations()) {
                 // get value of variable in original iteration
                 Literal originalValue = variableEvaluationMap.get(equation.getVariable());
