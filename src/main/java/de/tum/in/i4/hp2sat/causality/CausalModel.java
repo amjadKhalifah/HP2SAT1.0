@@ -236,7 +236,7 @@ public class CausalModel {
 
     private List<Equation> sortEquations() {
         FormulaFactory f = new FormulaFactory();
-        // create graph from causal model
+        // get the causal model as graph
         Graph graph = this.getGraph();
         /*
          * Following to HP, we can sort variables in an acyclic causal model according to their dependence on other
