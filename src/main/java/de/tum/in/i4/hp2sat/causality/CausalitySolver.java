@@ -211,6 +211,22 @@ abstract class CausalitySolver {
         return createModifiedCausalModel(causalModel, w, f);
     }
 
+    // TODO doc
+    static Set<Variable> getMinimalWVariables(CausalModel causalModel, Set<Literal> cause, FormulaFactory f) {
+        Set<Variable> w = new HashSet<>();
+        Graph graph = causalModel.getGraph();
+        for (Literal causeLiteral : cause) {
+            Node node = graph.getNode(causeLiteral.name());
+            Iterator<Node> iterator = node.getDepthFirstIterator(true);
+            while (iterator.hasNext()) {
+                Node reachableNode = iterator.next();
+                w.add(f.variable(reachableNode.getId()));
+            }
+            w.remove(causeLiteral.variable());
+        }
+        return w;
+    }
+
     /**
      * Helper method for {@link CausalitySolver#createModifiedCausalModelForCause(CausalModel, Set, FormulaFactory)}
      * and {@link CausalitySolver#createModifiedCausalModelForW(CausalModel, Set, FormulaFactory)}.
