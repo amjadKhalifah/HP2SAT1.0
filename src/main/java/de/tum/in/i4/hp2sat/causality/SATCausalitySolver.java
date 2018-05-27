@@ -188,7 +188,8 @@ class SATCausalitySolver extends CausalitySolver {
             // should be satisfiable, if cause fulfills AC2
             if (satSolver.sat() == Tristate.TRUE) {
                 // get the assignments for which the formula is satisfiable
-                List<Assignment> assignments = satSolver.enumerateAllModels();
+                List<Assignment> assignments = satSolver.enumerateAllModels().stream()
+                        .filter(a -> a.literals().contains(f.variable("_dummy"))).collect(Collectors.toList());
                 return fulfillsAC3Helper(causalModel, phi, cause, evaluation, assignments);
             }
         }
@@ -312,7 +313,9 @@ class SATCausalitySolver extends CausalitySolver {
                     // flip/negate the cause
                     Set<Literal> causeNegated = cause.stream().map(Literal::negate).collect(Collectors.toSet());
                     // get all satisfying assignments
-                    List<Assignment> assignments = satSolver.enumerateAllModels();
+                    List<Assignment> assignments = satSolver.enumerateAllModels().stream()
+                            .filter(a -> a.literals().contains(f.variable("_dummy")))
+                            .collect(Collectors.toList());
                     
                     if (solvingStrategy == SolvingStrategy.SAT_COMBINED) {
                         /*
