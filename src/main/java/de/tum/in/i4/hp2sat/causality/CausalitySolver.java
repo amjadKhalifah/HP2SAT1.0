@@ -147,31 +147,9 @@ abstract class CausalitySolver {
      */
     static Set<Literal> evaluateEquations(CausalModel causalModel, Set<Literal> context, FormulaFactory f,
                                           Variable... variables) {
-        // create graph from causal model
-        Graph graph = causalModel.toGraph();
-        /*
-         * Following to HP, we can sort variables in an acyclic causal model according to their dependence on other
-         * variables. The following applies: "If X < Y, then the value of X may affect the value of Y , but the value
-         * of Y cannot affect the value of X"
-         * The problem is that we only obtain a partial order if we define < as X is contained in Y (or recursively
-         * in the variables in the equation of Y) if X < Y. Therefore, we use a topological sort.
-         * */
-        TopologicalSortDFS topologicalSortDFS = new TopologicalSortDFS();
-        topologicalSortDFS.init(graph);
-        topologicalSortDFS.compute();
-        // get sorted nodes
-        List<Node> sortedNodes = topologicalSortDFS.getSortedNodes();
-        // get sorted list of equations
-        List<Equation> equationsSorted = sortedNodes.stream()
-                // filter nodes representing endogenous variables
-                .filter(n -> !causalModel.getExogenousVariables().contains(f.variable(n.getId())))
-                // get corresponding equation
-                .map(n -> causalModel.getVariableEquationMap().get(f.variable(n.getId())))
-                .collect(Collectors.toList());
-
         // initially, we can only assign the exogenous variables as defined by the context
         Assignment assignment = new Assignment(context);
-        for (Equation equation : equationsSorted) {
+        for (Equation equation : causalModel.getEquationsSorted()) {
             /*
              * For each equation, we "evaluate" the corresponding formula based on the assignment. Since the equations
              * have been sorted according to their dependence on each other, we know that there will ALWAYS be a
