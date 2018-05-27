@@ -129,6 +129,7 @@ class SATCausalitySolver extends CausalitySolver {
                 solvingStrategy, false, f);
         satSolver.add(formula);
         if (satSolver.sat() == Tristate.TRUE) {
+            // TODO optimized W
             if (solvingStrategy == SolvingStrategy.SAT) {
                 // if satisfiable, get the assignment for which the formula is satisfiable
                 Assignment assignment = satSolver.model();
@@ -481,11 +482,15 @@ class SATCausalitySolver extends CausalitySolver {
                 // get value of variable in original iteration
                 Literal originalValue = variableEvaluationMap.get(equation.getVariable());
                 Formula equationFormula;
-                // TODO optimized W for AC§?
+                // TODO doc
                 /*
                  * When generating a SAT query for AC3, then for each variable not in the cause, we stick to the same
                  * scheme as for AC2, i.e. (V_originalValue OR (V <=> Formula_V)). */
-                if (!causeVariables.contains(equation.getVariable())) {
+                if (!causeVariables.contains(equation.getVariable()) &&
+                        ((solvingStrategy == SAT_OPTIMIZED_W || solvingStrategy == SAT_OPTIMIZED_W_MINIMAL) &&
+                                !wVariablesOptimized.contains(equation.getVariable()))) {
+                    equationFormula = f.equivalence(equation.getVariable(), equation.getFormula());
+                } else if (!causeVariables.contains(equation.getVariable())) {
                     equationFormula = f.or(originalValue, f.equivalence(equation.getVariable(), equation.getFormula()));
                 }
                 /*
