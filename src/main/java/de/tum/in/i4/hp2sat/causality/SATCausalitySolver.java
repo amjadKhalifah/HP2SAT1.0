@@ -9,6 +9,7 @@ import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
+import org.logicng.util.Pair;
 
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +21,59 @@ import java.util.stream.Collectors;
 import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINISAT;
 
 class SATCausalitySolver extends CausalitySolver {
+    /**
+     * Overrides {@link CausalitySolver#solve(CausalModel, Set, Formula, Set, SolvingStrategy)}
+     *
+     * @param causalModel     the underlying causel model
+     * @param context         the context
+     * @param phi             the phi
+     * @param cause           the cause
+     * @param solvingStrategy the applied solving strategy
+     * @return for each AC, true if fulfilled, false else
+     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
+     */
+    // TODO maybe we should make super.solve abstract as well
+    @Override
+    CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi, Set<Literal> cause,
+                                SolvingStrategy solvingStrategy) throws InvalidCausalModelException {
+        return solve(causalModel, context, phi, cause, solvingStrategy, MINISAT);
+    }
+
+    /**
+     * Checks AC1, AC2 and AC3 given a causal model, a cause, a context and phi and a solving strategy.
+     *
+     * @param causalModel     the underlying causel model
+     * @param context         the context
+     * @param phi             the phi
+     * @param cause           the cause
+     * @param solvingStrategy the applied solving strategy
+     * @param satSolverType   the to be used SAT solver
+     * @return for each AC, true if fulfilled, false else
+     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
+     */
+    CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
+                                Set<Literal> cause, SolvingStrategy solvingStrategy, SATSolverType satSolverType)
+            throws InvalidCausalModelException {
+        FormulaFactory f = new FormulaFactory();
+        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context, f);
+        boolean ac1 = fulfillsAC1(evaluation, phi, cause);
+        Set<Literal> w;
+        boolean ac3;
+        if (solvingStrategy == SolvingStrategy.SAT || solvingStrategy == SolvingStrategy.SAT_MINIMAL) {
+            w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
+            ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
+        } else {
+            Pair<Set<Literal>, Boolean> ac2ac3 = fulfillsAC2AC3(causalModel, phi, cause, context, evaluation,
+                    solvingStrategy, satSolverType, f);
+            w = ac2ac3.first();
+            ac3 = ac2ac3.second();
+        }
+        boolean ac2 = w != null;
+
+        CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3, cause, w);
+        return causalitySolverResult;
+    }
+
     /**
      * Checks if AC2 is fulfilled. Uses MiniSAT.
      *
@@ -57,7 +111,7 @@ class SATCausalitySolver extends CausalitySolver {
                                      SATSolverType satSolverType, FormulaFactory f)
             throws InvalidCausalModelException {
         SATSolver satSolver = selectSATSolver(satSolverType, f);
-        Formula phiFormula = f.not(phi); // negate phi
+        Formula negatedPhi = f.not(phi); // negate phi
 
         // create copy of original causal model
         CausalModel causalModelModified = createModifiedCausalModelForCause(causalModel, cause, f);
@@ -65,14 +119,25 @@ class SATCausalitySolver extends CausalitySolver {
         // evaluate causal model with setting x' for cause
         Set<Literal> evaluationModified = evaluateEquations(causalModelModified, context, f);
         // check if not(phi) evaluates to true for empty W -> if yes, no further investigation necessary
-        if (phiFormula.evaluate(new Assignment(evaluationModified))) {
+        if (negatedPhi.evaluate(new Assignment(evaluationModified))) {
             return new HashSet<>();
         }
 
-        if (solvingStrategy == SolvingStrategy.SAT) {
-            return getWStandard(causalModelModified, phiFormula, cause, context, evaluation, satSolver, f);
+        // generate SAT query
+        Formula formula = generateSATQuery(causalModelModified, negatedPhi, cause, context, evaluation, false, f);
+        satSolver.add(formula);
+        if (satSolver.sat() == Tristate.TRUE) {
+            if (solvingStrategy == SolvingStrategy.SAT) {
+                // if satisfiable, get the assignment for which the formula is satisfiable
+                Assignment assignment = satSolver.model();
+                return getWStandard(causalModelModified, evaluation, assignment);
+            } else {
+                // if satisfiable, get the assignments for which the formula is satisfiable
+                List<Assignment> assignments = satSolver.enumerateAllModels();
+                return getWMinimal(causalModelModified, evaluation, assignments);
+            }
         } else {
-            return getWMinimal(causalModelModified, phiFormula, cause, context, evaluation, satSolver, f);
+            return null;
         }
     }
 
@@ -122,176 +187,231 @@ class SATCausalitySolver extends CausalitySolver {
             satSolver.add(formula);
             // should be satisfiable, if cause fulfills AC2
             if (satSolver.sat() == Tristate.TRUE) {
-                // create a set of Variables in the cause, i.e. map a set of Literals to Variables
-                Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
-                // create a map of variables in the cause and their actual value represented as literal
-                Map<Variable, Literal> variableEvaluationMap = evaluation.stream()
-                        .filter(l -> causeVariables.contains(l.variable()))
-                        .collect(Collectors.toMap(Literal::variable, Function.identity()));
                 // get the assignments for which the formula is satisfiable
                 List<Assignment> assignments = satSolver.enumerateAllModels();
-                // loop through all satisfying assignments
-                for (Assignment assignment : assignments) {
-                    /*
-                     * get the variables in the cause as literals such that we have their evaluation in the current
-                     * satisfying assignment. We call them cause candidates as it is not sure if they are a necessary
-                     * part of the cause. */
-                    Set<Literal> causeCandidates = assignment.literals().stream()
-                            .filter(l -> causeVariables.contains(l.variable())).collect(Collectors.toSet());
-                    Set<Variable> notRequiredForCause = new HashSet<>();
-                    // loop through all the cause candidates
-                    for (Literal causeCandidate : causeCandidates) {
-                        // create an assignment instance where the current cause candidate is removed
-                        Assignment assignmentNew = new Assignment(assignment.literals().stream()
-                                .filter(l -> !l.variable().equals(causeCandidate.variable()))
-                                .collect(Collectors.toSet()));
-                        // compute the value of the current cause candidate using its equation
-                        boolean value = causalModel.getVariableEquationMap().get(causeCandidate.variable()).getFormula()
-                                .evaluate(assignmentNew);
-                        // TODO maybe we need to take W into account; is the current approach correct? -> test case?
-                        /*
-                         * For each cause candidate we now check whether it evaluates according to its equation or is
-                         * in W. In this case, we found a part of the cause that is not necessarily required, because
-                         * not(phi) is satisfied by a subset of the
-                         * cause, as we do not necessarily need to negate the current cause candidate such that not
-                         * (phi) is fulfilled. We collect all those variables to construct a new potential cause
-                         * later on for which we check AC1. */
-                        if (causeCandidate.phase() == value || causeCandidate.phase() == variableEvaluationMap
-                                .get(causeCandidate.variable()).phase()) {
-                            notRequiredForCause.add(causeCandidate.variable());
-                        }
-                    }
-
-                    // construct a new potential cause by removing all the irrelevant variables
-                    Set<Literal> causeNew = cause.stream().filter(l -> !notRequiredForCause.contains(l.variable()))
-                            .collect(Collectors.toSet());
-                    // if the new cause is smaller than the passed one and fulfills AC1, AC3 is not fulfilled
-                    if (causeNew.size() < cause.size() && fulfillsAC1(evaluation, phi, causeNew)) {
-                        return false;
-                    }
-                }
+                return fulfillsAC3Helper(causalModel, phi, cause, evaluation, assignments);
             }
         }
         return true;
     }
 
     /**
-     * Checks AC1, AC2 and AC3 given a causal model, a cause, a context and phi and a solving strategy.
+     * Helper method used in the AC3 check as well as the combined approach. Checks if AC3 holds.
      *
-     * @param causalModel     the underlying causel model
-     * @param context         the context
+     * @param causalModel the underlying causal model
+     * @param phi         the phi
+     * @param cause       the cause for which we check AC2
+     * @param evaluation  the original evaluation of variables
+     * @param assignments a list of satisfying assignments
+     * @return true if AC3 holds, else false
+     */
+    private boolean fulfillsAC3Helper(CausalModel causalModel, Formula phi, Set<Literal> cause,
+                                      Set<Literal> evaluation, List<Assignment> assignments) {
+        // create a set of Variables in the cause, i.e. map a set of Literals to Variables
+        Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
+        // create a map of variables in the cause and their actual value represented as literal
+        Map<Variable, Literal> variableEvaluationMap = evaluation.stream()
+                .filter(l -> causeVariables.contains(l.variable()))
+                .collect(Collectors.toMap(Literal::variable, Function.identity()));
+        // loop through all satisfying assignments
+        for (Assignment assignment : assignments) {
+            /*
+             * get the variables in the cause as literals such that we have their evaluation in the current
+             * satisfying assignment. We call them cause candidates as it is not sure if they are a necessary
+             * part of the cause. */
+            Set<Literal> causeCandidates = assignment.literals().stream()
+                    .filter(l -> causeVariables.contains(l.variable())).collect(Collectors.toSet());
+            Set<Variable> notRequiredForCause = new HashSet<>();
+            // loop through all the cause candidates
+            for (Literal causeCandidate : causeCandidates) {
+                // create an assignment instance where the current cause candidate is removed
+                Assignment assignmentNew = new Assignment(assignment.literals().stream()
+                        .filter(l -> !l.variable().equals(causeCandidate.variable()))
+                        .collect(Collectors.toSet()));
+                // compute the value of the current cause candidate using its equation
+                boolean value = causalModel.getVariableEquationMap().get(causeCandidate.variable()).getFormula()
+                        .evaluate(assignmentNew);
+                // TODO maybe we need to take W into account; is the current approach correct? -> test case?
+                /*
+                 * For each cause candidate we now check whether it evaluates according to its equation or is
+                 * in W. In this case, we found a part of the cause that is not necessarily required, because
+                 * not(phi) is satisfied by a subset of the
+                 * cause, as we do not necessarily need to negate the current cause candidate such that not
+                 * (phi) is fulfilled. We collect all those variables to construct a new potential cause
+                 * later on for which we check AC1. */
+                if (causeCandidate.phase() == value || causeCandidate.phase() == variableEvaluationMap
+                        .get(causeCandidate.variable()).phase()) {
+                    notRequiredForCause.add(causeCandidate.variable());
+                }
+            }
+
+            // construct a new potential cause by removing all the irrelevant variables
+            Set<Literal> causeNew = cause.stream().filter(l -> !notRequiredForCause.contains(l.variable()))
+                    .collect(Collectors.toSet());
+            // if the new cause is smaller than the passed one and fulfills AC1, AC3 is not fulfilled
+            if (causeNew.size() < cause.size() && fulfillsAC1(evaluation, phi, causeNew)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks if AC2 and AC3 are fulfilled. Combined approach that takes advantage of synergies between the separate
+     * approaches.
+     *
+     * @param causalModel     the underlying causal model
      * @param phi             the phi
-     * @param cause           the cause
-     * @param solvingStrategy the applied solving strategy
+     * @param cause           the cause for which we check AC2
+     * @param context         the context
+     * @param evaluation      the original evaluation of variables
+     * @param solvingStrategy the solving strategy
      * @param satSolverType   the to be used SAT solver
-     * @return for each AC, true if fulfilled, false else
+     * @param f               a formula factory
+     * @return a tuple of set W and a boolean value indicating whether AC3 is fulfilled or not
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
-    CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
-                                Set<Literal> cause, SolvingStrategy solvingStrategy, SATSolverType satSolverType)
-            throws InvalidCausalModelException {
-        FormulaFactory f = new FormulaFactory();
-        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context, f);
-        boolean ac1 = fulfillsAC1(evaluation, phi, cause);
-        Set<Literal> w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
-        boolean ac2 = w != null;
-        boolean ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
-        CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3, cause, w);
-        return causalitySolverResult;
+    private Pair<Set<Literal>, Boolean> fulfillsAC2AC3(CausalModel causalModel, Formula phi, Set<Literal> cause,
+                                                       Set<Literal> context, Set<Literal> evaluation,
+                                                       SolvingStrategy solvingStrategy, SATSolverType satSolverType,
+                                                       FormulaFactory f) throws InvalidCausalModelException {
+        Set<Literal> w;
+        boolean ac3;
+        // if the cause is of size 1, then AC3 is fulfilled automatically. Hence, we just need to check for AC2
+        if (cause.size() == 1) {
+            // set new solving strategy
+            SolvingStrategy solvingStrategyNew;
+            if (solvingStrategy == SolvingStrategy.SAT_COMBINED) {
+                solvingStrategyNew = SolvingStrategy.SAT;
+            } else {
+                solvingStrategyNew = SolvingStrategy.SAT_MINIMAL;
+            }
+            w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategyNew, satSolverType, f);
+            // ac3 is true if cause has size 1
+            ac3 = true;
+        } else {
+            // negate phi
+            Formula phiNegated = f.not(phi);
+            // create copy of original causal model
+            CausalModel causalModelModified = createModifiedCausalModelForCause(causalModel, cause, f);
+            // evaluate causal model with setting x' for cause
+            Set<Literal> evaluationModified = evaluateEquations(causalModelModified, context, f);
+            // check if not(phi) evaluates to true for empty W
+            if (phiNegated.evaluate(new Assignment(evaluationModified))) {
+                w = new HashSet<>();
+                // perform a normal AC3 check
+                ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
+            } else {
+                // get specified SAT solver
+                SATSolver satSolver = selectSATSolver(satSolverType, f);
+                // generate SAT query for AC3 as this SAT query contains also the satisfying assignments for AC2
+                Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation, true, f);
+                // add query to solver
+                satSolver.add(formula);
+                if (satSolver.sat() == Tristate.TRUE) {
+                    // flip/negate the cause
+                    Set<Literal> causeNegated = cause.stream().map(Literal::negate).collect(Collectors.toSet());
+                    // get all satisfying assignments
+                    List<Assignment> assignments = satSolver.enumerateAllModels();
+                    
+                    if (solvingStrategy == SolvingStrategy.SAT_COMBINED) {
+                        /*
+                         * the SAT query might contain satisfying assignment that are not relevant for AC2. We therefore
+                         * filter the assignment in which the cause variables are flipped as specified. */
+                        Assignment assignmentForAC2 = assignments.stream()
+                                .filter(a -> a.literals().containsAll(causeNegated)).findFirst().orElse(null);
+                        if (assignmentForAC2 != null) {
+                            w = getWStandard(causalModel, evaluation, assignmentForAC2);
+                        } else {
+                            w = null;
+                        }
+                    } else {
+                        // SAT_COMBINED_MINIMAL
+                        /*
+                         * the SAT query might contain satisfying assignment that are not relevant for AC2. We therefore
+                         * filter all those assignments in which the cause variables are flipped as specified. */
+                        List<Assignment> assignmentsForAC2 = assignments.stream()
+                                .filter(a -> a.literals().containsAll(causeNegated)).collect(Collectors.toList());
+                        if (assignmentsForAC2.size() > 0) {
+                            w = getWMinimal(causalModel, evaluation, assignmentsForAC2);
+                        } else {
+                            w = null;
+                        }
+                    }
+                    // check if AC3 holds
+                    ac3 = fulfillsAC3Helper(causalModel, phi, cause, evaluation, assignments);
+                } else {
+                    // if the SAT query is not satisfiable at all, then both AC2 and AC3 do not hold
+                    w = null;
+                    ac3 = true;
+                }
+            }
+        }
+        return new Pair<>(w, ac3);
     }
 
     /**
      * Compute a not necessarily minimal W.
      *
      * @param causalModelModified causal model where the equations of the cause are replaced respectively
-     * @param negatedPhi          negated phi
-     * @param cause               the cause
-     * @param context             the context
      * @param evaluation          the evaluation in the original causal model
-     * @param satSolver           a SAT solver instance
-     * @param f                   a formula factory instance
+     * @param assignment          a satisfying assignment
      * @return a set W if AC2 is fulfilled; null otherwise
      */
-    private Set<Literal> getWStandard(CausalModel causalModelModified, Formula negatedPhi, Set<Literal> cause,
-                                      Set<Literal> context, Set<Literal> evaluation, SATSolver satSolver,
-                                      FormulaFactory f) {
-        // generate SAT query
-        Formula formula = generateSATQuery(causalModelModified, negatedPhi, cause, context, evaluation, false, f);
-        // add query to solver
-        satSolver.add(formula);
-        if (satSolver.sat() == Tristate.TRUE) {
-            // if satisfiable, get the assignment for which the formula is satisfiable
-            Assignment assignment = satSolver.model();
-            // generate (maximum) W
-            Set<Literal> w = assignment.literals().stream()
-                    .filter(l -> evaluation.contains(l)
-                            && !causalModelModified.getExogenousVariables().contains(l.variable()))
-                    .collect(Collectors.toSet());
-            return w;
-        } else {
-            // if not satisfiable
-            return null;
-        }
+    private Set<Literal> getWStandard(CausalModel causalModelModified, Set<Literal> evaluation, Assignment assignment) {
+        // generate (maximum) W
+        Set<Literal> w = assignment.literals().stream()
+                .filter(l -> evaluation.contains(l)
+                        && !causalModelModified.getExogenousVariables().contains(l.variable()))
+                .collect(Collectors.toSet());
+        return w;
     }
 
     /**
      * Computes a minimal W.
      *
      * @param causalModelModified causal model where the equations of the cause are replaced respectively
-     * @param negatedPhi          negated phi
-     * @param cause               the cause
-     * @param context             the context
      * @param evaluation          the evaluation in the original causal model
-     * @param satSolver           a SAT solver instance
-     * @param f                   a formula factory instance
+     * @param assignments         list of satisfying assignments
      * @return a set W if AC2 is fulfilled; null otherwise
      */
-    private Set<Literal> getWMinimal(CausalModel causalModelModified, Formula negatedPhi, Set<Literal> cause,
-                                     Set<Literal> context, Set<Literal> evaluation, SATSolver satSolver,
-                                     FormulaFactory f) {
-        // generate SAT query
-        Formula formula = generateSATQuery(causalModelModified, negatedPhi, cause, context, evaluation, false, f);
-        // add query to solver
-        satSolver.add(formula);
+    private Set<Literal> getWMinimal(CausalModel causalModelModified, Set<Literal> evaluation,
+                                     List<Assignment> assignments) {
         Set<Literal> w = null;
-        if (satSolver.sat() == Tristate.TRUE) {
-            Map<Variable, Equation> variableEquationMap = causalModelModified.getVariableEquationMap();
-            // if satisfiable, get the assignments for which the formula is satisfiable
-            List<Assignment> assignments = satSolver.enumerateAllModels();
-            // loop through all satisfying assignments; the first one found might not expose a minimal W
-            for (Assignment assignment : assignments) {
+        Map<Variable, Equation> variableEquationMap = causalModelModified.getVariableEquationMap();
+        // loop through all satisfying assignments; the first one found might not expose a minimal W
+        for (Assignment assignment : assignments) {
+            /*
+             * we construct a set of literals that are possibly in W. This set is equal to the one constructed in
+             * the standard approach
+             * */
+            Set<Literal> wCandidates = assignment.literals().stream()
+                    .filter(l -> evaluation.contains(l)
+                            && !causalModelModified.getExogenousVariables().contains(l.variable()))
+                    .collect(Collectors.toSet());
+
+            Set<Literal> newW = new HashSet<>();
+            for (Literal wCandidate : wCandidates) {
+                // create an assignment instance where the current wCandidate is removed
+                Assignment assignmentNew = new Assignment(assignment.literals().stream()
+                        .filter(l -> !l.variable().equals(wCandidate.variable())).collect(Collectors.toSet()));
+                // compute the value of the current wCandidate using its equation
+                boolean value = variableEquationMap.get(wCandidate.variable()).getFormula().evaluate(assignmentNew);
                 /*
-                 * we construct a set of literals that are possibly in W. This set is equal to the one constructed in
-                 * the standard approach
-                 * */
-                Set<Literal> wCandidates = assignment.literals().stream()
-                        .filter(l -> evaluation.contains(l)
-                                && !causalModelModified.getExogenousVariables().contains(l.variable()))
-                        .collect(Collectors.toSet());
-
-                Set<Literal> newW = new HashSet<>();
-                for (Literal wCandidate : wCandidates) {
-                    // create an assignment instance where the current wCandidate is removed
-                    Assignment assignmentNew = new Assignment(assignment.literals().stream()
-                            .filter(l -> !l.variable().equals(wCandidate.variable())).collect(Collectors.toSet()));
-                    // compute the value of the current wCandidate using its equation
-                    boolean value = variableEquationMap.get(wCandidate.variable()).getFormula().evaluate(assignmentNew);
-                    /*
-                     * if the value of the satisfying assignment and the value computed from the equation are
-                     * different, than we know that the current variable needs to be in W, since we need to keep it to
-                     * its original value such that the formula can be satisfied. */
-                    if (value != wCandidate.phase()) {
-                        newW.add(wCandidate);
-                    }
+                 * if the value of the satisfying assignment and the value computed from the equation are
+                 * different, than we know that the current variable needs to be in W, since we need to keep it to
+                 * its original value such that the formula can be satisfied. */
+                if (value != wCandidate.phase()) {
+                    newW.add(wCandidate);
                 }
+            }
 
-                if (newW.size() == 1) {
-                    // if we have found a W of size 1, it cannot get smaller and we can directly return it
-                    return newW;
-                } else if (w == null || newW.size() < w.size()) {
-                    // update W only if it has not been set so far or if we have found a smaller W
-                    w = newW;
-                }
+            if (newW.size() == 1) {
+                // if we have found a W of size 1, it cannot get smaller and we can directly return it
+                return newW;
+            } else if (w == null || newW.size() < w.size()) {
+                // update W only if it has not been set so far or if we have found a smaller W
+                w = newW;
             }
         }
 
