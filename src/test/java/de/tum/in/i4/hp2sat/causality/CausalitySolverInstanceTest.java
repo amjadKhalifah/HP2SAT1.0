@@ -150,7 +150,7 @@ public class CausalitySolverInstanceTest {
                         put(SAT_COMBINED_MINIMAL,
                                 new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                         put(SAT_OPTIMIZED_W,
-                                new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                                new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSAT)));
                         put(SAT_OPTIMIZED_W_MINIMAL,
                                 new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
 
@@ -285,7 +285,7 @@ public class CausalitySolverInstanceTest {
                         put(SAT_COMBINED_MINIMAL,
                                 new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                         put(SAT_OPTIMIZED_W,
-                                new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                                new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSAT)));
                         put(SAT_OPTIMIZED_W_MINIMAL,
                                 new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                     }
@@ -360,7 +360,7 @@ public class CausalitySolverInstanceTest {
                         put(SAT_COMBINED_MINIMAL,
                                 new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                         put(SAT_OPTIMIZED_W,
-                                new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                                new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSAT)));
                         put(SAT_OPTIMIZED_W_MINIMAL,
                                 new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                     }
@@ -421,7 +421,7 @@ public class CausalitySolverInstanceTest {
                         put(SAT_COMBINED_MINIMAL,
                                 new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                         put(SAT_OPTIMIZED_W,
-                                new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                                new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSAT)));
                         put(SAT_OPTIMIZED_W_MINIMAL,
                                 new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                     }
@@ -462,8 +462,8 @@ public class CausalitySolverInstanceTest {
                         put(SAT_COMBINED_MINIMAL,
                                 new HashSet<>(Arrays.asList(causalitySolverResultExpectedSATMINIMAL1,
                                         causalitySolverResultExpectedSATMINIMAL2)));
-                        put(SAT_OPTIMIZED_W, new HashSet<>(Arrays.asList(causalitySolverResultExpectedSATMINIMAL1,
-                                        causalitySolverResultExpectedSATMINIMAL2)));
+                        put(SAT_OPTIMIZED_W,
+                                new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSAT)));
                         put(SAT_OPTIMIZED_W_MINIMAL,
                                 new HashSet<>(Arrays.asList(causalitySolverResultExpectedSATMINIMAL1,
                                         causalitySolverResultExpectedSATMINIMAL2)));
@@ -526,7 +526,7 @@ public class CausalitySolverInstanceTest {
                         put(SAT_COMBINED_MINIMAL,
                                 new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                         put(SAT_OPTIMIZED_W,
-                                new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                                new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSAT)));
                         put(SAT_OPTIMIZED_W_MINIMAL,
                                 new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                     }
@@ -608,7 +608,7 @@ public class CausalitySolverInstanceTest {
                         put(SAT_COMBINED_MINIMAL,
                                 new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                         put(SAT_OPTIMIZED_W,
-                                new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                                new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSAT)));
                         put(SAT_OPTIMIZED_W_MINIMAL,
                                 new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                     }
@@ -672,9 +672,8 @@ public class CausalitySolverInstanceTest {
                         put(SAT_COMBINED_MINIMAL, new HashSet<>(Arrays.asList(causalitySolverResultExpectedSATMINIMAL1,
                                 causalitySolverResultExpectedSATMINIMAL2, causalitySolverResultExpectedSATMINIMAL3,
                                 causalitySolverResultExpectedSATMINIMAL4)));
-                        put(SAT_OPTIMIZED_W, new HashSet<>(Arrays.asList(causalitySolverResultExpectedSATMINIMAL1,
-                                causalitySolverResultExpectedSATMINIMAL2, causalitySolverResultExpectedSATMINIMAL3,
-                                causalitySolverResultExpectedSATMINIMAL4)));
+                        put(SAT_OPTIMIZED_W,
+                                new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSAT)));
                         put(SAT_OPTIMIZED_W_MINIMAL, new HashSet<>(Arrays.asList(
                                 causalitySolverResultExpectedSATMINIMAL1, causalitySolverResultExpectedSATMINIMAL2,
                                 causalitySolverResultExpectedSATMINIMAL3, causalitySolverResultExpectedSATMINIMAL4)));
@@ -724,7 +723,7 @@ public class CausalitySolverInstanceTest {
                         put(SAT_COMBINED_MINIMAL,
                                 new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                         put(SAT_OPTIMIZED_W,
-                                new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                                new HashSet<>(Collections.singletonList(causalitySolverResultExpectedSAT)));
                         put(SAT_OPTIMIZED_W_MINIMAL,
                                 new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                     }
@@ -888,7 +887,7 @@ public class CausalitySolverInstanceTest {
                         put(SAT_MINIMAL, allCausesExpectedEval);
                         put(SAT_COMBINED, allCausesExpectedSAT);
                         put(SAT_COMBINED_MINIMAL, allCausesExpectedEval);
-                        put(SAT_OPTIMIZED_W, allCausesExpectedEval);
+                        put(SAT_OPTIMIZED_W, allCausesExpectedSAT);
                         put(SAT_OPTIMIZED_W_MINIMAL, allCausesExpectedEval);
                     }
                 };

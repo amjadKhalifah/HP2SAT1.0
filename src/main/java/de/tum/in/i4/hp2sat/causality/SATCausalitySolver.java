@@ -129,8 +129,7 @@ class SATCausalitySolver extends CausalitySolver {
                 solvingStrategy, false, f);
         satSolver.add(formula);
         if (satSolver.sat() == Tristate.TRUE) {
-            // TODO optimized W
-            if (solvingStrategy == SolvingStrategy.SAT) {
+            if (solvingStrategy == SAT || solvingStrategy == SAT_OPTIMIZED_W) {
                 // if satisfiable, get the assignment for which the formula is satisfiable
                 Assignment assignment = satSolver.model();
                 return getWStandard(causalModelModified, evaluation, assignment);
