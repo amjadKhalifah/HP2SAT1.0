@@ -4,16 +4,16 @@ import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
 import de.tum.in.i4.hp2sat.exceptions.InvalidCauseException;
 import de.tum.in.i4.hp2sat.exceptions.InvalidContextException;
 import de.tum.in.i4.hp2sat.exceptions.InvalidPhiException;
+import org.graphstream.algorithm.TopologicalSortDFS;
 import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -25,6 +25,7 @@ public class CausalModel {
     private Set<Variable> variables;
     private Map<Variable, Equation> variableEquationMap;
     private Graph graph;
+    private List<Equation> equationsSorted; // according to topological sort
 
     /**
      * Creates a new causal model
@@ -50,6 +51,7 @@ public class CausalModel {
             this.variableEquationMap = this.equations.stream()
                     .collect(Collectors.toMap(Equation::getVariable, Function.identity()));
             this.graph = this.toGraph();
+            equationsSorted = this.sortEquations();
         }
     }
 
@@ -232,6 +234,32 @@ public class CausalModel {
             throw new InvalidCauseException();
     }
 
+    private List<Equation> sortEquations() {
+        FormulaFactory f = new FormulaFactory();
+        // create graph from causal model
+        Graph graph = this.getGraph();
+        /*
+         * Following to HP, we can sort variables in an acyclic causal model according to their dependence on other
+         * variables. The following applies: "If X < Y, then the value of X may affect the value of Y , but the value
+         * of Y cannot affect the value of X"
+         * The problem is that we only obtain a partial order if we define < as X is contained in Y (or recursively
+         * in the variables in the equation of Y) if X < Y. Therefore, we use a topological sort.
+         * */
+        TopologicalSortDFS topologicalSortDFS = new TopologicalSortDFS();
+        topologicalSortDFS.init(graph);
+        topologicalSortDFS.compute();
+        // get sorted nodes
+        List<Node> sortedNodes = topologicalSortDFS.getSortedNodes();
+        // get sorted list of equations
+        List<Equation> equationsSorted = sortedNodes.stream()
+                // filter nodes representing endogenous variables
+                .filter(n -> !this.getExogenousVariables().contains(f.variable(n.getId())))
+                // get corresponding equation
+                .map(n -> this.getVariableEquationMap().get(f.variable(n.getId())))
+                .collect(Collectors.toList());
+        return equationsSorted;
+    }
+
     public String getName() {
         return name;
     }
@@ -250,5 +278,9 @@ public class CausalModel {
 
     public Graph getGraph() {
         return graph;
+    }
+
+    public List<Equation> getEquationsSorted() {
+        return equationsSorted;
     }
 }
