@@ -19,7 +19,7 @@ import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-public class CausalitySolverTest {
+public class CausalitySolverInstanceTest {
     FormulaFactory f;
     EvalCausalitySolver evalCausalitySolver;
     SATCausalitySolver SATCausalitySolver;
