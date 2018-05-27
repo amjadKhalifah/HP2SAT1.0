@@ -457,9 +457,9 @@ class SATCausalitySolver extends CausalitySolver {
             for (Equation equation : causalModel.getEquations()) {
                 /*
                  * create formula: V_originalValue OR (V <=> Formula_V)
-                 * if the variable of the current equation is in the cause, then we do not allow for its original value
-                 * and just add (V <=> Formula_V).*/
-                // TODO update doc
+                 * if the variable of the current equation is in the cause or not in the set of optimized variables,
+                 * then we do not allow for its original value and just add (V <=> Formula_V).
+                 * */
                 Formula equationFormula;
                 if (causeVariables.contains(equation.getVariable()) ||
                         ((solvingStrategy == SAT_OPTIMIZED_W || solvingStrategy == SAT_OPTIMIZED_W_MINIMAL) &&
@@ -481,10 +481,12 @@ class SATCausalitySolver extends CausalitySolver {
                 // get value of variable in original iteration
                 Literal originalValue = variableEvaluationMap.get(equation.getVariable());
                 Formula equationFormula;
-                // TODO doc
                 /*
                  * When generating a SAT query for AC3, then for each variable not in the cause, we stick to the same
-                 * scheme as for AC2, i.e. (V_originalValue OR (V <=> Formula_V)). */
+                 * scheme as for AC2, i.e. (V_originalValue OR (V <=> Formula_V)). If the variable of the current
+                 * equation is not in the set of optimized variables, then we do not allow for its original value and
+                 * just add (V <=> Formula_V).
+                 * */
                 if (!causeVariables.contains(equation.getVariable()) &&
                         ((solvingStrategy == SAT_OPTIMIZED_W || solvingStrategy == SAT_OPTIMIZED_W_MINIMAL) &&
                                 !wVariablesOptimized.contains(equation.getVariable()))) {
