@@ -88,7 +88,7 @@ public class CausalModel {
             throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
         validateCausalityCheck(context, phi, cause);
         CausalitySolver causalitySolver = null;
-        if (solvingStrategy == SolvingStrategy.EVAL) {
+        if (solvingStrategy == SolvingStrategy.EVAL || solvingStrategy == SolvingStrategy.EVAL_OPTIMIZED_W) {
             causalitySolver = new EvalCausalitySolver();
         } else if (Arrays.asList(SolvingStrategy.SAT, SolvingStrategy.SAT_MINIMAL, SolvingStrategy.SAT_COMBINED,
                 SolvingStrategy.SAT_COMBINED_MINIMAL).contains(solvingStrategy)) {
@@ -118,7 +118,7 @@ public class CausalModel {
     public CausalitySolverResult isCause(Set<Literal> context, Formula phi, Set<Literal> cause,
                                          SolvingStrategy solvingStrategy, SATSolverType satSolverType)
             throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
-        if (solvingStrategy != SolvingStrategy.SAT) {
+        if (solvingStrategy == SolvingStrategy.EVAL || solvingStrategy == SolvingStrategy.EVAL_OPTIMIZED_W) {
             // ignore SAT solver type if solving strategy is not SAT related
             return isCause(context, phi, cause, solvingStrategy);
         } else {
