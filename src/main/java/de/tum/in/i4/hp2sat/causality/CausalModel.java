@@ -17,6 +17,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.*;
+
 public class CausalModel {
     private String name;
     private Set<Equation> equations;
@@ -88,10 +90,10 @@ public class CausalModel {
             throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
         validateCausalityCheck(context, phi, cause);
         CausalitySolver causalitySolver = null;
-        if (solvingStrategy == SolvingStrategy.EVAL || solvingStrategy == SolvingStrategy.EVAL_OPTIMIZED_W) {
+        if (solvingStrategy == EVAL || solvingStrategy == EVAL_OPTIMIZED_W) {
             causalitySolver = new EvalCausalitySolver();
-        } else if (Arrays.asList(SolvingStrategy.SAT, SolvingStrategy.SAT_MINIMAL, SolvingStrategy.SAT_COMBINED,
-                SolvingStrategy.SAT_COMBINED_MINIMAL).contains(solvingStrategy)) {
+        } else if (Arrays.asList(SAT, SAT_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_W,
+                SAT_OPTIMIZED_W_MINIMAL).contains(solvingStrategy)) {
             causalitySolver = new SATCausalitySolver();
         }
 
@@ -118,7 +120,7 @@ public class CausalModel {
     public CausalitySolverResult isCause(Set<Literal> context, Formula phi, Set<Literal> cause,
                                          SolvingStrategy solvingStrategy, SATSolverType satSolverType)
             throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
-        if (solvingStrategy == SolvingStrategy.EVAL || solvingStrategy == SolvingStrategy.EVAL_OPTIMIZED_W) {
+        if (solvingStrategy == EVAL || solvingStrategy == EVAL_OPTIMIZED_W) {
             // ignore SAT solver type if solving strategy is not SAT related
             return isCause(context, phi, cause, solvingStrategy);
         } else {
