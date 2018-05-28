@@ -35,7 +35,8 @@ public class CausalModel {
      * @param exogenousVariables the exogenous variables of the causal model
      * @throws InvalidCausalModelException throws an exception if model is not valid: (1) each variable needs to be
      *                                     either defined by an equation or be exogenous; (2) no duplicate definition of
-     *                                     variables; (3) no circular dependencies
+     *                                     variables; (3) no circular dependencies; (4) an exogenous variable must
+     *                                     not be called like {@link SATCausalitySolver#DUMMY_VAR_NAME}
      */
     public CausalModel(String name, Set<Equation> equations, Set<Variable> exogenousVariables)
             throws InvalidCausalModelException {
@@ -140,8 +141,11 @@ public class CausalModel {
                 equations.size() == equations.stream().map(Equation::getVariable).collect(Collectors.toSet()).size();
         boolean existsCircularDependency = equations.parallelStream()
                 .anyMatch(e -> isVariableInEquation(e.getVariable(), e));
+        boolean exogenousVariableCalledLikeDummy = exogenousVariables.parallelStream()
+                .anyMatch(e -> e.name().equals(SATCausalitySolver.DUMMY_VAR_NAME));
 
-        if (!(existsDefinitionForEachVariable && existsNoDuplicateEquationForEachVariable && !existsCircularDependency))
+        if (!(existsDefinitionForEachVariable && existsNoDuplicateEquationForEachVariable &&
+                !existsCircularDependency && !exogenousVariableCalledLikeDummy))
             throw new InvalidCausalModelException();
 
         return true;
