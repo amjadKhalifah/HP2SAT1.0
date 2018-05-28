@@ -91,6 +91,18 @@ public class CausalitySolverAbstractTest {
     }
 
     @Test
+    public void Should_ReturnCorrectWVariables_ForBillySuzy_GivenSTAndSHIsCause_BS()
+            throws InvalidCausalModelException {
+        Formula phi = f.variable("BS");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("SH")));
+        Set<Variable> wVariablesExpected = new HashSet<>(Arrays.asList(f.variable("BS"),
+                f.variable("BH")));
+        Set<Variable> wVariablesActual = CausalitySolver.getMinimalWVariables(ExampleProvider.billySuzy(), phi, cause,
+                f);
+        assertEquals(wVariablesExpected, wVariablesActual);
+    }
+
+    @Test
     public void Should_ReturnCorrectWVariables_ForBillySuzy_GivenSTIsCause_SH()
             throws InvalidCausalModelException {
         Formula phi = f.variable("SH");
