@@ -140,8 +140,11 @@ public class CausalModel {
                 equations.size() == equations.stream().map(Equation::getVariable).collect(Collectors.toSet()).size();
         boolean existsCircularDependency = equations.parallelStream()
                 .anyMatch(e -> isVariableInEquation(e.getVariable(), e));
+        boolean exogenousVariableCalledLikeDummy = exogenousVariables.parallelStream()
+                .anyMatch(e -> e.name().equals(SATCausalitySolver.DUMMY_VAR_NAME));
 
-        if (!(existsDefinitionForEachVariable && existsNoDuplicateEquationForEachVariable && !existsCircularDependency))
+        if (!(existsDefinitionForEachVariable && existsNoDuplicateEquationForEachVariable &&
+                !existsCircularDependency && !exogenousVariableCalledLikeDummy))
             throw new InvalidCausalModelException();
 
         return true;

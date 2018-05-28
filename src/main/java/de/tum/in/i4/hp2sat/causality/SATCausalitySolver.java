@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINISAT;
 
 class SATCausalitySolver extends CausalitySolver {
-    private static final String DUMMY_VAR_NAME = "_dummy";
+    static final String DUMMY_VAR_NAME = "_dummy";
 
     /**
      * Overrides {@link CausalitySolver#solve(CausalModel, Set, Formula, Set, SolvingStrategy)}
