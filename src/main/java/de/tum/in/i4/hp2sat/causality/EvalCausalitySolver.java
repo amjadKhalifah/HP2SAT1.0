@@ -36,7 +36,7 @@ class EvalCausalitySolver extends CausalitySolver {
                             !(causeVariables.contains(l.variable())))
                     .collect(Collectors.toSet());
             if (solvingStrategy == SolvingStrategy.EVAL_OPTIMIZED_W) {
-                Set<Variable> wVariablesOptimized = CausalitySolver.getMinimalWVariables(causalModel, cause, f);
+                Set<Variable> wVariablesOptimized = CausalitySolver.getMinimalWVariables(causalModel, phi, cause, f);
                 // remove variables that are not in the optimized W vars set
                 wVariables = wVariables.stream()
                         .filter(l -> wVariablesOptimized.contains(l.variable())).collect(Collectors.toSet());

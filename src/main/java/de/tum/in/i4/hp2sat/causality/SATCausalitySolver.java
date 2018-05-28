@@ -450,7 +450,7 @@ class SATCausalitySolver extends CausalitySolver {
 
         Set<Variable> wVariablesOptimized = null;
         if (solvingStrategy == SAT_OPTIMIZED_W || solvingStrategy == SAT_OPTIMIZED_W_MINIMAL) {
-            wVariablesOptimized = CausalitySolver.getMinimalWVariables(causalModel, cause, f);
+            wVariablesOptimized = CausalitySolver.getMinimalWVariables(causalModel, notPhi, cause, f);
         }
 
         if (!ac3) {

@@ -219,22 +219,40 @@ abstract class CausalitySolver {
      * @param f           a formula factory
      * @return a set of variables that need to be in W
      */
-    static Set<Variable> getMinimalWVariables(CausalModel causalModel, Set<Literal> cause, FormulaFactory f) {
-        Set<Variable> w = new HashSet<>();
+    static Set<Variable> getMinimalWVariables(CausalModel causalModel, Formula phi, Set<Literal> cause,
+                                              FormulaFactory f) {
+        Set<Variable> reachableVariablesByCause = new HashSet<>();
         Graph graph = causalModel.getGraph();
-        // the idea is to only include thos variables into W that can be affected by the cause
+        // the idea is to only include those variables into W that can be affected by the cause
         for (Literal causeLiteral : cause) {
             // get the corresponding node in the graph
             Node node = graph.getNode(causeLiteral.name());
             Iterator<Node> iterator = node.getDepthFirstIterator(true);
-            // iterate through all reachable nodes and add then variables to W
+            // iterate through all reachable nodes
             while (iterator.hasNext()) {
                 Node reachableNode = iterator.next();
-                w.add(f.variable(reachableNode.getId()));
+                reachableVariablesByCause.add(f.variable(reachableNode.getId()));
             }
             // remove the cause variable as the cause must not be in W
-            w.remove(causeLiteral.variable());
+            reachableVariablesByCause.remove(causeLiteral.variable());
         }
+
+        Set<Variable> w = new HashSet<>();
+        Graph graphReversed = causalModel.getGraphReversed();
+        // furthermore, we need to filter out those variables that do not affect the variables in phi
+        for (Variable phiVariable : phi.variables()) {
+            Node node = graphReversed.getNode(phiVariable.name());
+            Iterator<Node> iterator = node.getDepthFirstIterator(true);
+            // iterate through all reachable nodes and add the variable to W if it is also reachable by the cause vars
+            while (iterator.hasNext()) {
+                Node reachableNode = iterator.next();
+                Variable variable = f.variable(reachableNode.getId());
+                if (reachableVariablesByCause.contains(variable)) {
+                    w.add(variable);
+                }
+            }
+        }
+
         return w;
     }
 
