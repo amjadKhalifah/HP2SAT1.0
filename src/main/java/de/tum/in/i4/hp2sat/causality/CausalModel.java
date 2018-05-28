@@ -4,6 +4,7 @@ import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
 import de.tum.in.i4.hp2sat.exceptions.InvalidCauseException;
 import de.tum.in.i4.hp2sat.exceptions.InvalidContextException;
 import de.tum.in.i4.hp2sat.exceptions.InvalidPhiException;
+import de.tum.in.i4.hp2sat.util.Util;
 import org.graphstream.algorithm.TopologicalSortDFS;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -27,6 +28,7 @@ public class CausalModel {
     private Set<Variable> variables;
     private Map<Variable, Equation> variableEquationMap;
     private Graph graph;
+    private Graph graphReversed;
     private List<Equation> equationsSorted; // according to topological sort
 
     /**
@@ -53,6 +55,7 @@ public class CausalModel {
             this.variableEquationMap = this.equations.stream()
                     .collect(Collectors.toMap(Equation::getVariable, Function.identity()));
             this.graph = this.toGraph();
+            this.graphReversed = Util.reverseGraph(this.graph);
             equationsSorted = this.sortEquations();
         }
     }
@@ -280,6 +283,10 @@ public class CausalModel {
 
     public Graph getGraph() {
         return graph;
+    }
+
+    public Graph getGraphReversed() {
+        return graphReversed;
     }
 
     public List<Equation> getEquationsSorted() {
