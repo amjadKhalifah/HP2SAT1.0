@@ -68,6 +68,20 @@ public class CausalModelTest {
     }
 
     @Test(expected = InvalidCausalModelException.class)
+    public void Should_ThrowException_When_ExogenousVariableCalledLikeDummy()
+            throws InvalidCausalModelException {
+        Variable a = f.variable("a");
+        Variable b = f.variable("b");
+        Variable cExo = f.variable(SATCausalitySolver.DUMMY_VAR_NAME);
+
+        Equation equationA = new Equation(a, b);
+        Equation equationB = new Equation(b, cExo);
+
+        CausalModel causalModel = new CausalModel(null, new HashSet<>(Arrays.asList(equationA, equationB)),
+                new HashSet<>(Collections.singletonList(cExo)));
+    }
+
+    @Test(expected = InvalidCausalModelException.class)
     public void Should_BeInvalid_When_NotEachVariableDefinedByEquation() throws InvalidCausalModelException {
         Variable a = f.variable("a");
         Variable b = f.variable("b");
