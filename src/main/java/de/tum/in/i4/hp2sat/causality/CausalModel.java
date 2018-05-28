@@ -35,7 +35,8 @@ public class CausalModel {
      * @param exogenousVariables the exogenous variables of the causal model
      * @throws InvalidCausalModelException throws an exception if model is not valid: (1) each variable needs to be
      *                                     either defined by an equation or be exogenous; (2) no duplicate definition of
-     *                                     variables; (3) no circular dependencies
+     *                                     variables; (3) no circular dependencies; (4) an exogenous variable must
+     *                                     not be called like {@link SATCausalitySolver#DUMMY_VAR_NAME}
      */
     public CausalModel(String name, Set<Equation> equations, Set<Variable> exogenousVariables)
             throws InvalidCausalModelException {
