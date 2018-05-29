@@ -708,7 +708,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAllACs_When_BIsCauseInDummyModel2() throws Exception {
+    public void Should_FulfillAllACs_When_B1IsCauseForXInDummyModel2() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummy2();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true),
