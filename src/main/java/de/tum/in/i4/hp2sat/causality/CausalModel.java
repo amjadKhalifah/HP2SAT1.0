@@ -64,7 +64,7 @@ public class CausalModel {
     CausalModel(CausalModel causalModel, Set<Variable> variables) throws InvalidCausalModelException {
         this(causalModel.name, causalModel.variableEquationMap.values().stream()
                 .map(e -> variables.contains(e.getVariable()) ? new Equation(e) : e)
-                .collect(Collectors.toSet()), new HashSet<>(causalModel.exogenousVariables));
+                .collect(Collectors.toSet()), causalModel.exogenousVariables);
     }
 
     /**
