@@ -22,10 +22,8 @@ import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.*;
 
 public class CausalModel {
     private String name;
-    private Set<Equation> equations;
     private Set<Variable> exogenousVariables;
 
-    private Set<Variable> variables;
     private Map<Variable, Equation> variableEquationMap;
     private Graph graph;
     private Graph graphReversed;
@@ -44,34 +42,49 @@ public class CausalModel {
      */
     public CausalModel(String name, Set<Equation> equations, Set<Variable> exogenousVariables)
             throws InvalidCausalModelException {
+        this(name, equations, exogenousVariables, true);
+    }
+
+    /**
+     * Same as {@link CausalModel#CausalModel(String, Set, Set)}, but allows to specify if validity is checked. For
+     * internal use only.
+     *
+     * @param name
+     * @param equations
+     * @param exogenousVariables
+     * @param checkValidity
+     * @throws InvalidCausalModelException
+     */
+    private CausalModel(String name, Set<Equation> equations, Set<Variable> exogenousVariables,
+                        boolean checkValidity) throws InvalidCausalModelException {
         this.name = name;
-        this.equations = equations;
         this.exogenousVariables = exogenousVariables;
 
-        this.variables = this.equations.stream().map(Equation::getVariable).collect(Collectors.toSet());
-        this.equations.forEach(e -> this.variables.addAll(e.getFormula().variables()));
-        this.variables.addAll(exogenousVariables);
-
-        if (isValid()) { // possibly throws exception
-            this.variableEquationMap = this.equations.stream()
-                    .collect(Collectors.toMap(Equation::getVariable, Function.identity()));
-            this.graph = this.toGraph();
-            this.graphReversed = Util.reverseGraph(this.graph);
-            equationsSorted = this.sortEquations();
+        if (checkValidity) {
+            // throws an exception if invalid
+            isValid(equations, exogenousVariables);
         }
+        this.variableEquationMap = equations.stream()
+                .collect(Collectors.toMap(Equation::getVariable, Function.identity()));
+        this.graph = this.toGraph();
+        equationsSorted = this.sortEquations();
     }
 
     /**
      * Creates a copy of the passed causal model in which only the equation that define the passed variables are
      * copied.
+     * IMPORTANT: We skip the validity check when calling this constructor!
      *
      * @param causalModel the causal model that is copied
      * @param variables   the variables whose equations are copied
      */
     CausalModel(CausalModel causalModel, Set<Variable> variables) throws InvalidCausalModelException {
-        this(causalModel.name, causalModel.equations.stream()
+        /*
+         * we assume that this constructor is called only, if we know that the original causal model is valid.
+         * Thereforce, we skip the validity check. */
+        this(causalModel.name, causalModel.variableEquationMap.values().stream()
                 .map(e -> variables.contains(e.getVariable()) ? new Equation(e) : e)
-                .collect(Collectors.toSet()), new HashSet<>(causalModel.exogenousVariables));
+                .collect(Collectors.toSet()), causalModel.exogenousVariables, false);
     }
 
     /**
@@ -140,12 +153,17 @@ public class CausalModel {
      *
      * @throws InvalidCausalModelException thrown if invalid
      */
-    private boolean isValid() throws InvalidCausalModelException {
-        boolean existsDefinitionForEachVariable = equations.size() + exogenousVariables.size() == this.variables.size();
+    private boolean isValid(Set<Equation> equations, Set<Variable> exogenousVariables)
+            throws InvalidCausalModelException {
+        Set<Variable> variables = equations.stream().map(Equation::getVariable).collect(Collectors.toSet());
+        equations.forEach(e -> variables.addAll(e.getFormula().variables()));
+        variables.addAll(exogenousVariables);
+
+        boolean existsDefinitionForEachVariable = equations.size() + exogenousVariables.size() == variables.size();
         boolean existsNoDuplicateEquationForEachVariable =
                 equations.size() == equations.stream().map(Equation::getVariable).collect(Collectors.toSet()).size();
         boolean existsCircularDependency = equations.parallelStream()
-                .anyMatch(e -> isVariableInEquation(e.getVariable(), e));
+                .anyMatch(e -> isVariableInEquation(e.getVariable(), e, equations));
         boolean exogenousVariableCalledLikeDummy = exogenousVariables.parallelStream()
                 .anyMatch(e -> e.name().equals(SATCausalitySolver.DUMMY_VAR_NAME));
 
@@ -164,7 +182,7 @@ public class CausalModel {
      * @param equation the equation whithin which we search for the variable
      * @return true, if variable was found; otherwise false
      */
-    boolean isVariableInEquation(Variable variable, Equation equation) {
+    private boolean isVariableInEquation(Variable variable, Equation equation, Set<Equation> equations) {
         Set<Variable> variables = equation.getFormula().variables();
         // check if formula of equation contains variable
         if (variables.contains(variable)) {
@@ -181,7 +199,7 @@ public class CausalModel {
             in the isValid() method. Since the current method is private, we can ignore the case here.
              */
             if (eq != null) {
-                if (isVariableInEquation(variable, eq))
+                if (isVariableInEquation(variable, eq, equations))
                     return true;
             }
         }
@@ -197,10 +215,10 @@ public class CausalModel {
     private Graph toGraph() {
         Graph graph = new SingleGraph(this.name != null ? this.name : "");
         // create all nodes
-        this.getEquations().forEach(e -> graph.addNode(e.getVariable().name()));
+        this.variableEquationMap.values().forEach(e -> graph.addNode(e.getVariable().name()));
         this.getExogenousVariables().forEach(e -> graph.addNode(e.name()));
         // create edges
-        for (Equation equation : this.equations) {
+        for (Equation equation : this.variableEquationMap.values()) {
             String equationVariableName = equation.getVariable().name();
             Formula formula = equation.getFormula();
             formula.variables().forEach(v -> graph.addEdge(equationVariableName + "-" + v.name(), v.name(),
@@ -229,7 +247,7 @@ public class CausalModel {
      * @return true if all the literals are in the Variable part of the equations of this causal model, else false
      */
     private boolean isLiteralsInEquations(Set<? extends Literal> literals) {
-        return equations.stream().map(Equation::getVariable).collect(Collectors.toSet())
+        return this.variableEquationMap.values().stream().map(Equation::getVariable).collect(Collectors.toSet())
                 .containsAll(literals.stream().map(Literal::variable).collect(Collectors.toSet()));
     }
 
@@ -273,10 +291,6 @@ public class CausalModel {
         return name;
     }
 
-    public Set<Equation> getEquations() {
-        return equations;
-    }
-
     public Set<Variable> getExogenousVariables() {
         return exogenousVariables;
     }
@@ -290,6 +304,9 @@ public class CausalModel {
     }
 
     public Graph getGraphReversed() {
+        if (this.graphReversed == null) {
+            this.graphReversed = Util.reverseGraph(this.graph);
+        }
         return graphReversed;
     }
 

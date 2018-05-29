@@ -454,7 +454,7 @@ class SATCausalitySolver extends CausalitySolver {
         }
 
         if (!ac3) {
-            for (Equation equation : causalModel.getEquations()) {
+            for (Equation equation : causalModel.getVariableEquationMap().values()) {
                 /*
                  * create formula: V_originalValue OR (V <=> Formula_V)
                  * if the variable of the current equation is in the cause or not in the set of optimized variables,
@@ -477,7 +477,7 @@ class SATCausalitySolver extends CausalitySolver {
         } else {
             // create dummy variable
             Variable dummy = f.variable(DUMMY_VAR_NAME);
-            for (Equation equation : causalModel.getEquations()) {
+            for (Equation equation : causalModel.getVariableEquationMap().values()) {
                 // get value of variable in original iteration
                 Literal originalValue = variableEvaluationMap.get(equation.getVariable());
                 Formula equationFormula;
