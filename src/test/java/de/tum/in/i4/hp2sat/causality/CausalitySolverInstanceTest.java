@@ -617,6 +617,48 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
+    public void Should_FulfillAllACs_When_AIsCauseForGInDummyModel() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("A")));
+        Formula phi = f.variable("C");
+
+        CausalitySolverResult causalitySolverResultExpectedEval =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Arrays.asList(f.literal("B", false))));
+        // IMPORTANT: There are many more possibilities for W in this case, but these 2 seem sufficent for passing
+        CausalitySolverResult causalitySolverResultExpectedSAT1 =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Arrays.asList(f.literal("E", false),
+                                f.literal("B", false), f.literal("G", false),
+                                f.literal("H", false))));
+        CausalitySolverResult causalitySolverResultExpectedSAT2 =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Arrays.asList(f.variable("F"),
+                                f.literal("B", false), f.literal("H", false))));
+        Set<CausalitySolverResult> causalitySolverResultsExpectedSAT = new HashSet<>(Arrays.asList(
+                causalitySolverResultExpectedSAT1, causalitySolverResultExpectedSAT2));
+        Map<SolvingStrategy, Set<CausalitySolverResult>> causalitySolverResultsExpected =
+                new HashMap<SolvingStrategy, Set<CausalitySolverResult>>() {
+                    {
+                        put(EVAL, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                        put(EVAL_OPTIMIZED_W,
+                                new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                        put(SAT, causalitySolverResultsExpectedSAT);
+                        put(SAT_MINIMAL, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                        put(SAT_COMBINED, causalitySolverResultsExpectedSAT);
+                        put(SAT_COMBINED_MINIMAL,
+                                new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                        put(SAT_OPTIMIZED_W, causalitySolverResultsExpectedSAT);
+                        put(SAT_OPTIMIZED_W_MINIMAL,
+                                new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
+                    }
+                };
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultsExpected);
+    }
+
+    @Test
     public void Should_FulfillAC3Only_When_BIsCauseInDummyModel() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
