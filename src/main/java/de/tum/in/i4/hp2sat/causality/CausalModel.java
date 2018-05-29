@@ -49,7 +49,6 @@ public class CausalModel {
             this.variableEquationMap = equations.stream()
                     .collect(Collectors.toMap(Equation::getVariable, Function.identity()));
             this.graph = this.toGraph();
-            this.graphReversed = Util.reverseGraph(this.graph);
             equationsSorted = this.sortEquations();
         }
     }
@@ -284,6 +283,9 @@ public class CausalModel {
     }
 
     public Graph getGraphReversed() {
+        if (this.graphReversed == null) {
+            this.graphReversed = Util.reverseGraph(this.graph);
+        }
         return graphReversed;
     }
 
