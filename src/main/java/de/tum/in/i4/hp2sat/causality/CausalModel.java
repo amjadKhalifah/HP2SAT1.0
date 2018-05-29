@@ -42,28 +42,39 @@ public class CausalModel {
      */
     public CausalModel(String name, Set<Equation> equations, Set<Variable> exogenousVariables)
             throws InvalidCausalModelException {
+        this(name, equations, exogenousVariables, true);
+    }
+
+    private CausalModel(String name, Set<Equation> equations, Set<Variable> exogenousVariables,
+                        boolean checkValidity) throws InvalidCausalModelException {
         this.name = name;
         this.exogenousVariables = exogenousVariables;
 
-        if (isValid(equations, exogenousVariables)) { // possibly throws exception
-            this.variableEquationMap = equations.stream()
-                    .collect(Collectors.toMap(Equation::getVariable, Function.identity()));
-            this.graph = this.toGraph();
-            equationsSorted = this.sortEquations();
+        if (checkValidity) {
+            // throws an exception if invalid
+            isValid(equations, exogenousVariables);
         }
+        this.variableEquationMap = equations.stream()
+                .collect(Collectors.toMap(Equation::getVariable, Function.identity()));
+        this.graph = this.toGraph();
+        equationsSorted = this.sortEquations();
     }
 
     /**
      * Creates a copy of the passed causal model in which only the equation that define the passed variables are
      * copied.
+     * IMPORTANT: We skip the validity check when calling this constructor!
      *
      * @param causalModel the causal model that is copied
      * @param variables   the variables whose equations are copied
      */
     CausalModel(CausalModel causalModel, Set<Variable> variables) throws InvalidCausalModelException {
+        /*
+        * we assume that this constructor is called only, if we know that the original causal model is valid.
+        * Thereforce, we skip the validity check. */
         this(causalModel.name, causalModel.variableEquationMap.values().stream()
                 .map(e -> variables.contains(e.getVariable()) ? new Equation(e) : e)
-                .collect(Collectors.toSet()), causalModel.exogenousVariables);
+                .collect(Collectors.toSet()), causalModel.exogenousVariables, false);
     }
 
     /**
