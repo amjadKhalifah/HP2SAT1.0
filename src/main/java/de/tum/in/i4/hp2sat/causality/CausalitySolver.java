@@ -244,7 +244,7 @@ abstract class CausalitySolver {
      * @param f        a formula factory
      * @return a set of variables reachable from the passed literals
      */
-    private static Set<Variable> getReachableVariables(Graph graph, Set<Literal> literals, FormulaFactory f) {
+    static Set<Variable> getReachableVariables(Graph graph, Set<Literal> literals, FormulaFactory f) {
         Set<Variable> reachableVariables = new HashSet<>();
         for (Literal literal : literals) {
             // get the corresponding node in the graph
