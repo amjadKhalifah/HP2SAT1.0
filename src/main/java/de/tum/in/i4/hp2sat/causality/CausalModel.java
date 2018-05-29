@@ -45,6 +45,16 @@ public class CausalModel {
         this(name, equations, exogenousVariables, true);
     }
 
+    /**
+     * Same as {@link CausalModel#CausalModel(String, Set, Set)}, but allows to specify if validity is checked. For
+     * internal use only.
+     *
+     * @param name
+     * @param equations
+     * @param exogenousVariables
+     * @param checkValidity
+     * @throws InvalidCausalModelException
+     */
     private CausalModel(String name, Set<Equation> equations, Set<Variable> exogenousVariables,
                         boolean checkValidity) throws InvalidCausalModelException {
         this.name = name;
@@ -70,8 +80,8 @@ public class CausalModel {
      */
     CausalModel(CausalModel causalModel, Set<Variable> variables) throws InvalidCausalModelException {
         /*
-        * we assume that this constructor is called only, if we know that the original causal model is valid.
-        * Thereforce, we skip the validity check. */
+         * we assume that this constructor is called only, if we know that the original causal model is valid.
+         * Thereforce, we skip the validity check. */
         this(causalModel.name, causalModel.variableEquationMap.values().stream()
                 .map(e -> variables.contains(e.getVariable()) ? new Equation(e) : e)
                 .collect(Collectors.toSet()), causalModel.exogenousVariables, false);
