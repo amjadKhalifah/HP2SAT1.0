@@ -107,7 +107,7 @@ class EvalCausalitySolver extends CausalitySolver {
      * @return a simplified version of the formula
      */
     // TODO maybe we do not need this function anymore
-    private static Formula simplify(Formula formula, CausalModel causalModel, Set<Literal> cause, Set<Literal> w,
+    /*private static Formula simplify(Formula formula, CausalModel causalModel, Set<Literal> cause, Set<Literal> w,
                                     Set<Literal> evaluation) {
         FormulaFactory f = new FormulaFactory();
         if (!(formula instanceof Constant)) {
@@ -144,5 +144,5 @@ class EvalCausalitySolver extends CausalitySolver {
         } else {
             return formula;
         }
-    }
+    }*/
 }
