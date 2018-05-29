@@ -626,7 +626,7 @@ public class CausalitySolverInstanceTest {
 
         CausalitySolverResult causalitySolverResultExpectedEval =
                 new CausalitySolverResult(true, true, true, cause,
-                        new HashSet<>(Arrays.asList(f.literal("B", false))));
+                        new HashSet<>(Collections.singletonList(f.literal("B", false))));
         // IMPORTANT: There are many more possibilities for W in this case, but these 2 seem sufficent for passing
         CausalitySolverResult causalitySolverResultExpectedSAT1 =
                 new CausalitySolverResult(true, true, true, cause,
