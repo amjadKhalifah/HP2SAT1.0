@@ -1,5 +1,6 @@
 package de.tum.in.i4.hp2sat.causality;
 
+import com.google.errorprone.annotations.Var;
 import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
 import org.logicng.datastructures.Assignment;
 import org.logicng.datastructures.Tristate;
@@ -11,14 +12,12 @@ import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
 import org.logicng.util.Pair;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINISAT;
+import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.*;
 
 class SATCausalitySolver extends CausalitySolver {
     static final String DUMMY_VAR_NAME = "_dummy";
@@ -61,7 +60,7 @@ class SATCausalitySolver extends CausalitySolver {
         boolean ac1 = fulfillsAC1(evaluation, phi, cause);
         Set<Literal> w;
         boolean ac3;
-        if (solvingStrategy == SolvingStrategy.SAT || solvingStrategy == SolvingStrategy.SAT_MINIMAL) {
+        if (Arrays.asList(SAT, SAT_MINIMAL, SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL).contains(solvingStrategy)) {
             w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
             ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
         } else {
@@ -126,10 +125,11 @@ class SATCausalitySolver extends CausalitySolver {
         }
 
         // generate SAT query
-        Formula formula = generateSATQuery(causalModelModified, negatedPhi, cause, context, evaluation, false, f);
+        Formula formula = generateSATQuery(causalModelModified, negatedPhi, cause, context, evaluation,
+                solvingStrategy, false, f);
         satSolver.add(formula);
         if (satSolver.sat() == Tristate.TRUE) {
-            if (solvingStrategy == SolvingStrategy.SAT) {
+            if (solvingStrategy == SAT || solvingStrategy == SAT_OPTIMIZED_W) {
                 // if satisfiable, get the assignment for which the formula is satisfiable
                 Assignment assignment = satSolver.model();
                 return getWStandard(causalModelModified, evaluation, assignment);
@@ -184,7 +184,8 @@ class SATCausalitySolver extends CausalitySolver {
             // negate phi
             Formula phiNegated = f.not(phi);
             // generate SAT query for AC3
-            Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation, true, f);
+            Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation, solvingStrategy,
+                    true, f);
             // add query to solver
             satSolver.add(formula);
             // should be satisfiable, if cause fulfills AC2
@@ -308,7 +309,8 @@ class SATCausalitySolver extends CausalitySolver {
                 // get specified SAT solver
                 SATSolver satSolver = selectSATSolver(satSolverType, f);
                 // generate SAT query for AC3 as this SAT query contains also the satisfying assignments for AC2
-                Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation, true, f);
+                Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation,
+                        solvingStrategy, true, f);
                 // add query to solver
                 satSolver.add(formula);
                 if (satSolver.sat() == Tristate.TRUE) {
@@ -318,8 +320,8 @@ class SATCausalitySolver extends CausalitySolver {
                     List<Assignment> assignments = satSolver.enumerateAllModels().stream()
                             .filter(a -> a.literals().contains(f.variable(DUMMY_VAR_NAME)))
                             .collect(Collectors.toList());
-                    
-                    if (solvingStrategy == SolvingStrategy.SAT_COMBINED) {
+
+                    if (solvingStrategy == SAT_COMBINED) {
                         /*
                          * the SAT query might contain satisfying assignment that are not relevant for AC2. We therefore
                          * filter the assignment in which the cause variables are flipped as specified. */
@@ -436,7 +438,8 @@ class SATCausalitySolver extends CausalitySolver {
      * @return a formula
      */
     private Formula generateSATQuery(CausalModel causalModel, Formula notPhi, Set<Literal> cause,
-                                     Set<Literal> context, Set<Literal> evaluation, boolean ac3, FormulaFactory f) {
+                                     Set<Literal> context, Set<Literal> evaluation, SolvingStrategy solvingStrategy,
+                                     boolean ac3, FormulaFactory f) {
         // get all variables in cause
         Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
         // create map of variables and corresponding evaluation
@@ -445,17 +448,29 @@ class SATCausalitySolver extends CausalitySolver {
         // create formula: !phi AND context
         Formula formula = f.and(notPhi, f.and(context));
 
+        Set<Variable> wVariablesOptimized = null;
+        if (solvingStrategy == SAT_OPTIMIZED_W || solvingStrategy == SAT_OPTIMIZED_W_MINIMAL) {
+            wVariablesOptimized = CausalitySolver.getMinimalWVariables(causalModel, notPhi, cause, f);
+        }
+
         if (!ac3) {
             for (Equation equation : causalModel.getEquations()) {
-                // get value of variable in original iteration
-                Literal originalValue = variableEvaluationMap.get(equation.getVariable());
                 /*
                  * create formula: V_originalValue OR (V <=> Formula_V)
-                 * if the variable of the current equation is in the cause, then we do not allow for its original value
-                 * and just add (V <=> Formula_V).*/
-                Formula equationFormula = causeVariables.contains(equation.getVariable()) ?
-                        f.equivalence(equation.getVariable(), equation.getFormula()) :
-                        f.or(originalValue, f.equivalence(equation.getVariable(), equation.getFormula()));
+                 * if the variable of the current equation is in the cause or not in the set of optimized variables,
+                 * then we do not allow for its original value and just add (V <=> Formula_V).
+                 * */
+                Formula equationFormula;
+                if (causeVariables.contains(equation.getVariable()) ||
+                        ((solvingStrategy == SAT_OPTIMIZED_W || solvingStrategy == SAT_OPTIMIZED_W_MINIMAL) &&
+                                !wVariablesOptimized.contains(equation.getVariable()))) {
+                    equationFormula = f.equivalence(equation.getVariable(), equation.getFormula());
+                } else {
+                    // get value of variable in original iteration
+                    Literal originalValue = variableEvaluationMap.get(equation.getVariable());
+                    equationFormula = f.or(originalValue, f.equivalence(equation.getVariable(), equation.getFormula()));
+                }
+
                 // add created formula to global formula by AND
                 formula = f.and(formula, equationFormula);
             }
@@ -468,8 +483,15 @@ class SATCausalitySolver extends CausalitySolver {
                 Formula equationFormula;
                 /*
                  * When generating a SAT query for AC3, then for each variable not in the cause, we stick to the same
-                 * scheme as for AC2, i.e. (V_originalValue OR (V <=> Formula_V)). */
-                if (!causeVariables.contains(equation.getVariable())) {
+                 * scheme as for AC2, i.e. (V_originalValue OR (V <=> Formula_V)). If the variable of the current
+                 * equation is not in the set of optimized variables, then we do not allow for its original value and
+                 * just add (V <=> Formula_V).
+                 * */
+                if (!causeVariables.contains(equation.getVariable()) &&
+                        ((solvingStrategy == SAT_OPTIMIZED_W || solvingStrategy == SAT_OPTIMIZED_W_MINIMAL) &&
+                                !wVariablesOptimized.contains(equation.getVariable()))) {
+                    equationFormula = f.equivalence(equation.getVariable(), equation.getFormula());
+                } else if (!causeVariables.contains(equation.getVariable())) {
                     equationFormula = f.or(originalValue, f.equivalence(equation.getVariable(), equation.getFormula()));
                 }
                 /*

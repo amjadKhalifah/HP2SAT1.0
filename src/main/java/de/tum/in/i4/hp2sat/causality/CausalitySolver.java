@@ -87,7 +87,7 @@ abstract class CausalitySolver {
                 .filter(s -> s.size() > 0 && s.size() < cause.size()) // remove empty set and full cause
                 .collect(Collectors.toSet());
         // no sub-cause must fulfill AC1 and AC2
-        for (Set<Literal> c: allSubsetsOfCause) {
+        for (Set<Literal> c : allSubsetsOfCause) {
             if (fulfillsAC1(evaluation, phi, c) &&
                     fulfillsAC2(causalModel, phi, c, context, evaluation, solvingStrategy, f) != null) {
                 return false;
@@ -209,6 +209,51 @@ abstract class CausalitySolver {
     CausalModel createModifiedCausalModelForW(CausalModel causalModel, Set<Literal> w, FormulaFactory f)
             throws InvalidCausalModelException {
         return createModifiedCausalModel(causalModel, w, f);
+    }
+
+    /**
+     * Returns only those variables of a causal model that need to be in set W.
+     *
+     * @param causalModel the causal model
+     * @param cause       the cause for which we check the conditions of the HP definition
+     * @param f           a formula factory
+     * @return a set of variables that need to be in W
+     */
+    static Set<Variable> getMinimalWVariables(CausalModel causalModel, Formula phi, Set<Literal> cause,
+                                              FormulaFactory f) {
+        Set<Variable> reachableVariablesByCause = new HashSet<>();
+        Graph graph = causalModel.getGraph();
+        // the idea is to only include those variables into W that can be affected by the cause
+        for (Literal causeLiteral : cause) {
+            // get the corresponding node in the graph
+            Node node = graph.getNode(causeLiteral.name());
+            Iterator<Node> iterator = node.getDepthFirstIterator(true);
+            // iterate through all reachable nodes
+            while (iterator.hasNext()) {
+                Node reachableNode = iterator.next();
+                reachableVariablesByCause.add(f.variable(reachableNode.getId()));
+            }
+            // remove the cause variable as the cause must not be in W
+            reachableVariablesByCause.remove(causeLiteral.variable());
+        }
+
+        Set<Variable> w = new HashSet<>();
+        Graph graphReversed = causalModel.getGraphReversed();
+        // furthermore, we need to filter out those variables that do not affect the variables in phi
+        for (Variable phiVariable : phi.variables()) {
+            Node node = graphReversed.getNode(phiVariable.name());
+            Iterator<Node> iterator = node.getDepthFirstIterator(true);
+            // iterate through all reachable nodes and add the variable to W if it is also reachable by the cause vars
+            while (iterator.hasNext()) {
+                Node reachableNode = iterator.next();
+                Variable variable = f.variable(reachableNode.getId());
+                if (reachableVariablesByCause.contains(variable)) {
+                    w.add(variable);
+                }
+            }
+        }
+
+        return w;
     }
 
     /**

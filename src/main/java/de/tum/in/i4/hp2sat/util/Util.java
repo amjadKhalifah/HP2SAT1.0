@@ -3,6 +3,8 @@ package de.tum.in.i4.hp2sat.util;
 
 import com.google.common.collect.Sets;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.SingleGraph;
 import org.logicng.formulas.Literal;
 
 import java.util.Comparator;
@@ -24,5 +26,14 @@ public class Util<T> {
                     .collect(Collectors.toList());
         }
         return powerSet;
+    }
+
+    public static Graph reverseGraph(Graph graph) {
+        Graph graphReversed = new SingleGraph(graph.getId() + "_reversed");
+        graph.nodes().forEach(n -> graphReversed.addNode(n.getId()));
+        // switch source and target
+        graph.edges().forEach(e -> graphReversed.addEdge(e.getId(), e.getTargetNode().getId(),
+                e.getSourceNode().getId(),true));
+        return graphReversed;
     }
 }
