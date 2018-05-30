@@ -1,6 +1,5 @@
 package de.tum.in.i4.hp2sat.causality;
 
-import com.google.errorprone.annotations.Var;
 import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
 import org.logicng.datastructures.Assignment;
 import org.logicng.datastructures.Tristate;

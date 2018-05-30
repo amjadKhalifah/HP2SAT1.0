@@ -1,12 +1,21 @@
 package de.tum.in.i4.hp2sat.causality;
 
-import de.tum.in.i4.hp2sat.exceptions.*;
+import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidCauseException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidContextException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidPhiException;
 import de.tum.in.i4.hp2sat.util.ExampleProvider;
 import org.junit.Before;
 import org.junit.Test;
-import org.logicng.formulas.*;
+import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.Literal;
+import org.logicng.formulas.Variable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import static de.tum.in.i4.hp2sat.causality.SATSolverType.GLUCOSE;
 import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINISAT;

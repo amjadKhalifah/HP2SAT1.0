@@ -4,9 +4,14 @@ import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
 import de.tum.in.i4.hp2sat.util.Util;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.logicng.datastructures.Assignment;
-import org.logicng.formulas.*;
+import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.Literal;
+import org.logicng.formulas.Variable;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 class EvalCausalitySolver extends CausalitySolver {

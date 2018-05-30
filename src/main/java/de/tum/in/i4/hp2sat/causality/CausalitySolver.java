@@ -2,7 +2,6 @@ package de.tum.in.i4.hp2sat.causality;
 
 import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
-import org.graphstream.algorithm.TopologicalSortDFS;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.logicng.datastructures.Assignment;
