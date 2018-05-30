@@ -41,41 +41,6 @@ abstract class CausalitySolver {
     }
 
     /**
-     * Checks if AC2 is fulfilled.
-     *
-     * @param causalModel     the underlying causal model
-     * @param phi             the phi
-     * @param cause           the cause for which we check AC2
-     * @param context         the context
-     * @param evaluation      the original evaluation of variables
-     * @param solvingStrategy the solving strategy
-     * @param f               formula factory
-     * @return returns W if AC2 fulfilled, else null
-     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
-     */
-    protected abstract Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause,
-                                                Set<Literal> context, Set<Literal> evaluation,
-                                                SolvingStrategy solvingStrategy, FormulaFactory f)
-            throws InvalidCausalModelException;
-
-    /**
-     * Checks if AC3 is fulfilled.
-     *
-     * @param causalModel     the underlying causal model
-     * @param phi             the phi
-     * @param cause           the cause for which we check AC2
-     * @param context         the context
-     * @param evaluation      the original evaluation of variables
-     * @param solvingStrategy the solving strategy
-     * @param f               a formula factory
-     * @return true if A3 fulfilled, else false
-     */
-    protected abstract boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause,
-                                           Set<Literal> context, Set<Literal> evaluation,
-                                           SolvingStrategy solvingStrategy, FormulaFactory f)
-            throws InvalidCausalModelException;
-
-    /**
      * Returns all causes for a given causal model, a context and phi.
      *
      * @param causalModel the underlying causel model

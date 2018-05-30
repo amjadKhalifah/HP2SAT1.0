@@ -47,8 +47,7 @@ class EvalCausalitySolver extends CausalitySolver {
      * @return returns W if AC2 fulfilled, else null
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
-    @Override
-    protected Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
+    private Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
                                        Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
             throws InvalidCausalModelException {
         if (solvingStrategy == SolvingStrategy.EVAL || solvingStrategy == SolvingStrategy.EVAL_OPTIMIZED_W) {
@@ -119,8 +118,7 @@ class EvalCausalitySolver extends CausalitySolver {
     }
 
     /**
-     * Overrides
-     * {@link CausalitySolver#fulfillsAC3(CausalModel, Formula, Set, Set, Set, SolvingStrategy, FormulaFactory)}.
+     * Checks if AC3 is fulfilled
      *
      * @param causalModel     the underlying causal model
      * @param phi             the phi
@@ -131,7 +129,7 @@ class EvalCausalitySolver extends CausalitySolver {
      * @param f               a formula factory
      * @return true if A3 fulfilled, else false
      */
-    protected boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
+    private boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
                                   Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
             throws InvalidCausalModelException {
         // get all subsets of cause
