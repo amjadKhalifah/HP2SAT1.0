@@ -53,7 +53,7 @@ class EvalCausalitySolver extends CausalitySolver {
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
     private Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                                       Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
+                                     Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
             throws InvalidCausalModelException {
         if (solvingStrategy == SolvingStrategy.EVAL || solvingStrategy == SolvingStrategy.EVAL_OPTIMIZED_W) {
             Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
@@ -135,7 +135,7 @@ class EvalCausalitySolver extends CausalitySolver {
      * @return true if A3 fulfilled, else false
      */
     private boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                                  Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
+                                Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
             throws InvalidCausalModelException {
         // get all subsets of cause
         Set<Set<Literal>> allSubsetsOfCause = new UnifiedSet<>(cause).powerSet().stream()
