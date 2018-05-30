@@ -191,6 +191,7 @@ public class ExampleProvider {
         Variable C2 = f.variable("C2");
         Variable D2 = f.variable("D2");
         Variable X = f.variable("X");
+        Variable Y = f.variable("Y");
 
         Formula A1Formula = f.and(AExo, B1);
         Formula B1Formula = BExo;
@@ -201,6 +202,7 @@ public class ExampleProvider {
         Formula C2Formula = C1;
         Formula D2Formula = D1;
         Formula XFormula = f.or(f.and(A2, B2), f.and(C2, D2));
+        Formula YFormula = f.or(B2, C2);
 
         Equation A1Equation = new Equation(A1, A1Formula);
         Equation B1Equation = new Equation(B1, B1Formula);
@@ -211,9 +213,10 @@ public class ExampleProvider {
         Equation C2Equation = new Equation(C2, C2Formula);
         Equation D2Equation = new Equation(D2, D2Formula);
         Equation XEquation = new Equation(X, XFormula);
+        Equation YEquation = new Equation(Y, YFormula);
 
         Set<Equation> equations = new HashSet<>(Arrays.asList(A1Equation, B1Equation, C1Equation, D1Equation,
-                A2Equation, B2Equation, C2Equation, D2Equation, XEquation));
+                A2Equation, B2Equation, C2Equation, D2Equation, XEquation, YEquation));
         Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(AExo, BExo, CExo, DExo));
 
         CausalModel causalModel = new CausalModel("Dummy2", equations, exogenousVariables);

@@ -221,39 +221,42 @@ abstract class CausalitySolver {
      */
     static Set<Variable> getMinimalWVariables(CausalModel causalModel, Formula phi, Set<Literal> cause,
                                               FormulaFactory f) {
-        Set<Variable> reachableVariablesByCause = new HashSet<>();
+        Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
         Graph graph = causalModel.getGraph();
-        // the idea is to only include those variables into W that can be affected by the cause
-        for (Literal causeLiteral : cause) {
+        // get set of reachable variables by X
+        Set<Variable> reachableVariablesByCause = getReachableVariables(graph, cause, f);
+        reachableVariablesByCause = reachableVariablesByCause.stream()
+                .filter(v -> !causeVariables.contains(v)).collect(Collectors.toSet());
+        Graph graphReversed = causalModel.getGraphReversed();
+        // get set of variables that affect phi -> use reversed graph
+        Set<Variable> reachableVariablesByPhi = getReachableVariables(graphReversed, phi.literals(), f);
+
+        // the idea is to only include those variables into W that can be affected by the cause and that affect phi
+        reachableVariablesByCause.retainAll(reachableVariablesByPhi);
+        return reachableVariablesByCause;
+    }
+
+    /**
+     * Computes the set of variables reachable from the passed set of literals in a given graph.
+     *
+     * @param graph    the graph
+     * @param literals the literals
+     * @param f        a formula factory
+     * @return a set of variables reachable from the passed literals
+     */
+    static Set<Variable> getReachableVariables(Graph graph, Set<Literal> literals, FormulaFactory f) {
+        Set<Variable> reachableVariables = new HashSet<>();
+        for (Literal literal : literals) {
             // get the corresponding node in the graph
-            Node node = graph.getNode(causeLiteral.name());
+            Node node = graph.getNode(literal.name());
             Iterator<Node> iterator = node.getDepthFirstIterator(true);
             // iterate through all reachable nodes
             while (iterator.hasNext()) {
                 Node reachableNode = iterator.next();
-                reachableVariablesByCause.add(f.variable(reachableNode.getId()));
-            }
-            // remove the cause variable as the cause must not be in W
-            reachableVariablesByCause.remove(causeLiteral.variable());
-        }
-
-        Set<Variable> w = new HashSet<>();
-        Graph graphReversed = causalModel.getGraphReversed();
-        // furthermore, we need to filter out those variables that do not affect the variables in phi
-        for (Variable phiVariable : phi.variables()) {
-            Node node = graphReversed.getNode(phiVariable.name());
-            Iterator<Node> iterator = node.getDepthFirstIterator(true);
-            // iterate through all reachable nodes and add the variable to W if it is also reachable by the cause vars
-            while (iterator.hasNext()) {
-                Node reachableNode = iterator.next();
-                Variable variable = f.variable(reachableNode.getId());
-                if (reachableVariablesByCause.contains(variable)) {
-                    w.add(variable);
-                }
+                reachableVariables.add(f.variable(reachableNode.getId()));
             }
         }
-
-        return w;
+        return reachableVariables;
     }
 
     /**

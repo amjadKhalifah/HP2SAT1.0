@@ -60,7 +60,8 @@ class SATCausalitySolver extends CausalitySolver {
         boolean ac1 = fulfillsAC1(evaluation, phi, cause);
         Set<Literal> w;
         boolean ac3;
-        if (Arrays.asList(SAT, SAT_MINIMAL, SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL).contains(solvingStrategy)) {
+        if (Arrays.asList(SAT, SAT_MINIMAL, SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL, SAT_OPTIMIZED_CLAUSES,
+                SAT_OPTIMIZED_CLAUSES_MINIMAL).contains(solvingStrategy)) {
             w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
             ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
         } else {
@@ -129,7 +130,7 @@ class SATCausalitySolver extends CausalitySolver {
                 solvingStrategy, false, f);
         satSolver.add(formula);
         if (satSolver.sat() == Tristate.TRUE) {
-            if (solvingStrategy == SAT || solvingStrategy == SAT_OPTIMIZED_W) {
+            if (Arrays.asList(SAT, SAT_OPTIMIZED_W, SAT_OPTIMIZED_CLAUSES).contains(solvingStrategy)) {
                 // if satisfiable, get the assignment for which the formula is satisfiable
                 Assignment assignment = satSolver.model();
                 return getWStandard(causalModelModified, evaluation, assignment);
@@ -452,19 +453,32 @@ class SATCausalitySolver extends CausalitySolver {
         if (solvingStrategy == SAT_OPTIMIZED_W || solvingStrategy == SAT_OPTIMIZED_W_MINIMAL) {
             wVariablesOptimized = CausalitySolver.getMinimalWVariables(causalModel, notPhi, cause, f);
         }
+        Set<Variable> variablesAffectingPhi = null;
+        if (solvingStrategy == SAT_OPTIMIZED_CLAUSES || solvingStrategy == SAT_OPTIMIZED_CLAUSES_MINIMAL) {
+            variablesAffectingPhi = CausalitySolver.getReachableVariables(causalModel.getGraphReversed(),
+                    notPhi.literals(), f);
+        }
 
         if (!ac3) {
             for (Equation equation : causalModel.getVariableEquationMap().values()) {
                 /*
                  * create formula: V_originalValue OR (V <=> Formula_V)
-                 * if the variable of the current equation is in the cause or not in the set of optimized variables,
-                 * then we do not allow for its original value and just add (V <=> Formula_V).
+                 *
+                 * OPTIMZED_W Strategy: if the variable of the current equation is in the cause or not in the set of
+                 * optimized variables, then we do not allow for its original value and just add (V <=> Formula_V).
+                 *
+                 * OPTIMIZED_CLAUSES Strategy: if the variable of the current equation is in the cause or not in the
+                 * set of variables that affect phi, we just add TRUE to the formula
                  * */
                 Formula equationFormula;
                 if (causeVariables.contains(equation.getVariable()) ||
                         ((solvingStrategy == SAT_OPTIMIZED_W || solvingStrategy == SAT_OPTIMIZED_W_MINIMAL) &&
                                 !wVariablesOptimized.contains(equation.getVariable()))) {
                     equationFormula = f.equivalence(equation.getVariable(), equation.getFormula());
+                } else if ((solvingStrategy == SAT_OPTIMIZED_CLAUSES
+                        || solvingStrategy == SAT_OPTIMIZED_CLAUSES_MINIMAL)
+                        && !variablesAffectingPhi.contains(equation.getVariable())) {
+                    equationFormula = f.verum();
                 } else {
                     // get value of variable in original iteration
                     Literal originalValue = variableEvaluationMap.get(equation.getVariable());
@@ -483,14 +497,21 @@ class SATCausalitySolver extends CausalitySolver {
                 Formula equationFormula;
                 /*
                  * When generating a SAT query for AC3, then for each variable not in the cause, we stick to the same
-                 * scheme as for AC2, i.e. (V_originalValue OR (V <=> Formula_V)). If the variable of the current
-                 * equation is not in the set of optimized variables, then we do not allow for its original value and
-                 * just add (V <=> Formula_V).
-                 * */
+                 * scheme as for AC2, i.e. (V_originalValue OR (V <=> Formula_V)).
+                 *
+                 * OPTIMZED_W Strategy: if the variable of the current equation is in the cause or not in the set of
+                 * optimized variables, then we do not allow for its original value and just add (V <=> Formula_V).
+                 *
+                 * OPTIMIZED_CLAUSES Strategy: if the variable of the current equation is in the cause or not in the
+                 * set of variables that affect phi, we just add TRUE to the formula*/
                 if (!causeVariables.contains(equation.getVariable()) &&
                         ((solvingStrategy == SAT_OPTIMIZED_W || solvingStrategy == SAT_OPTIMIZED_W_MINIMAL) &&
                                 !wVariablesOptimized.contains(equation.getVariable()))) {
                     equationFormula = f.equivalence(equation.getVariable(), equation.getFormula());
+                } else if (!causeVariables.contains(equation.getVariable()) &&
+                        (solvingStrategy == SAT_OPTIMIZED_CLAUSES || solvingStrategy == SAT_OPTIMIZED_CLAUSES_MINIMAL)
+                        && !variablesAffectingPhi.contains(equation.getVariable())) {
+                    equationFormula = f.verum();
                 } else if (!causeVariables.contains(equation.getVariable())) {
                     equationFormula = f.or(originalValue, f.equivalence(equation.getVariable(), equation.getFormula()));
                 }
