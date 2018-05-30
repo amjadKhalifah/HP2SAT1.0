@@ -23,18 +23,9 @@ abstract class CausalitySolver {
      * @return for each AC, true if fulfilled, false else
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
-    CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
-                                Set<Literal> cause, SolvingStrategy solvingStrategy)
-            throws InvalidCausalModelException {
-        FormulaFactory f = new FormulaFactory();
-        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context, f);
-        boolean ac1 = fulfillsAC1(evaluation, phi, cause);
-        Set<Literal> w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, f);
-        boolean ac2 = w != null;
-        boolean ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, f);
-        CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3, cause, w);
-        return causalitySolverResult;
-    }
+    abstract CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
+                                         Set<Literal> cause, SolvingStrategy solvingStrategy)
+            throws InvalidCausalModelException;
 
     /**
      * Checks if AC1 fulfilled.

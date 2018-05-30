@@ -23,7 +23,8 @@ class SATCausalitySolver extends CausalitySolver {
     static final String DUMMY_VAR_NAME = "_dummy";
 
     /**
-     * Overrides {@link CausalitySolver#solve(CausalModel, Set, Formula, Set, SolvingStrategy)}
+     * Overrides {@link CausalitySolver#solve(CausalModel, Set, Formula, Set, SolvingStrategy)}.
+     * Default SATSolver: MINISAT
      *
      * @param causalModel     the underlying causel model
      * @param context         the context
@@ -33,7 +34,6 @@ class SATCausalitySolver extends CausalitySolver {
      * @return for each AC, true if fulfilled, false else
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
-    // TODO maybe we should make super.solve abstract as well
     @Override
     CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi, Set<Literal> cause,
                                 SolvingStrategy solvingStrategy) throws InvalidCausalModelException {

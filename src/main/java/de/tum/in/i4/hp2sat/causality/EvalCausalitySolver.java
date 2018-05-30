@@ -10,6 +10,30 @@ import java.util.stream.Collectors;
 
 class EvalCausalitySolver extends CausalitySolver {
     /**
+     * Overrides {@link CausalitySolver#solve(CausalModel, Set, Formula, Set, SolvingStrategy)}.
+     *
+     * @param causalModel     the underlying causel model
+     * @param context         the context
+     * @param phi             the phi
+     * @param cause           the cause
+     * @param solvingStrategy the applied solving strategy
+     * @return for each AC, true if fulfilled, false else
+     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
+     */
+    CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
+                                Set<Literal> cause, SolvingStrategy solvingStrategy)
+            throws InvalidCausalModelException {
+        FormulaFactory f = new FormulaFactory();
+        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context, f);
+        boolean ac1 = fulfillsAC1(evaluation, phi, cause);
+        Set<Literal> w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, f);
+        boolean ac2 = w != null;
+        boolean ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, f);
+        CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3, cause, w);
+        return causalitySolverResult;
+    }
+
+    /**
      * Checks if AC2 is fulfilled.
      *
      * @param causalModel     the underlying causal model
