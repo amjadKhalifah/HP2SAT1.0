@@ -145,7 +145,7 @@ class SATCausalitySolver extends CausalitySolver {
     }
 
     /**
-     * Checks if AC3 is fulfilled and overrides
+     * Overrides
      * {@link CausalitySolver#fulfillsAC3(CausalModel, Formula, Set, Set, Set, SolvingStrategy, FormulaFactory)}.
      * Uses MINISAT as default.
      *
