@@ -2,7 +2,6 @@ package de.tum.in.i4.hp2sat.causality;
 
 import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
-import org.graphstream.algorithm.TopologicalSortDFS;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.logicng.datastructures.Assignment;
@@ -23,18 +22,9 @@ abstract class CausalitySolver {
      * @return for each AC, true if fulfilled, false else
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
-    CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
-                                Set<Literal> cause, SolvingStrategy solvingStrategy)
-            throws InvalidCausalModelException {
-        FormulaFactory f = new FormulaFactory();
-        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context, f);
-        boolean ac1 = fulfillsAC1(evaluation, phi, cause);
-        Set<Literal> w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, f);
-        boolean ac2 = w != null;
-        boolean ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, f);
-        CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3, cause, w);
-        return causalitySolverResult;
-    }
+    abstract CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
+                                         Set<Literal> cause, SolvingStrategy solvingStrategy)
+            throws InvalidCausalModelException;
 
     /**
      * Checks if AC1 fulfilled.
@@ -47,53 +37,6 @@ abstract class CausalitySolver {
     boolean fulfillsAC1(Set<Literal> evaluation, Formula phi, Set<Literal> cause) {
         boolean phiEvaluation = phi.evaluate(new Assignment(evaluation));
         return phiEvaluation && evaluation.containsAll(cause);
-    }
-
-    /**
-     * Checks if AC2 is fulfilled.
-     *
-     * @param causalModel     the underlying causal model
-     * @param phi             the phi
-     * @param cause           the cause for which we check AC2
-     * @param context         the context
-     * @param evaluation      the original evaluation of variables
-     * @param solvingStrategy the solving strategy
-     * @param f               formula factory
-     * @return returns W if AC2 fulfilled, else null
-     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
-     */
-    protected abstract Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause,
-                                                Set<Literal> context, Set<Literal> evaluation,
-                                                SolvingStrategy solvingStrategy, FormulaFactory f)
-            throws InvalidCausalModelException;
-
-    /**
-     * Checks if AC3 is fulfilled.
-     *
-     * @param causalModel     the underlying causal model
-     * @param phi             the phi
-     * @param cause           the cause for which we check AC2
-     * @param context         the context
-     * @param evaluation      the original evaluation of variables
-     * @param solvingStrategy the solving strategy
-     * @param f               a formula factory
-     * @return true if A3 fulfilled, else false
-     */
-    protected boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                                  Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f) throws InvalidCausalModelException {
-        // get all subsets of cause
-        Set<Set<Literal>> allSubsetsOfCause = new UnifiedSet<>(cause).powerSet().stream()
-                .map(s -> s.toImmutable().castToSet())
-                .filter(s -> s.size() > 0 && s.size() < cause.size()) // remove empty set and full cause
-                .collect(Collectors.toSet());
-        // no sub-cause must fulfill AC1 and AC2
-        for (Set<Literal> c : allSubsetsOfCause) {
-            if (fulfillsAC1(evaluation, phi, c) &&
-                    fulfillsAC2(causalModel, phi, c, context, evaluation, solvingStrategy, f) != null) {
-                return false;
-            }
-        }
-        return true;
     }
 
     /**

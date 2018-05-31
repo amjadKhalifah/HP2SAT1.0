@@ -14,7 +14,9 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -106,11 +108,10 @@ public class CausalModel {
                                          SolvingStrategy solvingStrategy)
             throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
         validateCausalityCheck(context, phi, cause);
-        CausalitySolver causalitySolver = null;
-        if (solvingStrategy == EVAL || solvingStrategy == EVAL_OPTIMIZED_W) {
-            causalitySolver = new EvalCausalitySolver();
-        } else if (Arrays.asList(SAT, SAT_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_W,
-                SAT_OPTIMIZED_W_MINIMAL).contains(solvingStrategy)) {
+        CausalitySolver causalitySolver;
+        if (solvingStrategy == BRUTE_FORCE || solvingStrategy == BRUTE_FORCE_OPTIMIZED_W) {
+            causalitySolver = new BruteForceCausalitySolver();
+        } else {
             causalitySolver = new SATCausalitySolver();
         }
 
@@ -137,7 +138,7 @@ public class CausalModel {
     public CausalitySolverResult isCause(Set<Literal> context, Formula phi, Set<Literal> cause,
                                          SolvingStrategy solvingStrategy, SATSolverType satSolverType)
             throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
-        if (solvingStrategy == EVAL || solvingStrategy == EVAL_OPTIMIZED_W) {
+        if (solvingStrategy == BRUTE_FORCE || solvingStrategy == BRUTE_FORCE_OPTIMIZED_W) {
             // ignore SAT solver type if solving strategy is not SAT related
             return isCause(context, phi, cause, solvingStrategy);
         } else {

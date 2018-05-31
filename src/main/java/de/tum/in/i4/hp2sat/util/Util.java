@@ -33,7 +33,7 @@ public class Util<T> {
         graph.nodes().forEach(n -> graphReversed.addNode(n.getId()));
         // switch source and target
         graph.edges().forEach(e -> graphReversed.addEdge(e.getId(), e.getTargetNode().getId(),
-                e.getSourceNode().getId(),true));
+                e.getSourceNode().getId(), true));
         return graphReversed;
     }
 }

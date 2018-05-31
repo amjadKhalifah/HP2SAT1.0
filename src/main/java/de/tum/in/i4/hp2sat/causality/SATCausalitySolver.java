@@ -1,6 +1,5 @@
 package de.tum.in.i4.hp2sat.causality;
 
-import com.google.errorprone.annotations.Var;
 import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
 import org.logicng.datastructures.Assignment;
 import org.logicng.datastructures.Tristate;
@@ -23,7 +22,8 @@ class SATCausalitySolver extends CausalitySolver {
     static final String DUMMY_VAR_NAME = "_dummy";
 
     /**
-     * Overrides {@link CausalitySolver#solve(CausalModel, Set, Formula, Set, SolvingStrategy)}
+     * Overrides {@link CausalitySolver#solve(CausalModel, Set, Formula, Set, SolvingStrategy)}.
+     * Default SATSolver: MINISAT
      *
      * @param causalModel     the underlying causel model
      * @param context         the context
@@ -33,7 +33,6 @@ class SATCausalitySolver extends CausalitySolver {
      * @return for each AC, true if fulfilled, false else
      * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
      */
-    // TODO maybe we should make super.solve abstract as well
     @Override
     CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi, Set<Literal> cause,
                                 SolvingStrategy solvingStrategy) throws InvalidCausalModelException {
@@ -60,39 +59,19 @@ class SATCausalitySolver extends CausalitySolver {
         boolean ac1 = fulfillsAC1(evaluation, phi, cause);
         Set<Literal> w;
         boolean ac3;
-        if (Arrays.asList(SAT, SAT_MINIMAL, SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL, SAT_OPTIMIZED_CLAUSES,
-                SAT_OPTIMIZED_CLAUSES_MINIMAL).contains(solvingStrategy)) {
-            w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
-            ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
-        } else {
+        if (solvingStrategy == SAT_COMBINED || solvingStrategy == SAT_COMBINED_MINIMAL) {
             Pair<Set<Literal>, Boolean> ac2ac3 = fulfillsAC2AC3(causalModel, phi, cause, context, evaluation,
                     solvingStrategy, satSolverType, f);
             w = ac2ac3.first();
             ac3 = ac2ac3.second();
+        } else {
+            w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
+            ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
         }
         boolean ac2 = w != null;
 
         CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3, cause, w);
         return causalitySolverResult;
-    }
-
-    /**
-     * Checks if AC2 is fulfilled. Uses MiniSAT.
-     *
-     * @param causalModel     the underlying causal model
-     * @param phi             the phi
-     * @param cause           the cause for which we check AC2
-     * @param context         the context
-     * @param evaluation      the original evaluation of variables
-     * @param solvingStrategy the solving strategy
-     * @return returns W if AC2 fulfilled, else null
-     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
-     */
-    @Override
-    protected Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                                       Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
-            throws InvalidCausalModelException {
-        return fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, MINISAT, f);
     }
 
     /**
@@ -145,26 +124,8 @@ class SATCausalitySolver extends CausalitySolver {
     }
 
     /**
-     * Checks if AC3 is fulfilled and overrides
-     * {@link CausalitySolver#fulfillsAC3(CausalModel, Formula, Set, Set, Set, SolvingStrategy, FormulaFactory)}.
-     * Uses MINISAT as default.
+     * Checks if AC3 is fulfilled.
      *
-     * @param causalModel     the underlying causal model
-     * @param phi             the phi
-     * @param cause           the cause for which we check AC2
-     * @param context         the context
-     * @param evaluation      the original evaluation of variables
-     * @param solvingStrategy the solving strategy
-     * @param f               a formula factory
-     * @return true if AC3 fulfilled, else false
-     */
-    @Override
-    protected boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                                  Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f) {
-        return fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, MINISAT, f);
-    }
-
-    /**
      * @param causalModel     the underlying causal model
      * @param phi             the phi
      * @param cause           the cause for which we check AC2

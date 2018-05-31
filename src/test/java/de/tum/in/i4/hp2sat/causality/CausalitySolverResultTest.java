@@ -7,7 +7,7 @@ import org.logicng.formulas.Literal;
 
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class CausalitySolverResultTest {
     FormulaFactory f;

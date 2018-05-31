@@ -1,16 +1,25 @@
 package de.tum.in.i4.hp2sat.causality;
 
-import de.tum.in.i4.hp2sat.exceptions.*;
+import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidCauseException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidContextException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidPhiException;
 import de.tum.in.i4.hp2sat.util.ExampleProvider;
 import org.junit.Before;
 import org.junit.Test;
-import org.logicng.formulas.*;
+import org.logicng.formulas.Formula;
+import org.logicng.formulas.FormulaFactory;
+import org.logicng.formulas.Literal;
+import org.logicng.formulas.Variable;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import static de.tum.in.i4.hp2sat.causality.SATSolverType.GLUCOSE;
 import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINISAT;
-import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.EVAL;
+import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.BRUTE_FORCE;
 import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.SAT;
 import static org.junit.Assert.assertEquals;
 
@@ -133,7 +142,7 @@ public class CausalModelTest {
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
         Formula phi = f.variable("BS");
-        billySuzy.isCause(context, phi, cause, SolvingStrategy.EVAL);
+        billySuzy.isCause(context, phi, cause, SolvingStrategy.BRUTE_FORCE);
     }
 
     @Test
@@ -150,7 +159,7 @@ public class CausalModelTest {
         CausalitySolverResult causalitySolverResultExpectedSAT =
                 new CausalitySolverResult(true, true, true, cause,
                         new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false))));
-        assertEquals(causalitySolverResultExpectedEval, billySuzy.isCause(context, phi, cause, EVAL));
+        assertEquals(causalitySolverResultExpectedEval, billySuzy.isCause(context, phi, cause, BRUTE_FORCE));
         assertEquals(causalitySolverResultExpectedSAT, billySuzy.isCause(context, phi, cause, SAT, MINISAT));
         assertEquals(causalitySolverResultExpectedSAT, billySuzy.isCause(context, phi, cause, SAT, GLUCOSE));
     }
@@ -161,7 +170,7 @@ public class CausalModelTest {
         Set<Literal> context = new HashSet<>(Collections.singletonList(f.literal("BT_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
         Formula phi = f.variable("BS");
-        billySuzy.isCause(context, phi, cause, SolvingStrategy.EVAL);
+        billySuzy.isCause(context, phi, cause, SolvingStrategy.BRUTE_FORCE);
     }
 
     @Test(expected = InvalidPhiException.class)
@@ -171,7 +180,7 @@ public class CausalModelTest {
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
         Formula phi = f.variable("ST_exo");
-        billySuzy.isCause(context, phi, cause, SolvingStrategy.EVAL);
+        billySuzy.isCause(context, phi, cause, SolvingStrategy.BRUTE_FORCE);
     }
 
     @Test(expected = InvalidContextException.class)
@@ -181,7 +190,7 @@ public class CausalModelTest {
                 f.literal("BT_exo", true), f.literal("BT", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
         Formula phi = f.variable("BS");
-        billySuzy.isCause(context, phi, cause, SolvingStrategy.EVAL);
+        billySuzy.isCause(context, phi, cause, SolvingStrategy.BRUTE_FORCE);
     }
 
     @Test(expected = InvalidCauseException.class)
@@ -191,7 +200,7 @@ public class CausalModelTest {
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("AnInvalidVar")));
         Formula phi = f.variable("BS");
-        billySuzy.isCause(context, phi, cause, SolvingStrategy.EVAL);
+        billySuzy.isCause(context, phi, cause, SolvingStrategy.BRUTE_FORCE);
     }
 
     @Test(expected = InvalidCauseException.class)
@@ -201,6 +210,6 @@ public class CausalModelTest {
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>();
         Formula phi = f.variable("BS");
-        billySuzy.isCause(context, phi, cause, SolvingStrategy.EVAL);
+        billySuzy.isCause(context, phi, cause, SolvingStrategy.BRUTE_FORCE);
     }
 }
