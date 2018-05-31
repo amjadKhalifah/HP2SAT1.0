@@ -112,8 +112,7 @@ public class CausalModel {
         CausalitySolver causalitySolver = null;
         if (solvingStrategy == EVAL || solvingStrategy == EVAL_OPTIMIZED_W) {
             causalitySolver = new EvalCausalitySolver();
-        } else if (Arrays.asList(SAT, SAT_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_W,
-                SAT_OPTIMIZED_W_MINIMAL).contains(solvingStrategy)) {
+        } else {
             causalitySolver = new SATCausalitySolver();
         }
 
