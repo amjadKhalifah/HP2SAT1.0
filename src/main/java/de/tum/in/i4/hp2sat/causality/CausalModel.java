@@ -14,7 +14,6 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -110,8 +109,8 @@ public class CausalModel {
             throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
         validateCausalityCheck(context, phi, cause);
         CausalitySolver causalitySolver;
-        if (solvingStrategy == EVAL || solvingStrategy == EVAL_OPTIMIZED_W) {
-            causalitySolver = new EvalCausalitySolver();
+        if (solvingStrategy == BRUTE_FORCE || solvingStrategy == BRUTE_FORCE_OPTIMIZED_W) {
+            causalitySolver = new BruteForceCausalitySolver();
         } else {
             causalitySolver = new SATCausalitySolver();
         }
@@ -139,7 +138,7 @@ public class CausalModel {
     public CausalitySolverResult isCause(Set<Literal> context, Formula phi, Set<Literal> cause,
                                          SolvingStrategy solvingStrategy, SATSolverType satSolverType)
             throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
-        if (solvingStrategy == EVAL || solvingStrategy == EVAL_OPTIMIZED_W) {
+        if (solvingStrategy == BRUTE_FORCE || solvingStrategy == BRUTE_FORCE_OPTIMIZED_W) {
             // ignore SAT solver type if solving strategy is not SAT related
             return isCause(context, phi, cause, solvingStrategy);
         } else {

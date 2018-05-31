@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-class EvalCausalitySolver extends CausalitySolver {
+class BruteForceCausalitySolver extends CausalitySolver {
     /**
      * Overrides {@link CausalitySolver#solve(CausalModel, Set, Formula, Set, SolvingStrategy)}.
      *
@@ -55,7 +55,7 @@ class EvalCausalitySolver extends CausalitySolver {
     private Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
                                      Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
             throws InvalidCausalModelException {
-        if (solvingStrategy == SolvingStrategy.EVAL || solvingStrategy == SolvingStrategy.EVAL_OPTIMIZED_W) {
+        if (solvingStrategy == SolvingStrategy.BRUTE_FORCE || solvingStrategy == SolvingStrategy.BRUTE_FORCE_OPTIMIZED_W) {
             Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
             /*
              * remove exogenous variables from evaluation as they are not needed for computing the Ws. Furthermore,
@@ -64,7 +64,7 @@ class EvalCausalitySolver extends CausalitySolver {
                     .filter(l -> !causalModel.getExogenousVariables().contains(l.variable()) &&
                             !(causeVariables.contains(l.variable())))
                     .collect(Collectors.toSet());
-            if (solvingStrategy == SolvingStrategy.EVAL_OPTIMIZED_W) {
+            if (solvingStrategy == SolvingStrategy.BRUTE_FORCE_OPTIMIZED_W) {
                 Set<Variable> wVariablesOptimized = CausalitySolver.getMinimalWVariables(causalModel, phi, cause, f);
                 // remove variables that are not in the optimized W vars set
                 wVariables = wVariables.stream()
