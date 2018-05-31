@@ -59,15 +59,14 @@ class SATCausalitySolver extends CausalitySolver {
         boolean ac1 = fulfillsAC1(evaluation, phi, cause);
         Set<Literal> w;
         boolean ac3;
-        if (Arrays.asList(SAT, SAT_MINIMAL, SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL, SAT_OPTIMIZED_CLAUSES,
-                SAT_OPTIMIZED_CLAUSES_MINIMAL).contains(solvingStrategy)) {
-            w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
-            ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
-        } else {
+        if (solvingStrategy == SAT_COMBINED || solvingStrategy == SAT_COMBINED_MINIMAL) {
             Pair<Set<Literal>, Boolean> ac2ac3 = fulfillsAC2AC3(causalModel, phi, cause, context, evaluation,
                     solvingStrategy, satSolverType, f);
             w = ac2ac3.first();
             ac3 = ac2ac3.second();
+        } else {
+            w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
+            ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
         }
         boolean ac2 = w != null;
 
