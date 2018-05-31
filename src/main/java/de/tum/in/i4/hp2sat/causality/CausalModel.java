@@ -109,7 +109,7 @@ public class CausalModel {
                                          SolvingStrategy solvingStrategy)
             throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
         validateCausalityCheck(context, phi, cause);
-        CausalitySolver causalitySolver = null;
+        CausalitySolver causalitySolver;
         if (solvingStrategy == EVAL || solvingStrategy == EVAL_OPTIMIZED_W) {
             causalitySolver = new EvalCausalitySolver();
         } else {
