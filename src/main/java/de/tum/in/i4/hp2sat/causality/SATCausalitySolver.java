@@ -215,7 +215,7 @@ class SATCausalitySolver extends CausalitySolver {
             Set<Literal> causeNew = cause.stream().filter(l -> !notRequiredForCause.contains(l.variable()))
                     .collect(Collectors.toSet());
             // if the new cause is smaller than the passed one and fulfills AC1, AC3 is not fulfilled
-            if (causeNew.size() < cause.size() && fulfillsAC1(evaluation, phi, causeNew)) {
+            if (causeNew.size() > 0 && causeNew.size() < cause.size() && fulfillsAC1(evaluation, phi, causeNew)) {
                 return false;
             }
         }

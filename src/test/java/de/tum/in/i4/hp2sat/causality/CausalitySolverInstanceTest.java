@@ -524,6 +524,19 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
+    public void Should_FulfillAllAC2AC3Only_When_LAndMDIsCauseForFF_GivenNotLExoAndNotMDExo() throws Exception {
+        CausalModel arsonists = ExampleProvider.arsonists(true);
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("L_exo", false), f.literal("MD_exo", false)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("L"), f.variable("MD")));
+        Formula phi = f.variable("FF");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(arsonists, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
     public void Should_FulfillAllACs_When_STIsCauseForBSInExtendedModelWITHOUTWind() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzyExtended();
         Set<Literal> context = new HashSet<>(Arrays.asList(
