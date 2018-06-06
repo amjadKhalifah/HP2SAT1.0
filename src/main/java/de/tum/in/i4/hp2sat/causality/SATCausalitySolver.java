@@ -150,13 +150,10 @@ class SATCausalitySolver extends CausalitySolver {
             Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation, solvingStrategy,
                     true, f);
             if (solvingStrategy == SAT_OPTIMIZED_AC3 || solvingStrategy == SAT_OPTIMIZED_AC3_MINIMAL) {
-                // TODO use also for AC3 helper?
                 // create a set of Variables in the cause, i.e. map a set of Literals to Variables
                 Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
                 // create a map of variables in the cause and their actual value represented as literal
-                Map<Variable, Literal> variableEvaluationMap = evaluation.stream()
-                        .filter(l -> causeVariables.contains(l.variable()))
-                        .collect(Collectors.toMap(Literal::variable, Function.identity()));
+                Map<Variable, Literal> variableEvaluationMap = createVariableEvaluationMap(causeVariables, evaluation);
 
                 Formula formula1 = f.verum();
                 Formula formula2 = f.verum();
@@ -217,9 +214,7 @@ class SATCausalitySolver extends CausalitySolver {
         // create a set of Variables in the cause, i.e. map a set of Literals to Variables
         Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
         // create a map of variables in the cause and their actual value represented as literal
-        Map<Variable, Literal> variableEvaluationMap = evaluation.stream()
-                .filter(l -> causeVariables.contains(l.variable()))
-                .collect(Collectors.toMap(Literal::variable, Function.identity()));
+        Map<Variable, Literal> variableEvaluationMap = createVariableEvaluationMap(causeVariables, evaluation);
         // loop through all satisfying assignments
         for (Assignment assignment : assignments) {
             /*
@@ -553,5 +548,21 @@ class SATCausalitySolver extends CausalitySolver {
         } else {
             return MiniSat.glucose(f);
         }
+    }
+
+    /**
+     * Creates a map of variables and literals representing their evaluation. It will only add entries for the passed
+     * variables even though the evaluation set might contain additional literals
+     *
+     * @param variables  the variables
+     * @param evaluation the evaluation
+     * @return a map
+     */
+    private static Map<Variable, Literal> createVariableEvaluationMap(Set<Variable> variables,
+                                                                      Set<Literal> evaluation) {
+        Map<Variable, Literal> variableEvaluationMap = evaluation.stream()
+                .filter(l -> variables.contains(l.variable()))
+                .collect(Collectors.toMap(Literal::variable, Function.identity()));
+        return variableEvaluationMap;
     }
 }
