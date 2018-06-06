@@ -1070,6 +1070,19 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
+    public void Should_FulfillAC2AC3Only_When_AandBIsCauseForCInDummyXORModel_GivenNotAExo() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummyXOR();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", false), f.literal("B_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("A"), f.variable("B")));
+        Formula phi = f.variable("C");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, false, cause, new HashSet<>());
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
     public void Should_FulfillAC1Only_When_AandBIsCauseForCInDummyXNORModel() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummyXNOR();
         Set<Literal> context = new HashSet<>(Arrays.asList(
