@@ -186,6 +186,11 @@ class SATCausalitySolver extends CausalitySolver {
             if (satSolver.sat() == Tristate.TRUE) {
                 if ((solvingStrategy == SAT_OPTIMIZED_AC3 || solvingStrategy == SAT_OPTIMIZED_AC3_MINIMAL)
                         && fulfillsAC1(evaluation, phi, cause)) {
+                    /*
+                     * we can prove that if AC1 is fulfilled for the original cause, it is fulfilled for any subset of
+                     * it. Hence, if we find out that a subset of the cause fulfills AC2 using our optimized AC3
+                     * approach, we know that it will fulfill AC1 as well. Therefore AC3 is violated, which we can
+                     * directly return.*/
                     return false;
                 }
                 // get the assignments for which the formula is satisfiable
