@@ -137,16 +137,19 @@ class BruteForceCausalitySolver extends CausalitySolver {
     private boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
                                 Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
             throws InvalidCausalModelException {
-        // get all subsets of cause
-        Set<Set<Literal>> allSubsetsOfCause = new UnifiedSet<>(cause).powerSet().stream()
-                .map(s -> s.toImmutable().castToSet())
-                .filter(s -> s.size() > 0 && s.size() < cause.size()) // remove empty set and full cause
-                .collect(Collectors.toSet());
-        // no sub-cause must fulfill AC1 and AC2
-        for (Set<Literal> c : allSubsetsOfCause) {
-            if (fulfillsAC1(evaluation, phi, c) &&
-                    fulfillsAC2(causalModel, phi, c, context, evaluation, solvingStrategy, f) != null) {
-                return false;
+        if (cause.size() > 1 && phi.evaluate(new Assignment(evaluation))) {
+
+            // get all subsets of cause
+            Set<Set<Literal>> allSubsetsOfCause = new UnifiedSet<>(cause).powerSet().stream()
+                    .map(s -> s.toImmutable().castToSet())
+                    .filter(s -> s.size() > 0 && s.size() < cause.size()) // remove empty set and full cause
+                    .collect(Collectors.toSet());
+            // no sub-cause must fulfill AC1 and AC2
+            for (Set<Literal> c : allSubsetsOfCause) {
+                if (fulfillsAC1(evaluation, phi, c) &&
+                        fulfillsAC2(causalModel, phi, c, context, evaluation, solvingStrategy, f) != null) {
+                    return false;
+                }
             }
         }
         return true;

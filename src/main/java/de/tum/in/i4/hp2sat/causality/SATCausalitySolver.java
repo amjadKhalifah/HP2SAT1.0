@@ -140,7 +140,7 @@ class SATCausalitySolver extends CausalitySolver {
                                 Set<Literal> evaluation, SolvingStrategy solvingStrategy,
                                 SATSolverType satSolverType, FormulaFactory f) {
         // if the cause has a size of one, i.e. a singleton-cause, then AC3 is fulfilled automatically
-        if (cause.size() > 1) {
+        if (cause.size() > 1 && phi.evaluate(new Assignment(evaluation))) {
             // get specified SAT solver
             SATSolver satSolver = selectSATSolver(satSolverType, f);
             // negate phi
@@ -244,7 +244,7 @@ class SATCausalitySolver extends CausalitySolver {
         Set<Literal> w;
         boolean ac3;
         // if the cause is of size 1, then AC3 is fulfilled automatically. Hence, we just need to check for AC2
-        if (cause.size() == 1) {
+        if (cause.size() == 1 || !phi.evaluate(new Assignment(evaluation))) {
             // set new solving strategy
             SolvingStrategy solvingStrategyNew;
             if (solvingStrategy == SolvingStrategy.SAT_COMBINED) {
