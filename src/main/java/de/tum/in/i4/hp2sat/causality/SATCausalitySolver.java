@@ -160,29 +160,29 @@ class SATCausalitySolver extends CausalitySolver {
 
                 Formula formula1 = f.verum();
                 Formula formula2 = f.verum();
+                Formula formula3 = f.verum();
                 /*
                  * We want to extend the SAT formula such that it is only satisfiable for a subset of the cause. We do
                  * this, by specifying that NOT all the cause variables are allowed NOT to follow their equation and NOT
                  * be equal to their original value, and NOT all of them are allowed to follow their equation. Put
                  * differently, at least one cause variables (but not all) must violate its equation while NOT
-                 * following its original value.
+                 * following its original value. Also, not all variables are allowed to obtain their original value.
                  * */
                 for (Literal l : cause) {
                     Variable causeVariable = l.variable();
+                    Literal originalValue = variableEvaluationMap.get(causeVariable);
                     Formula equationFormula = f.equivalence(causeVariable, causalModel.getVariableEquationMap()
                             .get(causeVariable).getFormula());
                     formula1 = f.and(formula1,
-                            f.and(f.not(equationFormula), f.not(variableEvaluationMap.get(causeVariable))));
-                    // TODO ensure that not all vars follow their original value -> test case
+                            f.and(f.not(equationFormula), f.not(originalValue)));
                     formula2 = f.and(formula2, equationFormula);
+                    formula3 = f.and(formula3, originalValue);
                 }
                 // add negated formulas by AND
-                formula = f.and(formula, f.not(formula1), f.not(formula2));
+                formula = f.and(formula, f.not(formula1), f.not(formula2), f.not(formula3));
             }
             // add query to solver
             satSolver.add(formula);
-            // should be satisfiable, if cause fulfills AC2
-            // TODO doc
             if (satSolver.sat() == Tristate.TRUE) {
                 if ((solvingStrategy == SAT_OPTIMIZED_AC3 || solvingStrategy == SAT_OPTIMIZED_AC3_MINIMAL)
                         && fulfillsAC1(evaluation, phi, cause)) {
