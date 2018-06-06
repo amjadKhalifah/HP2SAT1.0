@@ -170,8 +170,7 @@ class SATCausalitySolver extends CausalitySolver {
                     Literal originalValue = variableEvaluationMap.get(causeVariable);
                     Formula equationFormula = f.equivalence(causeVariable, causalModel.getVariableEquationMap()
                             .get(causeVariable).getFormula());
-                    formula1 = f.and(formula1,
-                            f.and(f.not(equationFormula), f.not(originalValue)));
+                    formula1 = f.and(formula1, f.and(f.not(equationFormula), f.not(originalValue)));
                     formula2 = f.and(formula2, equationFormula);
                     formula3 = f.and(formula3, originalValue);
                 }
