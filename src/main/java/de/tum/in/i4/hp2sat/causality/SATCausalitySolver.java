@@ -109,7 +109,8 @@ class SATCausalitySolver extends CausalitySolver {
                 solvingStrategy, false, f);
         satSolver.add(formula);
         if (satSolver.sat() == Tristate.TRUE) {
-            if (Arrays.asList(SAT, SAT_OPTIMIZED_W, SAT_OPTIMIZED_CLAUSES).contains(solvingStrategy)) {
+            if (Arrays.asList(SAT, SAT_OPTIMIZED_W, SAT_OPTIMIZED_CLAUSES, SAT_OPTIMIZED_AC3)
+                    .contains(solvingStrategy)) {
                 // if satisfiable, get the assignment for which the formula is satisfiable
                 Assignment assignment = satSolver.model();
                 return getWStandard(causalModelModified, evaluation, assignment);
@@ -148,10 +149,45 @@ class SATCausalitySolver extends CausalitySolver {
             // generate SAT query for AC3
             Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation, solvingStrategy,
                     true, f);
+            if (solvingStrategy == SAT_OPTIMIZED_AC3 || solvingStrategy == SAT_OPTIMIZED_AC3_MINIMAL) {
+                // TODO use also for AC3 helper?
+                // create a set of Variables in the cause, i.e. map a set of Literals to Variables
+                Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
+                // create a map of variables in the cause and their actual value represented as literal
+                Map<Variable, Literal> variableEvaluationMap = evaluation.stream()
+                        .filter(l -> causeVariables.contains(l.variable()))
+                        .collect(Collectors.toMap(Literal::variable, Function.identity()));
+
+                Formula formula1 = f.verum();
+                Formula formula2 = f.verum();
+                /*
+                 * We want to extend the SAT formula such that it is only satisfiable for a subset of the cause. We do
+                 * this, by specifying that NOT all the cause variables are allowed NOT to follow their equation and NOT
+                 * be equal to their original value, and NOT all of them are allowed to follow their equation. Put
+                 * differently, at least one cause variables (but not all) must violate its equation while NOT
+                 * following its original value.
+                 * */
+                for (Literal l : cause) {
+                    Variable causeVariable = l.variable();
+                    Formula equationFormula = f.equivalence(causeVariable, causalModel.getVariableEquationMap()
+                            .get(causeVariable).getFormula());
+                    formula1 = f.and(formula1,
+                            f.and(f.not(equationFormula), f.not(variableEvaluationMap.get(causeVariable))));
+                    // TODO ensure that not all vars follow their original value -> test case
+                    formula2 = f.and(formula2, equationFormula);
+                }
+                // add negated formulas by AND
+                formula = f.and(formula, f.not(formula1), f.not(formula2));
+            }
             // add query to solver
             satSolver.add(formula);
             // should be satisfiable, if cause fulfills AC2
+            // TODO doc
             if (satSolver.sat() == Tristate.TRUE) {
+                if ((solvingStrategy == SAT_OPTIMIZED_AC3 || solvingStrategy == SAT_OPTIMIZED_AC3_MINIMAL)
+                        && fulfillsAC1(evaluation, phi, cause)) {
+                    return false;
+                }
                 // get the assignments for which the formula is satisfiable
                 List<Assignment> assignments = satSolver.enumerateAllModels().stream()
                         .filter(a -> a.literals().contains(f.variable(DUMMY_VAR_NAME))).collect(Collectors.toList());
