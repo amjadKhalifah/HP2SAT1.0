@@ -180,19 +180,26 @@ class SATCausalitySolver extends CausalitySolver {
             // add query to solver
             satSolver.add(formula);
             if (satSolver.sat() == Tristate.TRUE) {
-                if ((solvingStrategy == SAT_OPTIMIZED_AC3 || solvingStrategy == SAT_OPTIMIZED_AC3_MINIMAL)
-                        && fulfillsAC1(evaluation, phi, cause)) {
+                if ((solvingStrategy == SAT_OPTIMIZED_AC3 || solvingStrategy == SAT_OPTIMIZED_AC3_MINIMAL)) {
                     /*
-                     * we can prove that if AC1 is fulfilled for the original cause, it is fulfilled for any subset of
-                     * it. Hence, if we find out that a subset of the cause fulfills AC2 using our optimized AC3
-                     * approach, we know that it will fulfill AC1 as well. Therefore AC3 is violated, which we can
-                     * directly return.*/
-                    return false;
+                     * We make sure that the generated formula is only satisfiable, if the variables in the cause
+                     * actually occurred. That is, if the formula is satisfiable, then we know that AC2 holds for a
+                     * subset of the original cause and all the variables have values that actually occurred. For a
+                     * full AC1 check, we only need to find out whether phi actually occurred as well. If so, we have
+                     * found a subset for which both AC1 and AC2 hold such that AC3 is violated. Otherwise, AC3 holds
+                      * as well. */
+                    if (phi.evaluate(new Assignment(evaluation))) {
+                        return false;
+                    } else {
+                        return true;
+                    }
+                } else {
+                    // get the assignments for which the formula is satisfiable
+                    List<Assignment> assignments = satSolver.enumerateAllModels().stream()
+                            .filter(a -> a.literals().contains(f.variable(DUMMY_VAR_NAME)))
+                            .collect(Collectors.toList());
+                    return fulfillsAC3Helper(causalModel, phi, cause, evaluation, assignments);
                 }
-                // get the assignments for which the formula is satisfiable
-                List<Assignment> assignments = satSolver.enumerateAllModels().stream()
-                        .filter(a -> a.literals().contains(f.variable(DUMMY_VAR_NAME))).collect(Collectors.toList());
-                return fulfillsAC3Helper(causalModel, phi, cause, evaluation, assignments);
             }
         }
         return true;
@@ -492,27 +499,38 @@ class SATCausalitySolver extends CausalitySolver {
                 Literal originalValue = variableEvaluationMap.get(equation.getVariable());
                 Formula equationFormula;
                 /*
-                 * When generating a SAT query for AC3, then for each variable not in the cause, we stick to the same
-                 * scheme as for AC2, i.e. (V_originalValue OR (V <=> Formula_V)).
-                 *
                  * OPTIMZED_W Strategy: if the variable of the current equation is in the cause or not in the set of
                  * optimized variables, then we do not allow for its original value and just add (V <=> Formula_V).
-                 *
-                 * OPTIMIZED_CLAUSES Strategy: if the variable of the current equation is in the cause or not in the
-                 * set of variables that affect phi, we just add TRUE to the formula*/
+                 * */
                 if (!causeVariables.contains(equation.getVariable()) &&
                         ((solvingStrategy == SAT_OPTIMIZED_W || solvingStrategy == SAT_OPTIMIZED_W_MINIMAL) &&
                                 !wVariablesOptimized.contains(equation.getVariable()))) {
                     equationFormula = f.equivalence(equation.getVariable(), equation.getFormula());
-                } else if (!causeVariables.contains(equation.getVariable()) &&
+                }
+                /*
+                 * OPTIMIZED_CLAUSES Strategy: if the variable of the current equation is in the cause or not in the
+                 * set of variables that affect phi, we just add TRUE to the formula*/
+                else if (!causeVariables.contains(equation.getVariable()) &&
                         (solvingStrategy == SAT_OPTIMIZED_CLAUSES || solvingStrategy == SAT_OPTIMIZED_CLAUSES_MINIMAL)
                         && !variablesAffectingPhi.contains(equation.getVariable())) {
                     equationFormula = f.verum();
-                } else if (!causeVariables.contains(equation.getVariable())) {
+                }
+                /*
+                 * When generating a SAT query for AC3, then for each variable not in the cause, we stick to the same
+                 * scheme as for AC2, i.e. (V_originalValue OR (V <=> Formula_V)).
+                 *
+                 * Also, if for the OPTIMIZED_AC3 Strategy: In case the variable of the current equation is in the
+                 * cause, but did actually not occur, we also add (V_originalValue OR (V <=> Formula_V)) instead of
+                 * allowing it to be both 1 or 0.
+                 * */
+                else if (!causeVariables.contains(equation.getVariable())
+                        || (solvingStrategy == SAT_OPTIMIZED_AC3 || solvingStrategy == SAT_OPTIMIZED_AC3_MINIMAL)
+                        && causeVariables.contains(equation.getVariable())
+                        && !cause.contains(variableEvaluationMap.get(equation.getVariable()))) {
                     equationFormula = f.or(originalValue, f.equivalence(equation.getVariable(), equation.getFormula()));
                 }
                 /*
-                 * If however the variable of the current equation in in the cause, we additionally add an OR with its
+                 * If however the variable of the current equation is in the cause, we additionally add an OR with its
                  * negation. That is, we allow its original value, the negation of this original value and the
                  * equivalence with its equation. The resulting formula would be
                  * (V_originalValue OR (V <=> Formula_V) OR not(V_originalValue)). Obviously, we could replace that
