@@ -144,9 +144,11 @@ class BruteForceCausalitySolver extends CausalitySolver {
                     .map(s -> s.toImmutable().castToSet())
                     .filter(s -> s.size() > 0 && s.size() < cause.size()) // remove empty set and full cause
                     .collect(Collectors.toSet());
-            // no sub-cause must fulfill AC1 and AC2
+            /*
+             * no sub-cause must fulfill AC1 and AC2
+             * for AC1, we only need to check if the current cause subset, as we checked for phi before */
             for (Set<Literal> c : allSubsetsOfCause) {
-                if (fulfillsAC1(evaluation, phi, c) &&
+                if (evaluation.containsAll(c) &&
                         fulfillsAC2(causalModel, phi, c, context, evaluation, solvingStrategy, f) != null) {
                     return false;
                 }

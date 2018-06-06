@@ -214,8 +214,11 @@ class SATCausalitySolver extends CausalitySolver {
             // construct a new potential cause by removing all the irrelevant variables
             Set<Literal> causeNew = cause.stream().filter(l -> !notRequiredForCause.contains(l.variable()))
                     .collect(Collectors.toSet());
-            // if the new cause is smaller than the passed one and fulfills AC1, AC3 is not fulfilled
-            if (causeNew.size() > 0 && causeNew.size() < cause.size() && fulfillsAC1(evaluation, phi, causeNew)) {
+            /*
+             * if the new cause is smaller than the passed one and fulfills AC1, AC3 is not fulfilled
+             * Since this method is called only, if phi actually occurred, we just need to check that the newly
+             * constructed cause occurred as well such that AC1 holds. */
+            if (causeNew.size() > 0 && causeNew.size() < cause.size() && evaluation.containsAll(causeNew)) {
                 return false;
             }
         }
