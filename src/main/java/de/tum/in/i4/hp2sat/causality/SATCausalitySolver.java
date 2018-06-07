@@ -184,15 +184,11 @@ class SATCausalitySolver extends CausalitySolver {
                     /*
                      * We make sure that the generated formula is only satisfiable, if the variables in the cause
                      * actually occurred. That is, if the formula is satisfiable, then we know that AC2 holds for a
-                     * subset of the original cause and all the variables have values that actually occurred. For a
-                     * full AC1 check, we only need to find out whether phi actually occurred as well. If so, we have
-                     * found a subset for which both AC1 and AC2 hold such that AC3 is violated. Otherwise, AC3 holds
-                      * as well. */
-                    if (phi.evaluate(new Assignment(evaluation))) {
-                        return false;
-                    } else {
-                        return true;
-                    }
+                     * subset of the original cause and all the variables have values that actually occurred, i.e. AC1
+                     * holds. The check whether phi actually occurred happened before. Consequently, we know that AC3
+                     * is violated, if the formula satisfiable.
+                     * */
+                    return false;
                 } else {
                     // get the assignments for which the formula is satisfiable
                     List<Assignment> assignments = satSolver.enumerateAllModels().stream()
