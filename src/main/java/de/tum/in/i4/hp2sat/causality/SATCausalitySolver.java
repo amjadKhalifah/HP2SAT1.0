@@ -141,7 +141,7 @@ class SATCausalitySolver extends CausalitySolver {
                                 Set<Literal> evaluation, SolvingStrategy solvingStrategy,
                                 SATSolverType satSolverType, FormulaFactory f) {
         // if the cause has a size of one, i.e. a singleton-cause, then AC3 is fulfilled automatically
-        if (cause.size() > 1) {
+        if (cause.size() > 1 && phi.evaluate(new Assignment(evaluation))) {
             // get specified SAT solver
             SATSolver satSolver = selectSATSolver(satSolverType, f);
             // negate phi
@@ -256,8 +256,11 @@ class SATCausalitySolver extends CausalitySolver {
             // construct a new potential cause by removing all the irrelevant variables
             Set<Literal> causeNew = cause.stream().filter(l -> !notRequiredForCause.contains(l.variable()))
                     .collect(Collectors.toSet());
-            // if the new cause is smaller than the passed one and fulfills AC1, AC3 is not fulfilled
-            if (causeNew.size() > 0 && causeNew.size() < cause.size() && fulfillsAC1(evaluation, phi, causeNew)) {
+            /*
+             * if the new cause is smaller than the passed one and fulfills AC1, AC3 is not fulfilled
+             * Since this method is called only, if phi actually occurred, we just need to check that the newly
+             * constructed cause occurred as well such that AC1 holds. */
+            if (causeNew.size() > 0 && causeNew.size() < cause.size() && evaluation.containsAll(causeNew)) {
                 return false;
             }
         }
@@ -286,7 +289,7 @@ class SATCausalitySolver extends CausalitySolver {
         Set<Literal> w;
         boolean ac3;
         // if the cause is of size 1, then AC3 is fulfilled automatically. Hence, we just need to check for AC2
-        if (cause.size() == 1) {
+        if (cause.size() == 1 || !phi.evaluate(new Assignment(evaluation))) {
             // set new solving strategy
             SolvingStrategy solvingStrategyNew;
             if (solvingStrategy == SolvingStrategy.SAT_COMBINED) {
