@@ -805,6 +805,33 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
+    public void Should_FulfillAllAC3Only_When_GAndHIsCauseInDummyModel() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("G"), f.variable("H")));
+        Formula phi = f.variable("F");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, false, true, cause, null);
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAllAC3Only_When_NotGAndNotHIsCauseInDummyModel() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("G", false),
+                f.literal("H", false)));
+        Formula phi = f.variable("F");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
     public void Should_FulfillAllACs_When_B1IsCauseForXInDummyModel2() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummy2();
         Set<Literal> context = new HashSet<>(Arrays.asList(
