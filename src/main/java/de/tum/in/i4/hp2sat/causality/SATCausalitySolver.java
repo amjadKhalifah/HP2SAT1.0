@@ -56,17 +56,19 @@ class SATCausalitySolver extends CausalitySolver {
             throws InvalidCausalModelException {
         FormulaFactory f = new FormulaFactory();
         Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context, f);
-        boolean ac1 = fulfillsAC1(evaluation, phi, cause);
+        Pair<Boolean, Boolean> ac1Tuple = fulfillsAC1(evaluation, phi, cause);
+        boolean ac1 = ac1Tuple.first() && ac1Tuple.second();
         Set<Literal> w;
         boolean ac3;
         if (solvingStrategy == SAT_COMBINED || solvingStrategy == SAT_COMBINED_MINIMAL) {
             Pair<Set<Literal>, Boolean> ac2ac3 = fulfillsAC2AC3(causalModel, phi, cause, context, evaluation,
-                    solvingStrategy, satSolverType, f);
+                    ac1Tuple.first(), solvingStrategy, satSolverType, f);
             w = ac2ac3.first();
             ac3 = ac2ac3.second();
         } else {
             w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
-            ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
+            ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, ac1Tuple.first(), solvingStrategy,
+                    satSolverType, f);
         }
         boolean ac2 = w != null;
 
@@ -138,10 +140,10 @@ class SATCausalitySolver extends CausalitySolver {
      * @return true if AC3 fulfilled, else false
      */
     private boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                                Set<Literal> evaluation, SolvingStrategy solvingStrategy,
+                                Set<Literal> evaluation, boolean phiOccurred, SolvingStrategy solvingStrategy,
                                 SATSolverType satSolverType, FormulaFactory f) {
         // if the cause has a size of one, i.e. a singleton-cause, then AC3 is fulfilled automatically
-        if (cause.size() > 1 && phi.evaluate(new Assignment(evaluation))) {
+        if (cause.size() > 1 && phiOccurred) {
             // get specified SAT solver
             SATSolver satSolver = selectSATSolver(satSolverType, f);
             // negate phi
@@ -280,12 +282,13 @@ class SATCausalitySolver extends CausalitySolver {
      */
     private Pair<Set<Literal>, Boolean> fulfillsAC2AC3(CausalModel causalModel, Formula phi, Set<Literal> cause,
                                                        Set<Literal> context, Set<Literal> evaluation,
-                                                       SolvingStrategy solvingStrategy, SATSolverType satSolverType,
-                                                       FormulaFactory f) throws InvalidCausalModelException {
+                                                       boolean phiOccurred, SolvingStrategy solvingStrategy,
+                                                       SATSolverType satSolverType, FormulaFactory f)
+            throws InvalidCausalModelException {
         Set<Literal> w;
         boolean ac3;
         // if the cause is of size 1, then AC3 is fulfilled automatically. Hence, we just need to check for AC2
-        if (cause.size() == 1 || !phi.evaluate(new Assignment(evaluation))) {
+        if (cause.size() == 1 || !phiOccurred) {
             // set new solving strategy
             SolvingStrategy solvingStrategyNew;
             if (solvingStrategy == SolvingStrategy.SAT_COMBINED) {
@@ -307,7 +310,8 @@ class SATCausalitySolver extends CausalitySolver {
             if (phiNegated.evaluate(new Assignment(evaluationModified))) {
                 w = new HashSet<>();
                 // perform a normal AC3 check
-                ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, satSolverType, f);
+                ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, phiOccurred, solvingStrategy,
+                        satSolverType, f);
             } else {
                 // get specified SAT solver
                 SATSolver satSolver = selectSATSolver(satSolverType, f);

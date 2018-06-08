@@ -8,6 +8,7 @@ import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
+import org.logicng.util.Pair;
 
 import java.util.HashSet;
 import java.util.List;
@@ -31,10 +32,11 @@ class BruteForceCausalitySolver extends CausalitySolver {
             throws InvalidCausalModelException {
         FormulaFactory f = new FormulaFactory();
         Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context, f);
-        boolean ac1 = fulfillsAC1(evaluation, phi, cause);
+        Pair<Boolean, Boolean> ac1Tuple = fulfillsAC1(evaluation, phi, cause);
+        boolean ac1 = ac1Tuple.first() && ac1Tuple.second();
         Set<Literal> w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, f);
         boolean ac2 = w != null;
-        boolean ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, solvingStrategy, f);
+        boolean ac3 = fulfillsAC3(causalModel, phi, cause, context, evaluation, ac1Tuple.first(), solvingStrategy, f);
         CausalitySolverResult causalitySolverResult = new CausalitySolverResult(ac1, ac2, ac3, cause, w);
         return causalitySolverResult;
     }
@@ -135,9 +137,10 @@ class BruteForceCausalitySolver extends CausalitySolver {
      * @return true if A3 fulfilled, else false
      */
     private boolean fulfillsAC3(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                                Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
+                                Set<Literal> evaluation, boolean phiOccurred, SolvingStrategy solvingStrategy,
+                                FormulaFactory f)
             throws InvalidCausalModelException {
-        if (cause.size() > 1 && phi.evaluate(new Assignment(evaluation))) {
+        if (cause.size() > 1 && phiOccurred) {
 
             // get all subsets of cause
             Set<Set<Literal>> allSubsetsOfCause = new UnifiedSet<>(cause).powerSet().stream()
