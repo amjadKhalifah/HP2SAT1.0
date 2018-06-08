@@ -6,6 +6,7 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.*;
+import org.logicng.util.Pair;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,11 +33,12 @@ abstract class CausalitySolver {
      * @param evaluation the original evaluation of variables
      * @param phi        the phi
      * @param cause      the cause for which we check AC1
-     * @return true if AC1 fulfilled, else false
+     * @return a tuple where the first item indicates whether phi occurred and the second item whether the cause
+     * occurred
      */
-    boolean fulfillsAC1(Set<Literal> evaluation, Formula phi, Set<Literal> cause) {
+    Pair<Boolean, Boolean> fulfillsAC1(Set<Literal> evaluation, Formula phi, Set<Literal> cause) {
         boolean phiEvaluation = phi.evaluate(new Assignment(evaluation));
-        return phiEvaluation && evaluation.containsAll(cause);
+        return new Pair<>(phiEvaluation, evaluation.containsAll(cause));
     }
 
     /**

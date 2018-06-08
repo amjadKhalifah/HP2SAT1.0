@@ -56,7 +56,8 @@ class SATCausalitySolver extends CausalitySolver {
             throws InvalidCausalModelException {
         FormulaFactory f = new FormulaFactory();
         Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context, f);
-        boolean ac1 = fulfillsAC1(evaluation, phi, cause);
+        Pair<Boolean, Boolean> ac1Tuple = fulfillsAC1(evaluation, phi, cause);
+        boolean ac1 = ac1Tuple.first() && ac1Tuple.second();
         Set<Literal> w;
         boolean ac3;
         if (solvingStrategy == SAT_COMBINED || solvingStrategy == SAT_COMBINED_MINIMAL) {
