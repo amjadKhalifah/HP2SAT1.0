@@ -522,6 +522,30 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
+    public void Should_FulfillAC1AC3Only_When_BTIsCauseForTRUE() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", true), f.literal("ST_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
+        Formula phi = f.verum();
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAllAC2AC3Only_When_BTIsCauseForFALSE() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", true), f.literal("ST_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
+        Formula phi = f.falsum();
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
     public void Should_FulfillAC1AC3Only_When_LIsCauseForFF() throws Exception {
         CausalModel arsonists = ExampleProvider.arsonists(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
