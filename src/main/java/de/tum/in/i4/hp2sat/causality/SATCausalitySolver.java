@@ -111,7 +111,8 @@ class SATCausalitySolver extends CausalitySolver {
                 solvingStrategy, false, f);
         satSolver.add(formula);
         if (satSolver.sat() == Tristate.TRUE) {
-            if (Arrays.asList(SAT, SAT_OPTIMIZED_W, SAT_OPTIMIZED_CLAUSES).contains(solvingStrategy)) {
+            if (Arrays.asList(SAT, SAT_OPTIMIZED_W, SAT_OPTIMIZED_CLAUSES, SAT_OPTIMIZED_AC3)
+                    .contains(solvingStrategy)) {
                 // if satisfiable, get the assignment for which the formula is satisfiable
                 Assignment assignment = satSolver.model();
                 return getWStandard(causalModelModified, evaluation, assignment);
@@ -150,14 +151,53 @@ class SATCausalitySolver extends CausalitySolver {
             // generate SAT query for AC3
             Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation, solvingStrategy,
                     true, f);
+            if (solvingStrategy == SAT_OPTIMIZED_AC3 || solvingStrategy == SAT_OPTIMIZED_AC3_MINIMAL) {
+                // create a set of Variables in the cause, i.e. map a set of Literals to Variables
+                Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
+                // create a map of variables in the cause and their actual value represented as literal
+                Map<Variable, Literal> variableEvaluationMap = createVariableEvaluationMap(causeVariables, evaluation);
+
+                Formula formula1 = f.verum();
+                Formula formula2 = f.verum();
+                Formula formula3 = f.verum();
+                /*
+                 * We want to extend the SAT formula such that it is only satisfiable for a subset of the cause. We do
+                 * this, by specifying that NOT all the cause variables are allowed NOT to follow their equation and NOT
+                 * be equal to their original value, and NOT all of them are allowed to follow their equation. Put
+                 * differently, at least one cause variables (but not all) must violate its equation while NOT
+                 * following its original value. Also, not all variables are allowed to obtain their original value.
+                 * */
+                for (Literal l : cause) {
+                    Variable causeVariable = l.variable();
+                    Literal originalValue = variableEvaluationMap.get(causeVariable);
+                    Formula equationFormula = f.equivalence(causeVariable, causalModel.getVariableEquationMap()
+                            .get(causeVariable).getFormula());
+                    formula1 = f.and(formula1, f.and(f.not(equationFormula), f.not(originalValue)));
+                    formula2 = f.and(formula2, equationFormula);
+                    formula3 = f.and(formula3, originalValue);
+                }
+                // add negated formulas by AND
+                formula = f.and(formula, f.not(formula1), f.not(formula2), f.not(formula3));
+            }
             // add query to solver
             satSolver.add(formula);
-            // should be satisfiable, if cause fulfills AC2
             if (satSolver.sat() == Tristate.TRUE) {
-                // get the assignments for which the formula is satisfiable
-                List<Assignment> assignments = satSolver.enumerateAllModels().stream()
-                        .filter(a -> a.literals().contains(f.variable(DUMMY_VAR_NAME))).collect(Collectors.toList());
-                return fulfillsAC3Helper(causalModel, phi, cause, evaluation, assignments);
+                if ((solvingStrategy == SAT_OPTIMIZED_AC3 || solvingStrategy == SAT_OPTIMIZED_AC3_MINIMAL)) {
+                    /*
+                     * We make sure that the generated formula is only satisfiable, if the variables in the cause
+                     * actually occurred. That is, if the formula is satisfiable, then we know that AC2 holds for a
+                     * subset of the original cause and all the variables have values that actually occurred, i.e. AC1
+                     * holds. The check whether phi actually occurred happened before. Consequently, we know that AC3
+                     * is violated, if the formula satisfiable.
+                     * */
+                    return false;
+                } else {
+                    // get the assignments for which the formula is satisfiable
+                    List<Assignment> assignments = satSolver.enumerateAllModels().stream()
+                            .filter(a -> a.literals().contains(f.variable(DUMMY_VAR_NAME)))
+                            .collect(Collectors.toList());
+                    return fulfillsAC3Helper(causalModel, phi, cause, evaluation, assignments);
+                }
             }
         }
         return true;
@@ -178,9 +218,7 @@ class SATCausalitySolver extends CausalitySolver {
         // create a set of Variables in the cause, i.e. map a set of Literals to Variables
         Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
         // create a map of variables in the cause and their actual value represented as literal
-        Map<Variable, Literal> variableEvaluationMap = evaluation.stream()
-                .filter(l -> causeVariables.contains(l.variable()))
-                .collect(Collectors.toMap(Literal::variable, Function.identity()));
+        Map<Variable, Literal> variableEvaluationMap = createVariableEvaluationMap(causeVariables, evaluation);
         // loop through all satisfying assignments
         for (Assignment assignment : assignments) {
             /*
@@ -464,27 +502,38 @@ class SATCausalitySolver extends CausalitySolver {
                 Literal originalValue = variableEvaluationMap.get(equation.getVariable());
                 Formula equationFormula;
                 /*
-                 * When generating a SAT query for AC3, then for each variable not in the cause, we stick to the same
-                 * scheme as for AC2, i.e. (V_originalValue OR (V <=> Formula_V)).
-                 *
                  * OPTIMZED_W Strategy: if the variable of the current equation is in the cause or not in the set of
                  * optimized variables, then we do not allow for its original value and just add (V <=> Formula_V).
-                 *
-                 * OPTIMIZED_CLAUSES Strategy: if the variable of the current equation is in the cause or not in the
-                 * set of variables that affect phi, we just add TRUE to the formula*/
+                 * */
                 if (!causeVariables.contains(equation.getVariable()) &&
                         ((solvingStrategy == SAT_OPTIMIZED_W || solvingStrategy == SAT_OPTIMIZED_W_MINIMAL) &&
                                 !wVariablesOptimized.contains(equation.getVariable()))) {
                     equationFormula = f.equivalence(equation.getVariable(), equation.getFormula());
-                } else if (!causeVariables.contains(equation.getVariable()) &&
+                }
+                /*
+                 * OPTIMIZED_CLAUSES Strategy: if the variable of the current equation is in the cause or not in the
+                 * set of variables that affect phi, we just add TRUE to the formula*/
+                else if (!causeVariables.contains(equation.getVariable()) &&
                         (solvingStrategy == SAT_OPTIMIZED_CLAUSES || solvingStrategy == SAT_OPTIMIZED_CLAUSES_MINIMAL)
                         && !variablesAffectingPhi.contains(equation.getVariable())) {
                     equationFormula = f.verum();
-                } else if (!causeVariables.contains(equation.getVariable())) {
+                }
+                /*
+                 * When generating a SAT query for AC3, then for each variable not in the cause, we stick to the same
+                 * scheme as for AC2, i.e. (V_originalValue OR (V <=> Formula_V)).
+                 *
+                 * Also, if for the OPTIMIZED_AC3 Strategy: In case the variable of the current equation is in the
+                 * cause, but did actually not occur, we also add (V_originalValue OR (V <=> Formula_V)) instead of
+                 * allowing it to be both 1 or 0.
+                 * */
+                else if (!causeVariables.contains(equation.getVariable())
+                        || (solvingStrategy == SAT_OPTIMIZED_AC3 || solvingStrategy == SAT_OPTIMIZED_AC3_MINIMAL)
+                        && causeVariables.contains(equation.getVariable())
+                        && !cause.contains(variableEvaluationMap.get(equation.getVariable()))) {
                     equationFormula = f.or(originalValue, f.equivalence(equation.getVariable(), equation.getFormula()));
                 }
                 /*
-                 * If however the variable of the current equation in in the cause, we additionally add an OR with its
+                 * If however the variable of the current equation is in the cause, we additionally add an OR with its
                  * negation. That is, we allow its original value, the negation of this original value and the
                  * equivalence with its equation. The resulting formula would be
                  * (V_originalValue OR (V <=> Formula_V) OR not(V_originalValue)). Obviously, we could replace that
@@ -519,5 +568,21 @@ class SATCausalitySolver extends CausalitySolver {
         } else {
             return MiniSat.glucose(f);
         }
+    }
+
+    /**
+     * Creates a map of variables and literals representing their evaluation. It will only add entries for the passed
+     * variables even though the evaluation set might contain additional literals
+     *
+     * @param variables  the variables
+     * @param evaluation the evaluation
+     * @return a map
+     */
+    private static Map<Variable, Literal> createVariableEvaluationMap(Set<Variable> variables,
+                                                                      Set<Literal> evaluation) {
+        Map<Variable, Literal> variableEvaluationMap = evaluation.stream()
+                .filter(l -> variables.contains(l.variable()))
+                .collect(Collectors.toMap(Literal::variable, Function.identity()));
+        return variableEvaluationMap;
     }
 }
