@@ -109,7 +109,7 @@ public class CausalitySolverInstanceTest {
     //region ROCK-THROWING
     //region [ROCK-THROWING] ST_exo = 1; BT_exo = 1
     @Test
-    public void Should_FulfillAC1AC3Only_When_BTIsCauseForBS() throws Exception {
+    public void Should_FulfillAC1AC3Only_When_BT_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
@@ -122,7 +122,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC1AC2Only_When_STandBTIsCauseForBS() throws Exception {
+    public void Should_FulfillAC1AC2Only_When_STandBT_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
@@ -135,7 +135,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC1AC2Only_When_STandSHIsCauseForBS() throws Exception {
+    public void Should_FulfillAC1AC2Only_When_STandSH_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
@@ -179,7 +179,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC1AC2Only_When_STandBTandSHIsCauseForBS() throws Exception {
+    public void Should_FulfillAC1AC2Only_When_STandBTandSH_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
@@ -192,7 +192,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC1Only_When_STandBTandNotBHIsCauseForBS() throws Exception {
+    public void Should_FulfillAC1Only_When_STandBTandNotBH_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
@@ -205,7 +205,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC1AC3Only_When_BTandNotBHIsCauseForBS() throws Exception {
+    public void Should_FulfillAC1AC3Only_When_BTandNotBH_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
@@ -217,7 +217,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC2Only_When_SHandBHIsCauseForBS() throws Exception {
+    public void Should_FulfillAC2Only_When_SHandBH_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
@@ -229,7 +229,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC1Only_When_SHandNotBHIsCauseForBS() throws Exception {
+    public void Should_FulfillAC1Only_When_SHandNotBH_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
@@ -241,7 +241,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAllACs_When_STIsCauseBS() throws Exception {
+    public void Should_FulfillAllACs_When_ST_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
@@ -284,7 +284,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAllACs_When_SHIsCauseBS() throws Exception {
+    public void Should_FulfillAllACs_When_SH_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
@@ -328,7 +328,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_NotFulfillACs_When_NotBTIsCauseForBS() throws Exception {
+    public void Should_NotFulfillACs_When_NotBT_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
@@ -341,7 +341,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAllACs_When_STIsCauseBSOrSH() throws Exception {
+    public void Should_FulfillAllACs_When_ST_IsCauseFor_BSOrSH() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
@@ -384,7 +384,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC2AC3Only_When_STIsCauseBSAndBH() throws Exception {
+    public void Should_FulfillAC2AC3Only_When_ST_IsCauseFor_BSAndBH() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
@@ -438,7 +438,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC1AC3Only_When_BTIsCauseForTRUE() throws Exception {
+    public void Should_FulfillAC1AC3Only_When_BT_IsCauseFor_TRUE() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
@@ -448,6 +448,7 @@ public class CausalitySolverInstanceTest {
                 new CausalitySolverResult(true, false, true, cause, null);
         testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
     }
+
     @Test
     public void Should_FulfillAllAC2AC3Only_When_BTIsCauseForFALSE() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
@@ -463,7 +464,7 @@ public class CausalitySolverInstanceTest {
 
     //region [ROCK-THROWING] ST_exo = 1; BT_exo = 0
     @Test
-    public void Should_FulfillAC2Only_When_STandBTIsCauseForBS_GivenNotBT() throws Exception {
+    public void Should_FulfillAC2Only_When_STandBT_IsCauseFor_BS_Given_NotBTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", true)));
@@ -475,7 +476,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAllACs_When_STIsCauseForBSGivenNotBT() throws Exception {
+    public void Should_FulfillAllACs_When_ST_IsCauseFor_BS_Given_NotBTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", true)));
@@ -490,7 +491,7 @@ public class CausalitySolverInstanceTest {
 
     //region [ROCK-THROWING] ST_exo = 0; BT_exo = 1
     @Test
-    public void Should_FulfillAllACs_When_BTIsCauseForBSGivenNotST() throws Exception {
+    public void Should_FulfillAllACs_When_BT_IsCauseFor_BS_Given_NotSTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", false)));
@@ -503,7 +504,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC1A2Only_When_BTandBHIsCauseForBSGivenNotSTExo() throws Exception {
+    public void Should_FulfillAC1A2Only_When_BTandBH_IsCauseFor_BS_Given_NotSTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", false)));
@@ -517,7 +518,7 @@ public class CausalitySolverInstanceTest {
 
     //region [ROCK-THROWING] ST_exo = 0; BT_exo = 0
     @Test
-    public void Should_FulfillAllACs_When_NotSTIsCauseForNotSHandNotBS_GivenNotBT() throws Exception {
+    public void Should_FulfillAllACs_When_NotST_IsCauseFor_NotSHandNotBS_Given_NotSTExoAndNotBTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", false)));
@@ -530,7 +531,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAllACs_When_NotBTIsCauseForNotBS() throws Exception {
+    public void Should_FulfillAllACs_When_NotBT_IsCauseFor_NotBS_Given_NotSTExoAndNotBTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", false)));
@@ -543,7 +544,8 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC1AC2Only_When_NotSTandNotBTIsCauseForNotBS() throws Exception {
+    public void Should_FulfillAC1AC2Only_When_NotSTandNotBT_IsCauseFor_NotBS_Given_NotSTExoAndNotBTExo()
+            throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", false)));
