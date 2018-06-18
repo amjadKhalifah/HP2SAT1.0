@@ -475,7 +475,7 @@ public class CausalitySolverInstanceTest {
                 new CausalitySolverResult(true, true, true, cause, new HashSet<>());
         testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
     }
-    
+
     @Test
     public void Should_FulfillAC2Only_When_STandBT_IsCauseFor_BS_Given_NotBTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
@@ -518,12 +518,12 @@ public class CausalitySolverInstanceTest {
 
     //region [ROCK-THROWING] ST_exo = 0; BT_exo = 0
     @Test
-    public void Should_FulfillAllACs_When_NotST_IsCauseFor_NotSHandNotBS_Given_NotSTExoAndNotBTExo() throws Exception {
+    public void Should_FulfillAllACs_When_NotST_IsCauseFor_NotBS_Given_NotSTExoAndNotBTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("ST", false)));
-        Formula phi = f.not(f.or(f.variable("SH"), f.variable("BS")));
+        Formula phi = f.literal("BS", false);
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, true, true, cause, new HashSet<>());
@@ -554,6 +554,19 @@ public class CausalitySolverInstanceTest {
         Formula phi = f.literal("BS", false);
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, true, false, cause, new HashSet<>());
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAllACs_When_NotST_IsCauseFor_NotSHandNotBS_Given_NotSTExoAndNotBTExo() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", false), f.literal("ST_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("ST", false)));
+        Formula phi = f.not(f.or(f.variable("SH"), f.variable("BS")));
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
         testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
     }
     //endregion
