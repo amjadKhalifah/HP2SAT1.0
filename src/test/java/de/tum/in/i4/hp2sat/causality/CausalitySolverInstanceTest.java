@@ -517,7 +517,7 @@ public class CausalitySolverInstanceTest {
 
     //region [ROCK-THROWING] ST_exo = 0; BT_exo = 1
     @Test
-    public void Should_FulfillAC2AC3Only_When_ST_IsCauseFor_BS_Given_NotSTExo() throws Exception {
+    public void Should_FulfillAC3Only_When_ST_IsCauseFor_BS_Given_NotSTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", false)));
