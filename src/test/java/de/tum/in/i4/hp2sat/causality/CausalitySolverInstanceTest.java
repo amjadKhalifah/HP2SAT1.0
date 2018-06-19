@@ -503,7 +503,20 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC2Only_When_STandBT_IsCauseFor_BS_Given_NotBTExo() throws Exception {
+    public void Should_FulfillAC3Only_When_BT_IsCauseFor_BS_Given_NotBTExo() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", false), f.literal("ST_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
+        Formula phi = f.variable("BS");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, false, true, cause, null);
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC2Only_When_STAndBT_IsCauseFor_BS_Given_NotBTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", true)));
@@ -551,6 +564,18 @@ public class CausalitySolverInstanceTest {
         Formula phi = f.variable("BS");
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, true, false, cause, new HashSet<>());
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillA2Only_When_STAndBT_IsCauseFor_BS_Given_NotSTExo() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", true), f.literal("ST_exo", false)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("BT")));
+        Formula phi = f.variable("BS");
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, false, cause, new HashSet<>());
         testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
     }
     //endregion
