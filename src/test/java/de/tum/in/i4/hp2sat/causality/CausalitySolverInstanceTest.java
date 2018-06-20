@@ -699,7 +699,7 @@ public class CausalitySolverInstanceTest {
     //region [FOREST FIRE] L_exo = 1; MD_exo = 1
     @Test
     public void Should_FulfillAC1AC3Only_When_L_IsCauseFor_FF() throws Exception {
-        CausalModel arsonists = ExampleProvider.arsonists(true);
+        CausalModel forestFire = ExampleProvider.forestFire(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("L")));
@@ -707,12 +707,12 @@ public class CausalitySolverInstanceTest {
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
-        testSolve(arsonists, context, phi, cause, causalitySolverResultExpected);
+        testSolve(forestFire, context, phi, cause, causalitySolverResultExpected);
     }
 
     @Test
     public void Should_FulfillAllAcs_When_LAndMD_IsCauseFor_FF() throws Exception {
-        CausalModel arsonists = ExampleProvider.arsonists(true);
+        CausalModel forestFire = ExampleProvider.forestFire(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("L"), f.variable("MD")));
@@ -720,14 +720,14 @@ public class CausalitySolverInstanceTest {
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, true, true, cause, new HashSet<>());
-        testSolve(arsonists, context, phi, cause, causalitySolverResultExpected);
+        testSolve(forestFire, context, phi, cause, causalitySolverResultExpected);
     }
     //endregion
 
     //region [FOREST FIRE] L_exo = 0; MD_exo = 0
     @Test
     public void Should_FulfillAllAC2AC3Only_When_LAndMD_IsCauseFor_FF_Given_NotLExoAndNotMDExo() throws Exception {
-        CausalModel arsonists = ExampleProvider.arsonists(true);
+        CausalModel forestFire = ExampleProvider.forestFire(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("L"), f.variable("MD")));
@@ -735,7 +735,7 @@ public class CausalitySolverInstanceTest {
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(false, true, true, cause, new HashSet<>());
-        testSolve(arsonists, context, phi, cause, causalitySolverResultExpected);
+        testSolve(forestFire, context, phi, cause, causalitySolverResultExpected);
     }
     //endregion
     //endregion
@@ -1388,15 +1388,15 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_ReturnEvaluationForEquationsInArsonistsDisjunctive_When_LightningOnly() throws Exception {
-        CausalModel arsonists = ExampleProvider.arsonists(true);
+    public void Should_ReturnEvaluationForEquationsInforestFireDisjunctive_When_LightningOnly() throws Exception {
+        CausalModel forestFire = ExampleProvider.forestFire(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", false)));
 
         Set<Literal> evaluationExpected = new HashSet<>(Arrays.asList(f.literal("L_exo", true),
                 f.literal("MD_exo", false), f.literal("L", true),
                 f.literal("MD", false), f.literal("FF", true)));
-        Set<Literal> evaluationActual = CausalitySolver.evaluateEquations(arsonists, context, f);
+        Set<Literal> evaluationActual = CausalitySolver.evaluateEquations(forestFire, context, f);
 
         assertEquals(evaluationExpected, evaluationActual);
     }
@@ -1460,7 +1460,7 @@ public class CausalitySolverInstanceTest {
 
     @Test
     public void Should_ReturnAllCauses_WhenLandMDInConjunctiveScenario() throws Exception {
-        CausalModel arsonists = ExampleProvider.arsonists(false);
+        CausalModel forestFire = ExampleProvider.forestFire(false);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", true)));
         Formula phi = f.variable("FF");
@@ -1472,12 +1472,12 @@ public class CausalitySolverInstanceTest {
                 new CausalitySolverResult(true, true, true,
                         new HashSet<>(Collections.singletonList(f.variable("FF"))), new HashSet<>())));
 
-        testGetAllCauses(arsonists, context, phi, allCausesExpected);
+        testGetAllCauses(forestFire, context, phi, allCausesExpected);
     }
 
     @Test
     public void Should_ReturnAllCauses_WhenLandMDInDisjunctiveScenario() throws Exception {
-        CausalModel arsonists = ExampleProvider.arsonists(true);
+        CausalModel forestFire = ExampleProvider.forestFire(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", true)));
         Formula phi = f.variable("FF");
@@ -1487,6 +1487,6 @@ public class CausalitySolverInstanceTest {
                 new CausalitySolverResult(true, true, true,
                         new HashSet<>(Collections.singletonList(f.variable("FF"))), new HashSet<>())));
 
-        testGetAllCauses(arsonists, context, phi, allCausesExpected);
+        testGetAllCauses(forestFire, context, phi, allCausesExpected);
     }
 }

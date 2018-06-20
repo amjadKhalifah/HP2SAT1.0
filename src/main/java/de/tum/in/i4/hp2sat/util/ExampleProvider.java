@@ -43,7 +43,7 @@ public class ExampleProvider {
         return causalModel;
     }
 
-    public static CausalModel arsonists(boolean disjunctive) throws InvalidCausalModelException {
+    public static CausalModel forestFire(boolean disjunctive) throws InvalidCausalModelException {
         FormulaFactory f = new FormulaFactory();
         Variable LExo = f.variable("L_exo");
         Variable MDExo = f.variable("MD_exo");
@@ -63,7 +63,7 @@ public class ExampleProvider {
         Set<Equation> equations = new HashSet<>(Arrays.asList(LEquation, MDEquation, FFEquation));
         Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(LExo, MDExo));
 
-        String name = "Arsonists_" + (disjunctive ? "disjunctive" : "conjunctive");
+        String name = "ForestFire_" + (disjunctive ? "disjunctive" : "conjunctive");
         CausalModel causalModel = new CausalModel(name, equations, exogenousVariables);
         return causalModel;
     }
