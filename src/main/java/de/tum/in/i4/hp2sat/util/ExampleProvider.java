@@ -135,6 +135,122 @@ public class ExampleProvider {
         return causalModel;
     }
 
+    public static CausalModel stealMasterKey() throws InvalidCausalModelException {
+        FormulaFactory f = new FormulaFactory();
+        Variable FS_U1_Exo = f.variable("FS_U1_Exo");
+        Variable FN_U1_Exo = f.variable("FN_U1_Exo");
+        Variable FF_U1_Exo = f.variable("FF_U1_Exo");
+        Variable FDB_U1_Exo = f.variable("FDB_U1_Exo");
+        Variable FS_U2_Exo = f.variable("FS_U2_Exo");
+        Variable FN_U2_Exo = f.variable("FN_U2_Exo");
+        Variable FF_U2_Exo = f.variable("FF_U2_Exo");
+        Variable FDB_U2_Exo = f.variable("FDB_U2_Exo");
+        Variable FS_U3_Exo = f.variable("FS_U3_Exo");
+        Variable FN_U3_Exo = f.variable("FN_U3_Exo");
+        Variable FF_U3_Exo = f.variable("FF_U3_Exo");
+        Variable FDB_U3_Exo = f.variable("FDB_U3_Exo");
+        Variable A_U1_Exo = f.variable("A_U1_Exo");
+        Variable AD_U1_Exo = f.variable("AD_U1_Exo");
+        Variable A_U2_Exo = f.variable("A_U2_Exo");
+        Variable AD_U2_Exo = f.variable("AD_U2_Exo");
+        Variable A_U3_Exo = f.variable("A_U3_Exo");
+        Variable AD_U3_Exo = f.variable("AD_U3_Exo");
+
+        Variable FS_U1 = f.variable("FS_U1");
+        Variable FN_U1 = f.variable("FN_U1");
+        Variable FF_U1 = f.variable("FF_U1");
+        Variable FDB_U1 = f.variable("FDB_U1");
+        Variable FS_U2 = f.variable("FS_U2");
+        Variable FN_U2 = f.variable("FN_U2");
+        Variable FF_U2 = f.variable("FF_U2");
+        Variable FDB_U2 = f.variable("FDB_U2");
+        Variable FS_U3 = f.variable("FS_U3");
+        Variable FN_U3 = f.variable("FN_U3");
+        Variable FF_U3 = f.variable("FF_U3");
+        Variable FDB_U3 = f.variable("FDB_U3");
+        Variable A_U1 = f.variable("A_U1");
+        Variable AD_U1 = f.variable("AD_U1");
+        Variable A_U2 = f.variable("A_U2");
+        Variable AD_U2 = f.variable("AD_U2");
+        Variable A_U3 = f.variable("A_U3");
+        Variable AD_U3 = f.variable("AD_U3");
+
+        Variable GP_U1 = f.variable("GP_U1");
+        Variable GK_U1 = f.variable("GK_U1");
+        Variable GP_U2 = f.variable("GP_U2");
+        Variable GK_U2 = f.variable("GK_U2");
+        Variable GP_U3 = f.variable("GP_U3");
+        Variable GK_U3 = f.variable("GK_U3");
+        Variable KMS_U1 = f.variable("KMS_U1");
+        Variable KMS_U2 = f.variable("KMS_U2");
+        Variable KMS_U3 = f.variable("KMS_U3");
+
+        Variable DK_U1 = f.variable("DK_U1");
+        Variable DK_U2 = f.variable("DK_U2");
+        Variable DK_U3 = f.variable("DK_U3");
+        Variable SD_U1 = f.variable("SD_U1");
+        Variable SD_U2 = f.variable("SD_U2");
+        Variable SD_U3 = f.variable("SD_U3");
+
+        Variable DK = f.variable("DK");
+        Variable SD = f.variable("SD");
+        Variable SMK = f.variable("SMK");
+
+        Equation FS_U1Equation = new Equation(FS_U1, FS_U1_Exo);
+        Equation FN_U1Equation = new Equation(FN_U1, FN_U1_Exo);
+        Equation FF_U1Equation = new Equation(FF_U1, FF_U1_Exo);
+        Equation FDB_U1Equation = new Equation(FDB_U1, FDB_U1_Exo);
+        Equation FS_U2Equation = new Equation(FS_U2, FS_U2_Exo);
+        Equation FN_U2Equation = new Equation(FN_U2, FN_U2_Exo);
+        Equation FF_U2Equation = new Equation(FF_U2, FF_U2_Exo);
+        Equation FDB_U2Equation = new Equation(FDB_U2, FDB_U2_Exo);
+        Equation FS_U3Equation = new Equation(FS_U3, FS_U3_Exo);
+        Equation FN_U3Equation = new Equation(FN_U3, FN_U3_Exo);
+        Equation FF_U3Equation = new Equation(FF_U3, FF_U3_Exo);
+        Equation FDB_U3Equation = new Equation(FDB_U3, FDB_U3_Exo);
+        Equation A_U1Equation = new Equation(A_U1, A_U1_Exo);
+        Equation AD_U1Equation = new Equation(AD_U1, AD_U1_Exo);
+        Equation A_U2Equation = new Equation(A_U2, A_U2_Exo);
+        Equation AD_U2Equation = new Equation(AD_U2, AD_U2_Exo);
+        Equation A_U3Equation = new Equation(A_U3, A_U3_Exo);
+        Equation AD_U3Equation = new Equation(AD_U3, AD_U3_Exo);
+
+        Equation GP_U1Equation = new Equation(GP_U1, f.or(FS_U1, FN_U1));
+        Equation GK_U1Equation = new Equation(GK_U1, f.or(FF_U1, FDB_U1));
+        Equation GP_U2Equation = new Equation(GP_U2, f.or(FS_U2, FN_U2));
+        Equation GK_U2Equation = new Equation(GK_U2, f.or(FF_U2, FDB_U2));
+        Equation GP_U3Equation = new Equation(GP_U3, f.or(FS_U3, FN_U3));
+        Equation GK_U3Equation = new Equation(GK_U3, f.or(FF_U3, FDB_U3));
+        Equation KMS_U1Equation = new Equation(KMS_U1, f.and(A_U1, AD_U1));
+        Equation KMS_U2Equation = new Equation(KMS_U2, f.and(A_U2, AD_U2));
+        Equation KMS_U3Equation = new Equation(KMS_U3, f.and(A_U3, AD_U3));
+
+        Equation DK_U1Equation = new Equation(DK_U1, f.and(GP_U1, GK_U1));
+        Equation DK_U2Equation = new Equation(DK_U2, f.and(GP_U2, GK_U2, f.not(DK_U1))); // preemption
+        Equation DK_U3Equation = new Equation(DK_U3, f.and(GP_U3, GK_U3, f.not(DK_U1), f.not(DK_U2))); // preemption
+        Equation SD_U1Equation = new Equation(SD_U1, KMS_U1);
+        Equation SD_U2Equation = new Equation(SD_U2, f.and(KMS_U2, f.not(SD_U1))); // preemption
+        Equation SD_U3Equation = new Equation(SD_U3, f.and(KMS_U3, f.not(SD_U1), f.not(SD_U2))); // preemption
+
+        Equation DKEquation = new Equation(DK, f.or(DK_U1, DK_U2, DK_U3));
+        Equation SDEquation = new Equation(SD, f.or(SD_U1, SD_U2, SD_U3));
+        Equation SMKEquation = new Equation(SMK, f.or(DK, SD));
+
+        Set<Equation> equations = new HashSet<>(Arrays.asList(FS_U1Equation, FN_U1Equation, FF_U1Equation,
+                FDB_U1Equation, FS_U2Equation, FN_U2Equation, FF_U2Equation, FDB_U2Equation, FS_U3Equation,
+                FN_U3Equation, FF_U3Equation, FDB_U3Equation, A_U1Equation, AD_U1Equation, A_U2Equation,
+                AD_U2Equation, A_U3Equation, AD_U3Equation, GP_U1Equation, GK_U1Equation, GP_U2Equation,
+                GK_U2Equation, GP_U3Equation, GK_U3Equation, KMS_U1Equation, KMS_U2Equation, KMS_U3Equation,
+                DK_U1Equation, DK_U2Equation, DK_U3Equation, SD_U1Equation, SD_U2Equation, SD_U3Equation, DKEquation,
+                SDEquation, SMKEquation));
+        Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(FS_U1_Exo, FN_U1_Exo, FF_U1_Exo, FDB_U1_Exo,
+                FS_U2_Exo, FN_U2_Exo, FF_U2_Exo, FDB_U2_Exo, FS_U3_Exo, FN_U3_Exo, FF_U3_Exo, FDB_U3_Exo, A_U1_Exo,
+                AD_U1_Exo, A_U2_Exo, AD_U2_Exo, A_U3_Exo, AD_U3_Exo));
+
+        CausalModel causalModel = new CausalModel("StealMasterKey", equations, exogenousVariables);
+        return causalModel;
+    }
+
     public static CausalModel dummy() throws InvalidCausalModelException {
         FormulaFactory f = new FormulaFactory();
         Variable AExo = f.variable("A_exo");

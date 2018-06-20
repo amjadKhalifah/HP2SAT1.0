@@ -882,6 +882,51 @@ public class CausalitySolverInstanceTest {
     // ############################################ FOREST FIRE (end) ##################################################
     // #################################################################################################################
 
+    // #################################################################################################################
+    // ############################################ STEAL MASTER KEY ###################################################
+    // #################################################################################################################
+    //region STEAL MASTER KEY
+    //region [STEAL MASTER KEY] all exogenous variables 1
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_FSU1_IsCauseFor_SMK() throws Exception {
+        CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        // set all exogenous variables to 1
+        Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
+                .map(v -> (Literal) v).collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U1")));
+        Formula phi = f.variable("SMK");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected,
+                BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W);
+    }
+
+    @Test
+    public void Should_FulfillAllACs_When_FSU1AndFNU1AndAU1_IsCauseFor_SMK() throws Exception {
+        CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        // set all exogenous variables to 1
+        Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
+                .map(v -> (Literal) v).collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U1"), f.variable("FN_U1"),
+                f.variable("A_U1")));
+        Formula phi = f.variable("SMK");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>(Arrays.asList(
+                        f.literal("DK_U2", false), f.literal("DK_U3", false),
+                        f.literal("SD_U2", false), f.literal("SD_U3", false))));
+        // TODO non-minimal W such that other approaches work as well
+        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected,
+                BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W, SAT, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_W, SAT_COMBINED,
+                SAT_OPTIMIZED_CLAUSES);
+    }
+    //endregion
+    //endregion
+    // #################################################################################################################
+    // ########################################### STEAL MASTER KEY (end) ##############################################
+    // #################################################################################################################
+
     @Test
     public void Should_FulfillAllACs_When_STIsCauseForBSInExtendedModelWITHOUTWind() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzyExtended();
