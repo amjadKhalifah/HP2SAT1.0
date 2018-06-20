@@ -36,18 +36,22 @@ public class CausalitySolverInstanceTest {
     }
 
     private void testSolve(CausalModel causalModel, Set<Literal> context, Formula phi, Set<Literal> cause,
-                           CausalitySolverResult causalitySolverResultExpected) throws Exception {
+                           CausalitySolverResult causalitySolverResultExpected, SolvingStrategy... excludedStrategies) throws Exception {
         // all have same expected result
         Map<SolvingStrategy, Set<CausalitySolverResult>> causalitySolverResultsExpected = solvingStrategies.stream()
                 .collect(Collectors.toMap(Function.identity(), s -> new HashSet<>
                         (Collections.singletonList(causalitySolverResultExpected))));
-        testSolve(causalModel, context, phi, cause, causalitySolverResultsExpected);
+        testSolve(causalModel, context, phi, cause, causalitySolverResultsExpected, excludedStrategies);
     }
 
     private void testSolve(CausalModel causalModel, Set<Literal> context, Formula phi, Set<Literal> cause,
-                           Map<SolvingStrategy, Set<CausalitySolverResult>> causalitySolverResultsExpected) throws
+                           Map<SolvingStrategy, Set<CausalitySolverResult>> causalitySolverResultsExpected,
+                           SolvingStrategy... excludedStrategies) throws
             Exception {
         for (SolvingStrategy solvingStrategy : solvingStrategies) {
+            if (Arrays.asList(excludedStrategies).contains(solvingStrategy)) {
+                continue;
+            }
             CausalitySolverResult causalitySolverResultActual = null;
             if (solvingStrategy == BRUTE_FORCE || solvingStrategy == BRUTE_FORCE_OPTIMIZED_W) {
                 causalitySolverResultActual =
