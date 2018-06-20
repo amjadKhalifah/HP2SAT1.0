@@ -692,6 +692,11 @@ public class CausalitySolverInstanceTest {
     // ########################################## ROCK-THROWING (END) ##################################################
     // #################################################################################################################
 
+    // #################################################################################################################
+    // ############################################### FOREST FIRE #####################################################
+    // #################################################################################################################
+    //region FOREST FIRE
+    //region [FOREST FIRE] L_exo = 1; MD_exo = 1
     @Test
     public void Should_FulfillAC1AC3Only_When_LIsCauseForFF() throws Exception {
         CausalModel arsonists = ExampleProvider.arsonists(true);
@@ -717,7 +722,9 @@ public class CausalitySolverInstanceTest {
                 new CausalitySolverResult(true, true, true, cause, new HashSet<>());
         testSolve(arsonists, context, phi, cause, causalitySolverResultExpected);
     }
+    //endregion
 
+    //region [FOREST FIRE] L_exo = 0; MD_exo = 0
     @Test
     public void Should_FulfillAllAC2AC3Only_When_LAndMDIsCauseForFF_GivenNotLExoAndNotMDExo() throws Exception {
         CausalModel arsonists = ExampleProvider.arsonists(true);
@@ -730,6 +737,11 @@ public class CausalitySolverInstanceTest {
                 new CausalitySolverResult(false, true, true, cause, new HashSet<>());
         testSolve(arsonists, context, phi, cause, causalitySolverResultExpected);
     }
+    //endregion
+    //endregion
+    // #################################################################################################################
+    // ############################################ FOREST FIRE (end) ##################################################
+    // #################################################################################################################
 
     @Test
     public void Should_FulfillAllACs_When_STIsCauseForBSInExtendedModelWITHOUTWind() throws Exception {
