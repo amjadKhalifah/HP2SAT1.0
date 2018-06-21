@@ -700,7 +700,7 @@ public class CausalitySolverInstanceTest {
     // ######################################## FOREST FIRE DISJUNCTIVE ################################################
     // #################################################################################################################
     //region FOREST FIRE DISJUNCTIVE
-    //region [FOREST FIRE] L_exo = 1; MD_exo = 1
+    //region [FOREST FIRE DISJUNCTIVE] L_exo = 1; MD_exo = 1
     @Test
     public void Should_FulfillAC1AC3Only_When_L_IsCauseFor_FF_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
@@ -741,7 +741,7 @@ public class CausalitySolverInstanceTest {
     }
     //endregion
 
-    //region [FOREST FIRE] L_exo = 0; MD_exo = 1
+    //region [FOREST FIRE DISJUNCTIVE] L_exo = 0; MD_exo = 1
     @Test
     public void Should_FulfillAC3Only_When_L_IsCauseFor_FF_Given_NotLExo_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
@@ -782,7 +782,7 @@ public class CausalitySolverInstanceTest {
     }
     //endregion
 
-    //region [FOREST FIRE] L_exo = 1; MD_exo = 0
+    //region [FOREST FIRE DISJUNCTIVE] L_exo = 1; MD_exo = 0
     @Test
     public void Should_FulfillAllACs_When_L_IsCauseFor_FF_Given_NotMDExo_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
@@ -823,7 +823,7 @@ public class CausalitySolverInstanceTest {
     }
     //endregion
 
-    //region [FOREST FIRE] L_exo = 0; MD_exo = 0
+    //region [FOREST FIRE DISJUNCTIVE] L_exo = 0; MD_exo = 0
     @Test
     public void Should_FulfillAllACs_When_NotL_IsCauseFor_NotFF_Given_NotLExoAndNotMDExo_DISJUNCTIVE()
             throws Exception {
