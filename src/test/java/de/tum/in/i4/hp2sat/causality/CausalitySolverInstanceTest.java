@@ -697,12 +697,12 @@ public class CausalitySolverInstanceTest {
     // #################################################################################################################
 
     // #################################################################################################################
-    // ############################################### FOREST FIRE #####################################################
+    // ######################################## FOREST FIRE DISJUNCTIVE ################################################
     // #################################################################################################################
-    //region FOREST FIRE
+    //region FOREST FIRE DISJUNCTIVE
     //region [FOREST FIRE] L_exo = 1; MD_exo = 1
     @Test
-    public void Should_FulfillAC1AC3Only_When_L_IsCauseFor_FF() throws Exception {
+    public void Should_FulfillAC1AC3Only_When_L_IsCauseFor_FF_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", true)));
@@ -715,7 +715,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC1AC3Only_When_MD_IsCauseFor_FF() throws Exception {
+    public void Should_FulfillAC1AC3Only_When_MD_IsCauseFor_FF_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", true)));
@@ -728,7 +728,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAllACs_When_LAndMD_IsCauseFor_FF() throws Exception {
+    public void Should_FulfillAllACs_When_LAndMD_IsCauseFor_FF_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", true)));
@@ -743,7 +743,7 @@ public class CausalitySolverInstanceTest {
 
     //region [FOREST FIRE] L_exo = 0; MD_exo = 1
     @Test
-    public void Should_FulfillAC3Only_When_L_IsCauseFor_FF_Given_NotLExo() throws Exception {
+    public void Should_FulfillAC3Only_When_L_IsCauseFor_FF_Given_NotLExo_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", true)));
@@ -756,7 +756,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAllACs_When_MD_IsCauseFor_FF_Given_NotLExo() throws Exception {
+    public void Should_FulfillAllACs_When_MD_IsCauseFor_FF_Given_NotLExo_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", true)));
@@ -769,7 +769,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC2Only_When_LAndMD_IsCauseFor_FF_Given_NotLExo() throws Exception {
+    public void Should_FulfillAC2Only_When_LAndMD_IsCauseFor_FF_Given_NotLExo_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", true)));
@@ -784,7 +784,7 @@ public class CausalitySolverInstanceTest {
 
     //region [FOREST FIRE] L_exo = 1; MD_exo = 0
     @Test
-    public void Should_FulfillAllACs_When_L_IsCauseFor_FF_Given_NotMDExo() throws Exception {
+    public void Should_FulfillAllACs_When_L_IsCauseFor_FF_Given_NotMDExo_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", false)));
@@ -797,7 +797,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC3Only_When_MD_IsCauseFor_FF_Given_NotMDExo() throws Exception {
+    public void Should_FulfillAC3Only_When_MD_IsCauseFor_FF_Given_NotMDExo_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", false)));
@@ -810,7 +810,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC2Only_When_LAndMD_IsCauseFor_FF_Given_NotMDExo() throws Exception {
+    public void Should_FulfillAC2Only_When_LAndMD_IsCauseFor_FF_Given_NotMDExo_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", false)));
@@ -825,7 +825,8 @@ public class CausalitySolverInstanceTest {
 
     //region [FOREST FIRE] L_exo = 0; MD_exo = 0
     @Test
-    public void Should_FulfillAllACs_When_NotL_IsCauseFor_NotFF_Given_NotLExoAndNotMDExo() throws Exception {
+    public void Should_FulfillAllACs_When_NotL_IsCauseFor_NotFF_Given_NotLExoAndNotMDExo_DISJUNCTIVE()
+            throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", false)));
@@ -838,7 +839,8 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAllACs_When_NotMD_IsCauseFor_NotFF_Given_NotLExoAndNotMDExo() throws Exception {
+    public void Should_FulfillAllACs_When_NotMD_IsCauseFor_NotFF_Given_NotLExoAndNotMDExo_DISJUNCTIVE()
+            throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", false)));
@@ -851,12 +853,13 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC1AC2Only_When_NotLAndNotMD_IsCauseFor_NotFF_Given_NotLExoAndNotMDExo()
+    public void Should_FulfillAC1AC2Only_When_NotLAndNotMD_IsCauseFor_NotFF_Given_NotLExoAndNotMDExo_DISJUNCTIVE()
             throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", false)));
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("L", false), f.literal("MD", false)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("L", false),
+                f.literal("MD", false)));
         Formula phi = f.literal("FF", false);
 
         CausalitySolverResult causalitySolverResultExpected =
@@ -865,7 +868,8 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC2AC3Only_When_LAndMD_IsCauseFor_FF_Given_NotLExoAndNotMDExo() throws Exception {
+    public void Should_FulfillAC2AC3Only_When_LAndMD_IsCauseFor_FF_Given_NotLExoAndNotMDExo_DISJUNCTIVE()
+            throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", false)));
