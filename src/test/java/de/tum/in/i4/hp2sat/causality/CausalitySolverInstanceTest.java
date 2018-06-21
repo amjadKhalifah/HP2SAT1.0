@@ -1092,8 +1092,7 @@ public class CausalitySolverInstanceTest {
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
-        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected,
-                BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W);
+        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
     }
 
     @Test
@@ -1112,8 +1111,7 @@ public class CausalitySolverInstanceTest {
                         f.literal("SD_U2", false), f.literal("SD_U3", false))));
         // TODO non-minimal W such that other approaches work as well
         testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected,
-                BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W, SAT, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_W, SAT_COMBINED,
-                SAT_OPTIMIZED_CLAUSES);
+                BRUTE_FORCE, SAT, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_W, SAT_COMBINED, SAT_OPTIMIZED_CLAUSES);
     }
     //endregion
     //endregion
