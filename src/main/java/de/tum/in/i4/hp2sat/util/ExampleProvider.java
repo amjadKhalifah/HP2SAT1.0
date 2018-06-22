@@ -103,7 +103,7 @@ public class ExampleProvider {
         return causalModel;
     }
 
-    public static CausalModel guns() throws InvalidCausalModelException {
+    public static CausalModel prisoners() throws InvalidCausalModelException {
         FormulaFactory f = new FormulaFactory();
         Variable AExo = f.variable("A_exo");
         Variable BExo = f.variable("B_exo");
