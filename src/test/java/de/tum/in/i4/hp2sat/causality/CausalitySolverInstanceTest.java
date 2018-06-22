@@ -1077,6 +1077,30 @@ public class CausalitySolverInstanceTest {
     // #################################################################################################################
 
     // #################################################################################################################
+    // ################################################# PRISONERS #####################################################
+    // #################################################################################################################
+    //region PRISONERS
+    //region [PRISONERS] A_exo = 1; B_exo = 0; C_exo = 1
+    @Test
+    public void Should_FulfillAllACs_When_CIsCauseForDGivenAAndNotB() throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", false),
+                f.literal("C_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("C")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+    //endregion
+    //endregion
+    // #################################################################################################################
+    // ############################################### PRISONERS (end) #################################################
+    // #################################################################################################################
+
+    // #################################################################################################################
     // ############################################ STEAL MASTER KEY ###################################################
     // #################################################################################################################
     //region STEAL MASTER KEY
@@ -1175,20 +1199,6 @@ public class CausalitySolverInstanceTest {
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(false, true, true, cause, new HashSet<>());
         testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
-    }
-
-    @Test
-    public void Should_FulfillAllACs_When_CIsCauseForDGivenAAndNotB() throws Exception {
-        CausalModel guns = ExampleProvider.prisoners();
-        Set<Literal> context = new HashSet<>(Arrays.asList(
-                f.literal("A_exo", true), f.literal("B_exo", false),
-                f.literal("C_exo", true)));
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("C")));
-        Formula phi = f.variable("D");
-
-        CausalitySolverResult causalitySolverResultExpected =
-                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
-        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
     }
 
     @Test
