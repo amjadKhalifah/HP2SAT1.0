@@ -1140,6 +1140,66 @@ public class CausalitySolverInstanceTest {
     }
     //endregion
 
+    //region [PRISONERS] A_exo = 1; B_exo = 1; C_exo = 0
+    @Test
+    public void Should_FulfillAllACs_When_A_IsCauseFor_D_AExoAndBExoAndNotCExo() throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", true),
+                f.literal("C_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("A")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAllACs_When_B_IsCauseFor_D_AExoAndBExoAndNotCExo() throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", true),
+                f.literal("C_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+
+
+    @Test
+    public void Should_FulfillAC3Only_When_C_IsCauseFor_D_AExoAndBExoAndNotCExo() throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", true),
+                f.literal("C_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("C")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, false, true, cause, null);
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC1AC2Only_When_AAndBAndC_IsCauseFor_D_AExoAndBExoAndNotCExo() throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", true),
+                f.literal("C_exo", false)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("A"), f.variable("B"),
+                f.variable("C")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, false, cause, new HashSet<>());
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+    //endregion
+
     //region [PRISONERS] A_exo = 1; B_exo = 0; C_exo = 1
     @Test
     public void Should_FulfillAC1AC3Only_When_A_IsCauseFor_D_Given_AExoAndNotBexoAndCExo() throws Exception {
@@ -1189,6 +1249,248 @@ public class CausalitySolverInstanceTest {
         CausalModel guns = ExampleProvider.prisoners();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", false),
+                f.literal("C_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("A"), f.variable("B"),
+                f.variable("C")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, false, cause, new HashSet<>());
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+    //endregion
+
+    //region [PRISONERS] A_exo = 1; B_exo = 0; C_exo = 0
+    @Test
+    public void Should_FulfillAC2AC3Only_When_A_IsCauseFor_D_Given_AExoAndNotBexoAndNotCExo() throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", false),
+                f.literal("C_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("A")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC2AC3Only_When_B_IsCauseFor_D_Given_AExoAndNotBexoAndNotCExo() throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", false),
+                f.literal("C_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+
+
+    @Test
+    public void Should_FulfillAC2AC3Only_When_C_IsCauseFor_D_Given_AExoAndNotBexoAndNotCExo() throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", false),
+                f.literal("C_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("C")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC2AC3Only_When_AAndBAndC_IsCauseFor_D_Given_AExoAndNotBexoAndNotCExo()
+            throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", false),
+                f.literal("C_exo", false)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("A"), f.variable("B"),
+                f.variable("C")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+    //endregion
+
+    //region [PRISONERS] A_exo = 0; B_exo = 1; C_exo = 1
+    @Test
+    public void Should_FulfillAC3Only_When_A_IsCauseFor_D_Given_NotAExoAndBExoAndCExo() throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", false), f.literal("B_exo", true),
+                f.literal("C_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("A")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, false, true, cause, null);
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC1AC3Only_When_B_IsCauseFor_D_Given_NotAExoAndBExoAndCExo() throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", false), f.literal("B_exo", true),
+                f.literal("C_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+
+
+    @Test
+    public void Should_FulfillAllACs_When_C_IsCauseFor_D_Given_NotAExoAndBExoAndCExo() throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", false), f.literal("B_exo", true),
+                f.literal("C_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("C")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC2Only_When_AAndBAndC_IsCauseFor_D_Given_NotAExoAndBExoAndCExo() throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", false), f.literal("B_exo", true),
+                f.literal("C_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("A"), f.variable("B"),
+                f.variable("C")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, false, cause, new HashSet<>());
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+    //endregion
+
+    //region [PRISONERS] A_exo = 0; B_exo = 1; C_exo = 0
+    @Test
+    public void Should_FulfillAC2AC3Only_When_A_IsCauseFor_D_Given_NotAExoAndBExoAndNotCExo() throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", false), f.literal("B_exo", true),
+                f.literal("C_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("A")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC2AC3Only_When_B_IsCauseFor_D_Given_NotAExoAndBExoAndNotCExo() throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", false), f.literal("B_exo", true),
+                f.literal("C_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+
+
+    @Test
+    public void Should_FulfillAC2AC3Only_When_C_IsCauseFor_D_Given_NotAExoAndBExoAndNotCExo() throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", false), f.literal("B_exo", true),
+                f.literal("C_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("C")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC2AC3Only_When_AAndBAndC_IsCauseFor_D_Given_NotAExoAndBExoAndNotCExo()
+            throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", false), f.literal("B_exo", true),
+                f.literal("C_exo", false)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("A"), f.variable("B"),
+                f.variable("C")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+    //endregion
+
+    //region [PRISONERS] A_exo = 0; B_exo = 0; C_exo = 1
+    @Test
+    public void Should_FulfillAC3Only_When_A_IsCauseFor_D_Given_NotAExoAndNotBExoAndCExo() throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", false), f.literal("B_exo", false),
+                f.literal("C_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("A")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, false, true, cause, null);
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAAC3Only_When_B_IsCauseFor_D_Given_NotAExoAndNotBExoAndCExo() throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", false), f.literal("B_exo", false),
+                f.literal("C_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, false, true, cause, null);
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+
+
+    @Test
+    public void Should_FulfillAllACs_When_C_IsCauseFor_D_Given_NotAExoAndNotBExoAndCExo() throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", false), f.literal("B_exo", false),
+                f.literal("C_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("C")));
+        Formula phi = f.variable("D");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        testSolve(guns, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC2Only_When_AAndBAndC_IsCauseFor_D_Given_NotAExoAndNotBExoAndCExo() throws Exception {
+        CausalModel guns = ExampleProvider.prisoners();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", false), f.literal("B_exo", false),
                 f.literal("C_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("A"), f.variable("B"),
                 f.variable("C")));
