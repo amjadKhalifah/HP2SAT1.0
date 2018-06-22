@@ -1082,7 +1082,7 @@ public class CausalitySolverInstanceTest {
     //region PRISONERS
     //region [PRISONERS] A_exo = 1; B_exo = 0; C_exo = 1
     @Test
-    public void Should_FulfillAllACs_When_CIsCauseForDGivenAAndNotB() throws Exception {
+    public void Should_FulfillAllACs_When_C_IsCauseFor_D_Given_AExoAndNotBexoAndCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", false),
