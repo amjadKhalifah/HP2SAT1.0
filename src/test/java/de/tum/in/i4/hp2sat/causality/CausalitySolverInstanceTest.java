@@ -1138,7 +1138,6 @@ public class CausalitySolverInstanceTest {
                 new CausalitySolverResult(false, true, false, cause, new HashSet<>());
         testSolve(guns, context, phi, cause, causalitySolverResultExpected);
     }
-
     //endregion
     //endregion
     // #################################################################################################################
