@@ -1568,6 +1568,178 @@ public class CausalitySolverInstanceTest {
     // #################################################################################################################
 
     // #################################################################################################################
+    // ######################################### ASSASSIN FIRST VARIANT ################################################
+    // #################################################################################################################
+    //region ASSASSIN FIRST VARIANT
+    //region [ASSASSIN FIRST VARIANT] A_exo = 1; B_exo = 1
+    @Test
+    public void Should_FulfillAC3Only_When_NotA_IsCauseFor_VS_Given_AExoAndBExo_FIRST() throws Exception {
+        CausalModel assassin = ExampleProvider.assassin(true);
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("A", false)));
+        Formula phi = f.variable("VS");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, false, true, cause, null);
+        testSolve(assassin, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAllACs_When_B_IsCauseFor_VS_Given_AExoAndBExo_FIRST() throws Exception {
+        CausalModel assassin = ExampleProvider.assassin(true);
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B")));
+        Formula phi = f.variable("VS");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        testSolve(assassin, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC2Only_When_NotAAndB_IsCauseFor_VS_GivenAExoAndBExo_FIRST() throws Exception {
+        CausalModel assassin = ExampleProvider.assassin(true);
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("A", false), f.variable("B")));
+        Formula phi = f.variable("VS");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, false, cause, new HashSet<>());
+        testSolve(assassin, context, phi, cause, causalitySolverResultExpected);
+    }
+    //endregion
+
+    //region [ASSASSIN FIRST VARIANT] A_exo = 1; B_exo = 0
+    @Test
+    public void Should_FulfillAC2AC3Only_When_NotA_IsCauseFor_VS_Given_AExoAndNotBExo_FIRST() throws Exception {
+        CausalModel assassin = ExampleProvider.assassin(true);
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("A", false)));
+        Formula phi = f.variable("VS");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(assassin, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC2AC3Only_When_B_IsCauseFor_VS_Given_AExoAndNotBExo_FIRST() throws Exception {
+        CausalModel assassin = ExampleProvider.assassin(true);
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B")));
+        Formula phi = f.variable("VS");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(assassin, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC2AC3Only_When_NotAAndB_IsCauseFor_VS_GivenAExoAndBNotExo_FIRST() throws Exception {
+        CausalModel assassin = ExampleProvider.assassin(true);
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", false)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("A", false), f.variable("B")));
+        Formula phi = f.variable("VS");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(assassin, context, phi, cause, causalitySolverResultExpected);
+    }
+    //endregion
+
+    //region [ASSASSIN FIRST VARIANT] A_exo = 0; B_exo = 1
+    @Test
+    public void Should_FulfillAC1AC3Only_When_NotA_IsCauseFor_VS_Given_NotAExoAndBExo_FIRST() throws Exception {
+        CausalModel assassin = ExampleProvider.assassin(true);
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", false), f.literal("B_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("A", false)));
+        Formula phi = f.variable("VS");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(assassin, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC1AC3_When_B_IsCauseFor_VS_Given_NotAExoAndBExo_FIRST() throws Exception {
+        CausalModel assassin = ExampleProvider.assassin(true);
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", false), f.literal("B_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B")));
+        Formula phi = f.variable("VS");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(assassin, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAllACs_When_NotAAndB_IsCauseFor_VS_GivenNotAExoAndBExo_FIRST() throws Exception {
+        CausalModel assassin = ExampleProvider.assassin(true);
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", false), f.literal("B_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("A", false), f.variable("B")));
+        Formula phi = f.variable("VS");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        testSolve(assassin, context, phi, cause, causalitySolverResultExpected);
+    }
+    //endregion
+
+    //region [ASSASSIN FIRST VARIANT] A_exo = 0; B_exo = 0
+    @Test
+    public void Should_FulfillAllACs_When_NotA_IsCauseFor_VS_Given_NotAExoAndNotBExo_FIRST() throws Exception {
+        CausalModel assassin = ExampleProvider.assassin(true);
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", false), f.literal("B_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("A", false)));
+        Formula phi = f.variable("VS");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        testSolve(assassin, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC3Only_When_B_IsCauseFor_VS_Given_NotAExoAndNotBExo_FIRST() throws Exception {
+        CausalModel assassin = ExampleProvider.assassin(true);
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", false), f.literal("B_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B")));
+        Formula phi = f.variable("VS");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, false, true, cause, null);
+        testSolve(assassin, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC2Only_When_NotAAndB_IsCauseFor_VS_GivenNotAExoAndBNotExo_FIRST() throws Exception {
+        CausalModel assassin = ExampleProvider.assassin(true);
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", false), f.literal("B_exo", false)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("A", false), f.variable("B")));
+        Formula phi = f.variable("VS");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, false, cause, new HashSet<>());
+        testSolve(assassin, context, phi, cause, causalitySolverResultExpected);
+    }
+    //endregion
+    //endregion
+    // #################################################################################################################
+    // ##################################### ASSASSIN FIRST VARIANT (end) #############################################
+    // #################################################################################################################
+
+    // #################################################################################################################
     // ############################################ STEAL MASTER KEY ###################################################
     // #################################################################################################################
     //region STEAL MASTER KEY
