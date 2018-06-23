@@ -131,6 +131,27 @@ public class ExampleProvider {
         return causalModel;
     }
 
+    public static CausalModel assassin(boolean firstVariant) throws InvalidCausalModelException {
+        FormulaFactory f = new FormulaFactory();
+        Variable AExo = f.variable("A_exo");
+        Variable BExo = f.variable("B_exo");
+
+        Variable A = f.variable("A");
+        Variable B = f.variable("B");
+        Variable VS = f.variable("VS");
+
+        Equation AEquation = new Equation(A, firstVariant ? AExo : f.and(AExo, B));
+        Equation BEquation = new Equation(B, BExo);
+        Equation VSEquation = new Equation(VS, f.or(f.not(A), B));
+
+        Set<Equation> equations = new HashSet<>(Arrays.asList(AEquation, BEquation, VSEquation));
+        Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(AExo, BExo));
+
+        String name = "Assassin_" + (firstVariant ? "firstVariant" : "secondVariant");
+        CausalModel causalModel = new CausalModel(name, equations, exogenousVariables);
+        return causalModel;
+    }
+
     public static CausalModel stealMasterKey() throws InvalidCausalModelException {
         FormulaFactory f = new FormulaFactory();
         Variable FS_U1_Exo = f.variable("FS_U1_Exo");
