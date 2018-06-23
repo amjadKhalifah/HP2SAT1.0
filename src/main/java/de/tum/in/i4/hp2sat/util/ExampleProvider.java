@@ -152,6 +152,29 @@ public class ExampleProvider {
         return causalModel;
     }
 
+    public static CausalModel railroad() throws InvalidCausalModelException {
+        FormulaFactory f = new FormulaFactory();
+        Variable LBExo = f.variable("LB_exo");
+        Variable FExo = f.variable("F_exo");
+        Variable RBExo = f.variable("RB_exo");
+
+        Variable LB = f.variable("LB");
+        Variable F = f.variable("F");
+        Variable RB = f.variable("RB");
+        Variable A = f.variable("A");
+
+        Equation LBEquation = new Equation(LB, LBExo);
+        Equation FEquation = new Equation(F, FExo);
+        Equation RBEquation = new Equation(RB, RBExo);
+        Equation AEquation = new Equation(A, f.not(f.or(f.and(F, RB), f.and(f.not(F), LB))));
+
+        Set<Equation> equations = new HashSet<>(Arrays.asList(LBEquation, FEquation, RBEquation, AEquation));
+        Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(LBExo, FExo, RBExo));
+
+        CausalModel causalModel = new CausalModel("Railroad", equations, exogenousVariables);
+        return causalModel;
+    }
+
     public static CausalModel stealMasterKey() throws InvalidCausalModelException {
         FormulaFactory f = new FormulaFactory();
         Variable FS_U1_Exo = f.variable("FS_U1_Exo");
