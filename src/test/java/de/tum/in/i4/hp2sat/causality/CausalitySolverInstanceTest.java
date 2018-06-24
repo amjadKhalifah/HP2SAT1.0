@@ -2464,6 +2464,158 @@ public class CausalitySolverInstanceTest {
         testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
     }
     //endregion
+
+    //region [STEAL MASTER KEY] all U2/U3 exogenous variables 1
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_FSU2_IsCauseFor_SMK_Given_U2U3Exos() throws Exception {
+        CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        // set all U2/U3 exogenous variables to 1
+        Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
+                .map(v -> v.name().contains ("U1") ?  v.negate() : v).collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U2")));
+        Formula phi = f.variable("SMK");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_FSU2AndFNU2_IsCauseFor_SMK_Given_U2U3Exos() throws Exception {
+        CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        // set all U2/U3 exogenous variables to 1
+        Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
+                .map(v -> v.name().contains ("U1") ?  v.negate() : v).collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U2"), f.variable("FN_U2")));
+        Formula phi = f.variable("SMK");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+
+    @Test
+    public void Should_FulfillAllACs_When_FSU2AndFNU2AndAU2_IsCauseFor_SMK_Given_U2U3Exos() throws Exception {
+        CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        // set all U2/U3 exogenous variables to 1
+        Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
+                .map(v -> v.name().contains ("U1") ?  v.negate() : v).collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U2"), f.variable("FN_U2"),
+                f.variable("A_U2")));
+        Formula phi = f.variable("SMK");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>(Arrays.asList(
+                        f.literal("DK_U3", false), f.literal("SD_U3", false))));
+        // exclude brute-force approach (takes too long) and strategies that yield non-minimal W (ease testing)
+        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected,
+                BRUTE_FORCE, SAT, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_W, SAT_COMBINED, SAT_OPTIMIZED_CLAUSES);
+    }
+
+    @Test
+    public void Should_FulfillAllACs_When_FSU2AndFNU2AndADU2_IsCauseFor_SMK_Given_U2U3Exos() throws Exception {
+        CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        // set all U2/U3 exogenous variables to 1
+        Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
+                .map(v -> v.name().contains ("U1") ?  v.negate() : v).collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U2"), f.variable("FN_U2"),
+                f.variable("AD_U2")));
+        Formula phi = f.variable("SMK");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>(Arrays.asList(
+                        f.literal("DK_U3", false), f.literal("SD_U3", false))));
+        // exclude brute-force approach (takes too long) and strategies that yield non-minimal W (ease testing)
+        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected,
+                BRUTE_FORCE, SAT, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_W, SAT_COMBINED, SAT_OPTIMIZED_CLAUSES);
+    }
+
+    @Test
+    public void Should_FulfillAC1AC2Only_When_FSU2AndFNU2AndAndAU2AndADU2_IsCauseFor_SMK_Given_U2U3Exos()
+            throws Exception {
+        CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        // set all U2/U3 exogenous variables to 1
+        Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
+                .map(v -> v.name().contains ("U1") ?  v.negate() : v).collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U2"), f.variable("FN_U2"),
+                f.variable("A_U2"), f.variable("AD_U2")));
+        Formula phi = f.variable("SMK");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, false, cause, new HashSet<>(Arrays.asList(
+                        f.literal("DK_U3", false), f.literal("SD_U3", false))));
+        // exclude brute-force approach (takes too long) and strategies that yield non-minimal W (ease testing)
+        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected,
+                BRUTE_FORCE, SAT, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_W, SAT_COMBINED, SAT_OPTIMIZED_CLAUSES);
+    }
+
+    @Test
+    public void Should_FulfillAllACs_When_FSU2AndFNU2_IsCauseFor_DK_Given_U2U3Exos() throws Exception {
+        CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        // set all U2/U3 exogenous variables to 1
+        Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
+                .map(v -> v.name().contains ("U1") ?  v.negate() : v).collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U2"), f.variable("FN_U2")));
+        Formula phi = f.variable("DK");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Collections.singletonList(f.literal("DK_U3", false))));
+        // exclude brute-force approach (takes too long) and strategies that yield non-minimal W (ease testing)
+        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected,
+                BRUTE_FORCE, SAT, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_W, SAT_COMBINED, SAT_OPTIMIZED_CLAUSES);
+    }
+
+    @Test
+    public void Should_FulfillAllACs_When_AU2_IsCauseFor_SD_Given_U2U3Exos() throws Exception {
+        CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        // set all U2/U3 exogenous variables to 1
+        Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
+                .map(v -> v.name().contains ("U1") ?  v.negate() : v).collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("A_U2")));
+        Formula phi = f.variable("SD");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Collections.singletonList(f.literal("SD_U3", false))));
+        // exclude brute-force approach (takes too long) and strategies that yield non-minimal W (ease testing)
+        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected,
+                BRUTE_FORCE, SAT, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_W, SAT_COMBINED, SAT_OPTIMIZED_CLAUSES);
+    }
+
+    @Test
+    public void Should_FulfillAC1AC2Only_When_AU2AndADU2_IsCauseFor_SD_Given_U2U3Exos() throws Exception {
+        CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        // set all U2/U3 exogenous variables to 1
+        Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
+                .map(v -> v.name().contains ("U1") ?  v.negate() : v).collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("A_U2"), f.variable("AD_U2")));
+        Formula phi = f.variable("SD");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, false, cause,
+                        new HashSet<>(Collections.singletonList(f.literal("SD_U3", false))));
+        // exclude brute-force approach (takes too long) and strategies that yield non-minimal W (ease testing)
+        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected,
+                BRUTE_FORCE, SAT, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_W, SAT_COMBINED, SAT_OPTIMIZED_CLAUSES);
+    }
+
+    @Test
+    public void Should_FulfillAllACs_When_FSU2AndFNU2AndAU2_IsCauseFor_DKU2OrSDU2_Given_U2U3Exos() throws Exception {
+        CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        // set all U2/U3 exogenous variables to 1
+        Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
+                .map(v -> v.name().contains ("U1") ?  v.negate() : v).collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U2"), f.variable("FN_U2"),
+                f.variable("A_U2")));
+        Formula phi = f.or(f.variable("DK_U2"), f.variable("SD_U2"));
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        // exclude brute-force approach (takes too long)
+        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+    //endregion
     //endregion
     // #################################################################################################################
     // ########################################### STEAL MASTER KEY (end) ##############################################
