@@ -2432,7 +2432,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAllAC1AC2Only_When_AU1AndADU1_IsCauseFor_SD() throws Exception {
+    public void Should_FulfillAC1AC2Only_When_AU1AndADU1_IsCauseFor_SD() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
