@@ -111,7 +111,7 @@ class SATCausalitySolver extends CausalitySolver {
                 solvingStrategy, false, f);
         satSolver.add(formula);
         if (satSolver.sat() == Tristate.TRUE) {
-            if (Arrays.asList(SAT, SAT_OPTIMIZED_W, SAT_OPTIMIZED_CLAUSES, SAT_OPTIMIZED_AC3)
+            if (Arrays.asList(SAT, SAT_OPTIMIZED_W, SAT_OPTIMIZED_FORMULAS, SAT_OPTIMIZED_AC3)
                     .contains(solvingStrategy)) {
                 // if satisfiable, get the assignment for which the formula is satisfiable
                 Assignment assignment = satSolver.model();
@@ -460,7 +460,7 @@ class SATCausalitySolver extends CausalitySolver {
             wVariablesOptimized = CausalitySolver.getMinimalWVariables(causalModel, notPhi, cause, f);
         }
         Set<Variable> variablesAffectingPhi = null;
-        if (solvingStrategy == SAT_OPTIMIZED_CLAUSES || solvingStrategy == SAT_OPTIMIZED_CLAUSES_MINIMAL) {
+        if (solvingStrategy == SAT_OPTIMIZED_FORMULAS || solvingStrategy == SAT_OPTIMIZED_FORMULAS_MINIMAL) {
             variablesAffectingPhi = CausalitySolver.getReachableVariables(causalModel.getGraphReversed(),
                     notPhi.literals(), f);
         }
@@ -481,8 +481,8 @@ class SATCausalitySolver extends CausalitySolver {
                         ((solvingStrategy == SAT_OPTIMIZED_W || solvingStrategy == SAT_OPTIMIZED_W_MINIMAL) &&
                                 !wVariablesOptimized.contains(equation.getVariable()))) {
                     equationFormula = f.equivalence(equation.getVariable(), equation.getFormula());
-                } else if ((solvingStrategy == SAT_OPTIMIZED_CLAUSES
-                        || solvingStrategy == SAT_OPTIMIZED_CLAUSES_MINIMAL)
+                } else if ((solvingStrategy == SAT_OPTIMIZED_FORMULAS
+                        || solvingStrategy == SAT_OPTIMIZED_FORMULAS_MINIMAL)
                         && !variablesAffectingPhi.contains(equation.getVariable())) {
                     equationFormula = f.verum();
                 } else {
@@ -514,7 +514,7 @@ class SATCausalitySolver extends CausalitySolver {
                  * OPTIMIZED_CLAUSES Strategy: if the variable of the current equation is in the cause or not in the
                  * set of variables that affect phi, we just add TRUE to the formula*/
                 else if (!causeVariables.contains(equation.getVariable()) &&
-                        (solvingStrategy == SAT_OPTIMIZED_CLAUSES || solvingStrategy == SAT_OPTIMIZED_CLAUSES_MINIMAL)
+                        (solvingStrategy == SAT_OPTIMIZED_FORMULAS || solvingStrategy == SAT_OPTIMIZED_FORMULAS_MINIMAL)
                         && !variablesAffectingPhi.contains(equation.getVariable())) {
                     equationFormula = f.verum();
                 }
