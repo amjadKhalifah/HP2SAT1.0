@@ -2258,20 +2258,6 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC3Only_When_F_IsCauseFor_A_Given_NotLBExoAndNotFExoAndNotRBExo() throws Exception {
-        CausalModel railroad = ExampleProvider.railroad();
-        Set<Literal> context = new HashSet<>(Arrays.asList(
-                f.literal("LB_exo", false), f.literal("F_exo", false),
-                f.literal("RB_exo", false)));
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("F")));
-        Formula phi = f.variable("A");
-
-        CausalitySolverResult causalitySolverResultExpected =
-                new CausalitySolverResult(false, false, true, cause, null);
-        testSolve(railroad, context, phi, cause, causalitySolverResultExpected);
-    }
-
-    @Test
     public void Should_FulfillAC2AC3Only_When_RB_IsCauseFor_NotA_Given_NotLBExoAndNotFExoAndNotRBExo()
             throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
@@ -2283,6 +2269,20 @@ public class CausalitySolverInstanceTest {
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(railroad, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC3Only_When_F_IsCauseFor_A_Given_NotLBExoAndNotFExoAndNotRBExo() throws Exception {
+        CausalModel railroad = ExampleProvider.railroad();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("LB_exo", false), f.literal("F_exo", false),
+                f.literal("RB_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("F", false)));
+        Formula phi = f.variable("A");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
         testSolve(railroad, context, phi, cause, causalitySolverResultExpected);
     }
     //endregion
