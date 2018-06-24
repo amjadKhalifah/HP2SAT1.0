@@ -2324,7 +2324,7 @@ public class CausalitySolverInstanceTest {
                 new CausalitySolverResult(true, true, true, cause, new HashSet<>(Arrays.asList(
                         f.literal("DK_U2", false), f.literal("DK_U3", false),
                         f.literal("SD_U2", false), f.literal("SD_U3", false))));
-        // TODO non-minimal W such that other approaches work as well
+        // exclude brute-force approach (takes too long) and strategies that yield non-minimal W (ease testing)
         testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected,
                 BRUTE_FORCE, SAT, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_W, SAT_COMBINED, SAT_OPTIMIZED_CLAUSES);
     }
