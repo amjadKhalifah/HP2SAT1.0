@@ -1960,7 +1960,140 @@ public class CausalitySolverInstanceTest {
     }
     //endregion
 
-    // TODO add missing contexts
+    //region [RAILROAD] LB_exo = 1; F_exo = 1 RB_exo = 0
+    @Test
+    public void Should_FulfillAC2AC3Only_When_LB_IsCauseFor_NotA_Given_LBExoAndFExoAndNotRBExo() throws Exception {
+        CausalModel railroad = ExampleProvider.railroad();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("LB_exo", true), f.literal("F_exo", true),
+                f.literal("RB_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("LB")));
+        Formula phi = f.literal("A", false);
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(railroad, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC2AC3Only_When_F_IsCauseFor_NotA_Given_LBExoAndFExoAndNotRBExo() throws Exception {
+        CausalModel railroad = ExampleProvider.railroad();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("LB_exo", true), f.literal("F_exo", true),
+                f.literal("RB_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("F")));
+        Formula phi = f.literal("A", false);
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause,
+                        new HashSet<>(Collections.singletonList(f.variable("A"))));
+        // exclude strategies that yield a non-minimal W to ease testing
+        testSolve(railroad, context, phi, cause, causalitySolverResultExpected, SAT, SAT_COMBINED,
+                SAT_OPTIMIZED_CLAUSES, SAT_OPTIMIZED_W, SAT_OPTIMIZED_AC3);
+    }
+
+    @Test
+    public void Should_FulfillAC2AC3Only_When_RB_IsCauseFor_NotA_Given_LBExoAndFExoAndNotRBExo() throws Exception {
+        CausalModel railroad = ExampleProvider.railroad();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("LB_exo", true), f.literal("F_exo", true),
+                f.literal("RB_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("RB")));
+        Formula phi = f.literal("A", false);
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(railroad, context, phi, cause, causalitySolverResultExpected);
+    }
+    //endregion
+
+    //region [RAILROAD] LB_exo = 1; F_exo = 0 RB_exo = 1
+    @Test
+    public void Should_FulfillAllACs_When_LB_IsCauseFor_NotA_Given_LBExoAndNotFExoAndRBExo() throws Exception {
+        CausalModel railroad = ExampleProvider.railroad();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("LB_exo", true), f.literal("F_exo", false),
+                f.literal("RB_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("LB")));
+        Formula phi = f.literal("A", false);
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        testSolve(railroad, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC3Only_When_F_IsCauseFor_NotA_Given_LBExoAndNotFExoAndRBExo() throws Exception {
+        CausalModel railroad = ExampleProvider.railroad();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("LB_exo", true), f.literal("F_exo", false),
+                f.literal("RB_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("F")));
+        Formula phi = f.literal("A", false);
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, false, true, cause, null);
+        testSolve(railroad, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC1AC3Only_When_RB_IsCauseFor_NotA_Given_LBExoAndNotFExoAndRBExo() throws Exception {
+        CausalModel railroad = ExampleProvider.railroad();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("LB_exo", true), f.literal("F_exo", false),
+                f.literal("RB_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("RB")));
+        Formula phi = f.literal("A", false);
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(railroad, context, phi, cause, causalitySolverResultExpected);
+    }
+    //endregion
+
+    //region [RAILROAD] LB_exo = 1; F_exo = 0 RB_exo = 0
+    @Test
+    public void Should_FulfillAllACs_When_LB_IsCauseFor_NotA_Given_LBExoAndNotFExoAndNotRBExo() throws Exception {
+        CausalModel railroad = ExampleProvider.railroad();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("LB_exo", true), f.literal("F_exo", false),
+                f.literal("RB_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("LB")));
+        Formula phi = f.literal("A", false);
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        testSolve(railroad, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC3Only_When_F_IsCauseFor_NotA_Given_LBExoAndNotFExoAndNotRBExo() throws Exception {
+        CausalModel railroad = ExampleProvider.railroad();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("LB_exo", true), f.literal("F_exo", false),
+                f.literal("RB_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("F")));
+        Formula phi = f.literal("A", false);
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, false, true, cause, null);
+        testSolve(railroad, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC3Only_When_RB_IsCauseFor_NotA_Given_LBExoAndNotFExoAndNotRBExo() throws Exception {
+        CausalModel railroad = ExampleProvider.railroad();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("LB_exo", true), f.literal("F_exo", false),
+                f.literal("RB_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("RB")));
+        Formula phi = f.literal("A", false);
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, false, true, cause, null);
+        testSolve(railroad, context, phi, cause, causalitySolverResultExpected);
+    }
+    //endregion
 
     //region [RAILROAD] LB_exo = 0; F_exo = 1 RB_exo = 1
     @Test
@@ -2002,7 +2135,6 @@ public class CausalitySolverInstanceTest {
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, true, true, cause, new HashSet<>());
-        // exclude strategies that return a non-minimal W to simplify testing
         testSolve(railroad, context, phi, cause, causalitySolverResultExpected);
     }
     //endregion
@@ -2042,6 +2174,50 @@ public class CausalitySolverInstanceTest {
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", false), f.literal("F_exo", true),
                 f.literal("RB_exo", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("RB")));
+        Formula phi = f.literal("A", false);
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(railroad, context, phi, cause, causalitySolverResultExpected);
+    }
+    //endregion
+
+    //region [RAILROAD] LB_exo = 0; F_exo = 0 RB_exo = 1
+    @Test
+    public void Should_FulfillAC2AC3Only_When_LB_IsCauseFor_NotA_Given_NotLBExoAndFExoAndRBExo() throws Exception {
+        CausalModel railroad = ExampleProvider.railroad();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("LB_exo", false), f.literal("F_exo", false),
+                f.literal("RB_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("LB")));
+        Formula phi = f.literal("A", false);
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(railroad, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC2AC3Only_When_F_IsCauseFor_NotA_Given_NotLBExoAndFExoAndRBExo() throws Exception {
+        CausalModel railroad = ExampleProvider.railroad();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("LB_exo", false), f.literal("F_exo", false),
+                f.literal("RB_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("F")));
+        Formula phi = f.literal("A", false);
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(false, true, true, cause, new HashSet<>());
+        testSolve(railroad, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC2AC3Only_When_RB_IsCauseFor_NotA_Given_NotLBExoAndFExoAndRBExo() throws Exception {
+        CausalModel railroad = ExampleProvider.railroad();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("LB_exo", false), f.literal("F_exo", false),
+                f.literal("RB_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("RB")));
         Formula phi = f.literal("A", false);
 
