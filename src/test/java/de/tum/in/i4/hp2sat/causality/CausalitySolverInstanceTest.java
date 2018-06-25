@@ -1742,7 +1742,7 @@ public class CausalitySolverInstanceTest {
     // #################################################################################################################
     // ######################################## ASSASSIN SECOND VARIANT ################################################
     // #################################################################################################################
-    //region ASSASSIN FIRST VARIANT
+    //region ASSASSIN SECOND VARIANT
     //region [ASSASSIN SECOND VARIANT] A_exo = 1; B_exo = 1
     @Test
     public void Should_FulfillAC3Only_When_NotA_IsCauseFor_VS_Given_AExoAndBExo_SECOND() throws Exception {
