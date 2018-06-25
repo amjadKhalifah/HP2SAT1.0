@@ -57,44 +57,6 @@ class BruteForceCausalitySolver extends CausalitySolver {
     private Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
                                      Set<Literal> evaluation, SolvingStrategy solvingStrategy, FormulaFactory f)
             throws InvalidCausalModelException {
-        if (solvingStrategy == SolvingStrategy.BRUTE_FORCE || solvingStrategy == SolvingStrategy.BRUTE_FORCE_OPTIMIZED_W) {
-            Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
-            /*
-             * remove exogenous variables from evaluation as they are not needed for computing the Ws. Furthermore,
-             * all variables in the cause also must not be in W. */
-            Set<Literal> wVariables = evaluation.stream()
-                    .filter(l -> !causalModel.getExogenousVariables().contains(l.variable()) &&
-                            !(causeVariables.contains(l.variable())))
-                    .collect(Collectors.toSet());
-            if (solvingStrategy == SolvingStrategy.BRUTE_FORCE_OPTIMIZED_W) {
-                Set<Variable> wVariablesOptimized = CausalitySolver.getMinimalWVariables(causalModel, phi, cause, f);
-                // remove variables that are not in the optimized W vars set
-                wVariables = wVariables.stream()
-                        .filter(l -> wVariablesOptimized.contains(l.variable())).collect(Collectors.toSet());
-            }
-            // get all possible Ws, i.e create power set of the evaluation
-            List<Set<Literal>> allW = (new Util<Literal>()).generatePowerSet(wVariables);
-            return fulfillsAC2(causalModel, phi, cause, context, allW, f);
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Internal method for checking if AC2 is fulfilled.
-     *
-     * @param causalModel the underlying causal model
-     * @param phi         the phi
-     * @param cause       the cause for which we check AC2
-     * @param context     the context
-     * @param allW        set of all relevant W
-     * @param f           a formula factory
-     * @return W if AC2 fulfilled, else null
-     * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
-     */
-    private Set<Literal> fulfillsAC2(CausalModel causalModel, Formula phi, Set<Literal> cause, Set<Literal> context,
-                                     List<Set<Literal>> allW, FormulaFactory f)
-            throws InvalidCausalModelException {
         Formula phiFormula = f.not(phi); // negate phi
 
         // create copy of original causal model
@@ -107,6 +69,24 @@ class BruteForceCausalitySolver extends CausalitySolver {
         if (phiFormula.evaluate(new Assignment(evaluationModified))) {
             return new HashSet<>();
         }
+
+        // get the cause as set of variables
+        Set<Variable> causeVariables = cause.stream().map(Literal::variable).collect(Collectors.toSet());
+        /*
+         * remove exogenous variables from evaluation as they are not needed for computing the Ws. Furthermore,
+         * all variables in the cause also must not be in W. */
+        Set<Literal> wVariables = evaluation.stream()
+                .filter(l -> !causalModel.getExogenousVariables().contains(l.variable()) &&
+                        !(causeVariables.contains(l.variable())))
+                .collect(Collectors.toSet());
+        if (solvingStrategy == SolvingStrategy.BRUTE_FORCE_OPTIMIZED_W) {
+            Set<Variable> wVariablesOptimized = CausalitySolver.getMinimalWVariables(causalModel, phi, cause, f);
+            // remove variables that are not in the optimized W vars set
+            wVariables = wVariables.stream()
+                    .filter(l -> wVariablesOptimized.contains(l.variable())).collect(Collectors.toSet());
+        }
+        // get all possible Ws, i.e create power set of the evaluation
+        List<Set<Literal>> allW = (new Util<Literal>()).generatePowerSet(wVariables);
 
         for (Set<Literal> w : allW) {
             // create copy of modified causal model
