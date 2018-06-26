@@ -291,6 +291,54 @@ public class ExampleProvider {
         return causalModel;
     }
 
+    public static CausalModel leakage() throws InvalidCausalModelException {
+        FormulaFactory f = new FormulaFactory();
+        HashMap<String, Variable> endos = new HashMap<>();
+        HashMap<String, Variable> exos = new HashMap<>();
+        Set<Equation> equations = new HashSet<>();
+
+        for (int i = 1; i <= 41; i++) {
+            String nameEndo = "X" + i;
+            Variable endo = f.variable(nameEndo);
+            endos.put(nameEndo, endo);
+
+            if (i <= 26) {
+                String nameExo = nameEndo + "_exo";
+                Variable exo = f.variable(nameExo);
+                exos.put(nameExo, exo);
+                equations.add(new Equation(endo, exo));
+            }
+        }
+
+        Equation X27Equation = new Equation(endos.get("X27"), f.or(endos.get("X3"), endos.get("X4")));
+        Equation X28Equation = new Equation(endos.get("X28"), f.or(endos.get("X5"), endos.get("X6")));
+        Equation X29Equation = new Equation(endos.get("X29"), f.or(endos.get("X7"), endos.get("X8")));
+        Equation X30Equation = new Equation(endos.get("X30"), f.or(endos.get("X9"), endos.get("X10")));
+        Equation X31Equation = new Equation(endos.get("X31"), f.or(endos.get("X12"), endos.get("X13"), endos.get("X14"),
+                endos.get("X15"), endos.get("X16")));
+        Equation X32Equation = new Equation(endos.get("X32"), f.and(endos.get("X18"), endos.get("X19")));
+        Equation X33Equation = new Equation(endos.get("X33"), f.and(endos.get("X20"), endos.get("X21")));
+        Equation X34Equation = new Equation(endos.get("X34"), f.and(endos.get("X22"), endos.get("X23")));
+        Equation X35Equation = new Equation(endos.get("X35"), f.and(endos.get("X24"), endos.get("X25")));
+        Equation X36Equation = new Equation(endos.get("X36"), f.or(endos.get("X27"), endos.get("X28"), endos.get("X29"),
+                endos.get("X30")));
+        Equation X37Equation = new Equation(endos.get("X37"), f.and(endos.get("X31"), endos.get("X17")));
+        Equation X38Equation = new Equation(endos.get("X38"), f.and(endos.get("X1"), endos.get("X2")));
+        Equation X39Equation = new Equation(endos.get("X39"), f.and(endos.get("X36"), endos.get("X11")));
+        Equation X40Equation = new Equation(endos.get("X40"), f.or(endos.get("X37"), endos.get("X32"), endos.get("X33"),
+                endos.get("X34"), endos.get("X35")));
+        Equation X41Equation = new Equation(endos.get("X41"), f.or(endos.get("X38"), endos.get("X39"), endos.get("X40"),
+                endos.get("X26")));
+
+        equations.addAll(Arrays.asList(X27Equation, X28Equation, X29Equation, X30Equation, X31Equation, X32Equation,
+                X33Equation, X34Equation, X35Equation, X36Equation, X37Equation, X38Equation, X39Equation,
+                X40Equation, X41Equation));
+        Set<Variable> exogenousVariables = new HashSet<>(exos.values());
+
+        CausalModel causalModel = new CausalModel("Leakage", equations, exogenousVariables);
+        return causalModel;
+    }
+
     public static CausalModel dummy() throws InvalidCausalModelException {
         FormulaFactory f = new FormulaFactory();
         Variable AExo = f.variable("A_exo");

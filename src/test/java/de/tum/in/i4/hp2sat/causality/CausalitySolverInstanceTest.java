@@ -1,6 +1,7 @@
 package de.tum.in.i4.hp2sat.causality;
 
 import de.tum.in.i4.hp2sat.util.ExampleProvider;
+import de.tum.in.i4.hp2sat.util.Util;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 import org.junit.Before;
@@ -8,6 +9,7 @@ import org.junit.Test;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
+import org.logicng.formulas.Variable;
 
 import java.util.*;
 import java.util.function.Function;
@@ -2880,6 +2882,63 @@ public class CausalitySolverInstanceTest {
     //endregion
     // #################################################################################################################
     // ########################################### STEAL MASTER KEY (end) ##############################################
+    // #################################################################################################################
+
+    // #################################################################################################################
+    // ################################################## LEAKAGE ######################################################
+    // #################################################################################################################
+    //region LEAKAGE
+    @Test
+    public void Test_ForAllMinimalCutSets() throws Exception {
+        CausalModel leakage = ExampleProvider.leakage();
+        Util<Literal> util = new Util<>();
+
+        List<List<Variable>> minimalCutSets = Arrays.asList(
+                Arrays.asList(f.variable("X1"), f.variable("X2")),
+                Arrays.asList(f.variable("X3"), f.variable("X11")),
+                Arrays.asList(f.variable("X4"), f.variable("X11")),
+                Arrays.asList(f.variable("X5"), f.variable("X11")),
+                Arrays.asList(f.variable("X6"), f.variable("X11")),
+                Arrays.asList(f.variable("X7"), f.variable("X11")),
+                Arrays.asList(f.variable("X8"), f.variable("X11")),
+                Arrays.asList(f.variable("X9"), f.variable("X11")),
+                Arrays.asList(f.variable("X10"), f.variable("X11")),
+                Arrays.asList(f.variable("X12"), f.variable("X17")),
+                Arrays.asList(f.variable("X13"), f.variable("X17")),
+                Arrays.asList(f.variable("X14"), f.variable("X17")),
+                Arrays.asList(f.variable("X15"), f.variable("X17")),
+                Arrays.asList(f.variable("X16"), f.variable("X17")),
+                Arrays.asList(f.variable("X18"), f.variable("X19")),
+                Arrays.asList(f.variable("X20"), f.variable("X21")),
+                Arrays.asList(f.variable("X22"), f.variable("X23")),
+                Arrays.asList(f.variable("X24"), f.variable("X25")),
+                Collections.singletonList(f.variable("X26"))
+        );
+
+        for (List<Variable> minimalCutSet : minimalCutSets) {
+            // negate all variables except for the cause exos
+            Set<Literal> context = leakage.getExogenousVariables().stream()
+                    .map(v -> minimalCutSet.stream().anyMatch(c -> (c.name() + "_exo").equals(v.name())) ? v : v.negate())
+                    .collect(Collectors.toSet());
+            Formula phi = f.variable("X41");
+            List<Set<Literal>> allCauses = util.generatePowerSet(new HashSet<>(minimalCutSet)).stream()
+                    .filter(s -> s.size() > 0).collect(Collectors.toList());
+            for (Set<Literal> cause : allCauses) {
+                CausalitySolverResult causalitySolverResultExpected;
+                if (cause.size() > 1) {
+                    causalitySolverResultExpected =
+                            new CausalitySolverResult(true, true, false, cause, new HashSet<>());
+                } else {
+                    causalitySolverResultExpected =
+                            new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+                }
+                testSolve(leakage, context, phi, cause, causalitySolverResultExpected);
+            }
+        }
+    }
+    //endregion
+    // #################################################################################################################
+    // ############################################### LEAKAGE (end) ###################################################
     // #################################################################################################################
 
     @Test
