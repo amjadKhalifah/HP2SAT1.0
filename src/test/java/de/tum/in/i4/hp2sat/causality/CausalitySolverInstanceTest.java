@@ -2567,7 +2567,7 @@ public class CausalitySolverInstanceTest {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
-                .map(v -> v.name().contains ("U1") ?  v.negate() : v).collect(Collectors.toSet());
+                .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U2")));
         Formula phi = f.variable("SMK");
 
@@ -2581,7 +2581,7 @@ public class CausalitySolverInstanceTest {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
-                .map(v -> v.name().contains ("U1") ?  v.negate() : v).collect(Collectors.toSet());
+                .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U2"), f.variable("FN_U2")));
         Formula phi = f.variable("SMK");
 
@@ -2595,7 +2595,7 @@ public class CausalitySolverInstanceTest {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
-                .map(v -> v.name().contains ("U1") ?  v.negate() : v).collect(Collectors.toSet());
+                .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U2"), f.variable("FN_U2"),
                 f.variable("A_U2")));
         Formula phi = f.variable("SMK");
@@ -2613,7 +2613,7 @@ public class CausalitySolverInstanceTest {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
-                .map(v -> v.name().contains ("U1") ?  v.negate() : v).collect(Collectors.toSet());
+                .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U2"), f.variable("FN_U2"),
                 f.variable("AD_U2")));
         Formula phi = f.variable("SMK");
@@ -2631,7 +2631,7 @@ public class CausalitySolverInstanceTest {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
-                .map(v -> v.name().contains ("U1") ?  v.negate() : v).collect(Collectors.toSet());
+                .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U3"), f.variable("FN_U3"),
                 f.variable("A_U3")));
         Formula phi = f.variable("SMK");
@@ -2648,7 +2648,7 @@ public class CausalitySolverInstanceTest {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
-                .map(v -> v.name().contains ("U1") ?  v.negate() : v).collect(Collectors.toSet());
+                .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U2"), f.variable("FN_U2"),
                 f.variable("A_U2"), f.variable("AD_U2")));
         Formula phi = f.variable("SMK");
@@ -2666,7 +2666,7 @@ public class CausalitySolverInstanceTest {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
-                .map(v -> v.name().contains ("U1") ?  v.negate() : v).collect(Collectors.toSet());
+                .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U2"), f.variable("FN_U2")));
         Formula phi = f.variable("DK");
 
@@ -2683,7 +2683,7 @@ public class CausalitySolverInstanceTest {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
-                .map(v -> v.name().contains ("U1") ?  v.negate() : v).collect(Collectors.toSet());
+                .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("A_U2")));
         Formula phi = f.variable("SD");
 
@@ -2700,7 +2700,7 @@ public class CausalitySolverInstanceTest {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
-                .map(v -> v.name().contains ("U1") ?  v.negate() : v).collect(Collectors.toSet());
+                .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("A_U2"), f.variable("AD_U2")));
         Formula phi = f.variable("SD");
 
@@ -2717,7 +2717,7 @@ public class CausalitySolverInstanceTest {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
-                .map(v -> v.name().contains ("U1") ?  v.negate() : v).collect(Collectors.toSet());
+                .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U2"), f.variable("FN_U2"),
                 f.variable("A_U2")));
         Formula phi = f.or(f.variable("DK_U2"), f.variable("SD_U2"));
@@ -2735,7 +2735,7 @@ public class CausalitySolverInstanceTest {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
-                .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ?  v.negate() : v)
+                .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ? v.negate() : v)
                 .collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U3")));
         Formula phi = f.variable("SMK");
@@ -2750,7 +2750,7 @@ public class CausalitySolverInstanceTest {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
-                .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ?  v.negate() : v)
+                .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ? v.negate() : v)
                 .collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U3"), f.variable("FN_U3")));
         Formula phi = f.variable("SMK");
@@ -2765,7 +2765,7 @@ public class CausalitySolverInstanceTest {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
-                .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ?  v.negate() : v)
+                .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ? v.negate() : v)
                 .collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U3"), f.variable("FN_U3"),
                 f.variable("A_U3")));
@@ -2782,7 +2782,7 @@ public class CausalitySolverInstanceTest {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
-                .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ?  v.negate() : v)
+                .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ? v.negate() : v)
                 .collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U3"), f.variable("FN_U3"),
                 f.variable("AD_U3")));
@@ -2800,7 +2800,7 @@ public class CausalitySolverInstanceTest {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
-                .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ?  v.negate() : v)
+                .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ? v.negate() : v)
                 .collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U3"), f.variable("FN_U3"),
                 f.variable("A_U3"), f.variable("AD_U3")));
@@ -2817,7 +2817,7 @@ public class CausalitySolverInstanceTest {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
-                .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ?  v.negate() : v)
+                .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ? v.negate() : v)
                 .collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U3"), f.variable("FN_U3")));
         Formula phi = f.variable("DK");
@@ -2833,7 +2833,7 @@ public class CausalitySolverInstanceTest {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
-                .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ?  v.negate() : v)
+                .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ? v.negate() : v)
                 .collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("A_U3")));
         Formula phi = f.variable("SD");
@@ -2849,7 +2849,7 @@ public class CausalitySolverInstanceTest {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
-                .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ?  v.negate() : v)
+                .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ? v.negate() : v)
                 .collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("A_U3"), f.variable("AD_U3")));
         Formula phi = f.variable("SD");
@@ -2865,7 +2865,7 @@ public class CausalitySolverInstanceTest {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
         // set all U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
-                .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ?  v.negate() : v)
+                .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ? v.negate() : v)
                 .collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("FS_U3"), f.variable("FN_U3"),
                 f.variable("A_U3")));
