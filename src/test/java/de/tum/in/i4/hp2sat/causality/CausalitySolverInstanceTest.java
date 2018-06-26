@@ -2893,7 +2893,7 @@ public class CausalitySolverInstanceTest {
         CausalModel leakage = ExampleProvider.leakage();
         Util<Literal> util = new Util<>();
 
-        List<List<Variable>> minimalCutSets = Arrays.asList(
+        List<List<Variable>> testSets = Arrays.asList(
                 Arrays.asList(f.variable("X1"), f.variable("X2")),
                 Arrays.asList(f.variable("X3"), f.variable("X11")),
                 Arrays.asList(f.variable("X4"), f.variable("X11")),
@@ -2912,27 +2912,53 @@ public class CausalitySolverInstanceTest {
                 Arrays.asList(f.variable("X20"), f.variable("X21")),
                 Arrays.asList(f.variable("X22"), f.variable("X23")),
                 Arrays.asList(f.variable("X24"), f.variable("X25")),
-                Collections.singletonList(f.variable("X26"))
+                Collections.singletonList(f.variable("X26")),
+                Arrays.asList(f.variable("X1"), f.variable("X2"), f.variable("X3"),
+                        f.variable("X11")),
+                Arrays.asList(f.variable("X10"), f.variable("X11"), f.variable("X12"),
+                        f.variable("X17"))
         );
 
-        for (List<Variable> minimalCutSet : minimalCutSets) {
+        for (List<Variable> testSet : testSets) {
             // negate all variables except for the cause exos
             Set<Literal> context = leakage.getExogenousVariables().stream()
-                    .map(v -> minimalCutSet.stream().anyMatch(c -> (c.name() + "_exo").equals(v.name())) ? v : v.negate())
+                    .map(v -> testSet.stream().anyMatch(c -> (c.name() + "_exo").equals(v.name())) ? v : v.negate())
                     .collect(Collectors.toSet());
             Formula phi = f.variable("X41");
-            List<Set<Literal>> allCauses = util.generatePowerSet(new HashSet<>(minimalCutSet)).stream()
+            List<Set<Literal>> allCauses = util.generatePowerSet(new HashSet<>(testSet)).stream()
                     .filter(s -> s.size() > 0).collect(Collectors.toList());
             for (Set<Literal> cause : allCauses) {
                 CausalitySolverResult causalitySolverResultExpected;
-                if (cause.size() > 1) {
-                    causalitySolverResultExpected =
-                            new CausalitySolverResult(true, true, false, cause, new HashSet<>());
+                if (testSet.size() <= 2) {
+
+                    if (cause.size() > 1) {
+                        causalitySolverResultExpected =
+                                new CausalitySolverResult(true, true, false, cause, new HashSet<>());
+                    } else {
+                        causalitySolverResultExpected =
+                                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+                    }
                 } else {
-                    causalitySolverResultExpected =
-                            new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+                    if (cause.size() == 1) {
+                        causalitySolverResultExpected =
+                                new CausalitySolverResult(true, false, true, cause, null);
+                    } else if (cause.size() == 2) {
+                        List<Integer> indices = cause.stream().map(c -> testSet.indexOf(c.variable()))
+                                .collect(Collectors.toList());
+                        if (indices.containsAll(Arrays.asList(0, 2)) || indices.containsAll(Arrays.asList(0, 3)) ||
+                                indices.containsAll(Arrays.asList(1, 2)) || indices.containsAll(Arrays.asList(1,3))) {
+                            causalitySolverResultExpected =
+                                    new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+                        } else {
+                            causalitySolverResultExpected =
+                                    new CausalitySolverResult(true, false, true, cause, null);
+                        }
+                    } else {
+                        causalitySolverResultExpected =
+                                new CausalitySolverResult(true, true, false, cause, new HashSet<>());
+                    }
                 }
-                testSolve(leakage, context, phi, cause, causalitySolverResultExpected);
+                testSolve(leakage, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
             }
         }
     }
