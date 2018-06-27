@@ -430,7 +430,6 @@ public class CausalitySolverInstanceTest {
                 new CausalitySolverResult(false, true, true, cause,
                         new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false))));
         CausalitySolverResult causalitySolverResultExpectedSATMINIMAL1 = causalitySolverResultExpectedEval;
-        // TODO check if it really makes sense that we can put a part of X into W
         CausalitySolverResult causalitySolverResultExpectedSATMINIMAL2 =
                 new CausalitySolverResult(false, true, true, cause,
                         new HashSet<>(Collections.singletonList(f.literal("BH", false))));
