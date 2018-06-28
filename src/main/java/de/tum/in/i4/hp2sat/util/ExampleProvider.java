@@ -39,7 +39,7 @@ public class ExampleProvider {
                 BSEquation));
         Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(BTExo, STExo));
 
-        CausalModel causalModel = new CausalModel("BillySuzy", equations, exogenousVariables);
+        CausalModel causalModel = new CausalModel("BillySuzy", equations, exogenousVariables, f);
         return causalModel;
     }
 
@@ -64,7 +64,7 @@ public class ExampleProvider {
         Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(LExo, MDExo));
 
         String name = "ForestFire_" + (disjunctive ? "disjunctive" : "conjunctive");
-        CausalModel causalModel = new CausalModel(name, equations, exogenousVariables);
+        CausalModel causalModel = new CausalModel(name, equations, exogenousVariables, f);
         return causalModel;
     }
 
@@ -99,7 +99,7 @@ public class ExampleProvider {
                 BSEquation));
         Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(BTExo, STExo, WExo));
 
-        CausalModel causalModel = new CausalModel("BillySuzy", equations, exogenousVariables);
+        CausalModel causalModel = new CausalModel("BillySuzy", equations, exogenousVariables, f);
         return causalModel;
     }
 
@@ -127,7 +127,7 @@ public class ExampleProvider {
         Set<Equation> equations = new HashSet<>(Arrays.asList(AEquation, BEquation, CEquation, DEquation));
         Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(AExo, BExo, CExo));
 
-        CausalModel causalModel = new CausalModel("Guns", equations, exogenousVariables);
+        CausalModel causalModel = new CausalModel("Guns", equations, exogenousVariables, f);
         return causalModel;
     }
 
@@ -148,7 +148,7 @@ public class ExampleProvider {
         Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(AExo, BExo));
 
         String name = "Assassin_" + (firstVariant ? "firstVariant" : "secondVariant");
-        CausalModel causalModel = new CausalModel(name, equations, exogenousVariables);
+        CausalModel causalModel = new CausalModel(name, equations, exogenousVariables, f);
         return causalModel;
     }
 
@@ -171,7 +171,7 @@ public class ExampleProvider {
         Set<Equation> equations = new HashSet<>(Arrays.asList(LBEquation, FEquation, RBEquation, AEquation));
         Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(LBExo, FExo, RBExo));
 
-        CausalModel causalModel = new CausalModel("Railroad", equations, exogenousVariables);
+        CausalModel causalModel = new CausalModel("Railroad", equations, exogenousVariables, f);
         return causalModel;
     }
 
@@ -287,7 +287,7 @@ public class ExampleProvider {
                 FS_U2_Exo, FN_U2_Exo, FF_U2_Exo, FDB_U2_Exo, FS_U3_Exo, FN_U3_Exo, FF_U3_Exo, FDB_U3_Exo, A_U1_Exo,
                 AD_U1_Exo, A_U2_Exo, AD_U2_Exo, A_U3_Exo, AD_U3_Exo));
 
-        CausalModel causalModel = new CausalModel("StealMasterKey", equations, exogenousVariables);
+        CausalModel causalModel = new CausalModel("StealMasterKey", equations, exogenousVariables, f);
         return causalModel;
     }
 
@@ -335,7 +335,7 @@ public class ExampleProvider {
                 X40Equation, X41Equation));
         Set<Variable> exogenousVariables = new HashSet<>(exos.values());
 
-        CausalModel causalModel = new CausalModel("Leakage", equations, exogenousVariables);
+        CausalModel causalModel = new CausalModel("Leakage", equations, exogenousVariables, f);
         return causalModel;
     }
 
@@ -375,7 +375,7 @@ public class ExampleProvider {
                 FEquation, GEquation, HEquation));
         Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(AExo, BExo));
 
-        CausalModel causalModel = new CausalModel("Dummy", equations, exogenousVariables);
+        CausalModel causalModel = new CausalModel("Dummy", equations, exogenousVariables, f);
         return causalModel;
     }
 
@@ -423,7 +423,7 @@ public class ExampleProvider {
                 A2Equation, B2Equation, C2Equation, D2Equation, XEquation, YEquation));
         Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(AExo, BExo, CExo, DExo));
 
-        CausalModel causalModel = new CausalModel("Dummy2", equations, exogenousVariables);
+        CausalModel causalModel = new CausalModel("Dummy2", equations, exogenousVariables, f);
         return causalModel;
     }
 
@@ -447,7 +447,7 @@ public class ExampleProvider {
         Set<Equation> equations = new HashSet<>(Arrays.asList(AEquation, BEquation, CEquation));
         Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(AExo, BExo));
 
-        CausalModel causalModel = new CausalModel("DummyXOR", equations, exogenousVariables);
+        CausalModel causalModel = new CausalModel("DummyXOR", equations, exogenousVariables, f);
         return causalModel;
     }
 
@@ -471,7 +471,7 @@ public class ExampleProvider {
         Set<Equation> equations = new HashSet<>(Arrays.asList(AEquation, BEquation, CEquation));
         Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(AExo, BExo));
 
-        CausalModel causalModel = new CausalModel("DummyXNOR", equations, exogenousVariables);
+        CausalModel causalModel = new CausalModel("DummyXNOR", equations, exogenousVariables, f);
         return causalModel;
     }
 
@@ -543,7 +543,7 @@ public class ExampleProvider {
                 XEquation, YEquation));
         Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(SExo, TExo, UExo, VExo, WExo, XExo, YExo));
 
-        CausalModel causalModel = new CausalModel("BenchmarkModel", equations, exogenousVariables);
+        CausalModel causalModel = new CausalModel("BenchmarkModel", equations, exogenousVariables, f);
         return causalModel;
     }
 
@@ -585,7 +585,7 @@ public class ExampleProvider {
                 }
                 variablesInPreviousLevel = variablesInPreviousLevelNew;
             }
-            CausalModel causalModel = new CausalModel(name, equations, new HashSet<>(exogenousVariables));
+            CausalModel causalModel = new CausalModel(name, equations, new HashSet<>(exogenousVariables), f);
             return causalModel;
         } else {
             return null;

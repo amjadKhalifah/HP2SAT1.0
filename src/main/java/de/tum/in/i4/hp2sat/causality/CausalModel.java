@@ -30,6 +30,7 @@ public class CausalModel {
     private Graph graph;
     private Graph graphReversed;
     private List<Equation> equationsSorted; // according to topological sort
+    private FormulaFactory formulaFactory;
 
     /**
      * Creates a new causal model
@@ -42,13 +43,13 @@ public class CausalModel {
      *                                     variables; (3) no circular dependencies; (4) an exogenous variable must
      *                                     not be called like {@link SATCausalitySolver#DUMMY_VAR_NAME}
      */
-    public CausalModel(String name, Set<Equation> equations, Set<Variable> exogenousVariables)
-            throws InvalidCausalModelException {
-        this(name, equations, exogenousVariables, true);
+    public CausalModel(String name, Set<Equation> equations, Set<Variable> exogenousVariables,
+                       FormulaFactory formulaFactory) throws InvalidCausalModelException {
+        this(name, equations, exogenousVariables, formulaFactory, true);
     }
 
     /**
-     * Same as {@link CausalModel#CausalModel(String, Set, Set)}, but allows to specify if validity is checked. For
+     * Same as {@link CausalModel#CausalModel(String, Set, Set, FormulaFactory)}, but allows to specify if validity is checked. For
      * internal use only.
      *
      * @param name
@@ -58,7 +59,7 @@ public class CausalModel {
      * @throws InvalidCausalModelException
      */
     private CausalModel(String name, Set<Equation> equations, Set<Variable> exogenousVariables,
-                        boolean checkValidity) throws InvalidCausalModelException {
+                        FormulaFactory formulaFactory, boolean checkValidity) throws InvalidCausalModelException {
         this.name = name;
         this.exogenousVariables = exogenousVariables;
 
@@ -69,6 +70,7 @@ public class CausalModel {
         this.variableEquationMap = equations.stream()
                 .collect(Collectors.toMap(Equation::getVariable, Function.identity()));
         this.graph = this.toGraph();
+        this.formulaFactory = formulaFactory;
         equationsSorted = this.sortEquations();
     }
 
@@ -86,7 +88,7 @@ public class CausalModel {
          * Thereforce, we skip the validity check. */
         this(causalModel.name, causalModel.variableEquationMap.values().stream()
                 .map(e -> variables.contains(e.getVariable()) ? new Equation(e) : e)
-                .collect(Collectors.toSet()), causalModel.exogenousVariables, false);
+                .collect(Collectors.toSet()), causalModel.exogenousVariables, causalModel.formulaFactory, false);
     }
 
     /**
@@ -263,7 +265,7 @@ public class CausalModel {
     }
 
     private List<Equation> sortEquations() {
-        FormulaFactory f = new FormulaFactory();
+        FormulaFactory f = this.formulaFactory;
         // get the causal model as graph
         Graph graph = this.getGraph();
         /*
@@ -313,5 +315,9 @@ public class CausalModel {
 
     public List<Equation> getEquationsSorted() {
         return equationsSorted;
+    }
+
+    public FormulaFactory getFormulaFactory() {
+        return formulaFactory;
     }
 }

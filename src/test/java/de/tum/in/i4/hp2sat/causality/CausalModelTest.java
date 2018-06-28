@@ -46,7 +46,7 @@ public class CausalModelTest {
         Equation equationB = new Equation(b, cExo);
 
         CausalModel causalModel = new CausalModel(null, new HashSet<>(Arrays.asList(equationA, equationB)),
-                new HashSet<>(Collections.singletonList(cExo)));
+                new HashSet<>(Collections.singletonList(cExo)), f);
     }
 
     @Test(expected = InvalidCausalModelException.class)
@@ -59,7 +59,7 @@ public class CausalModelTest {
         Equation equationA2 = new Equation(a, cExo);
 
         CausalModel causalModel = new CausalModel(null, new HashSet<>(Arrays.asList(equationA1, equationA2)),
-                new HashSet<>(Collections.singletonList(cExo)));
+                new HashSet<>(Collections.singletonList(cExo)), f);
     }
 
     @Test(expected = InvalidCausalModelException.class)
@@ -73,7 +73,7 @@ public class CausalModelTest {
         Equation equationB = new Equation(b, cExo);
 
         CausalModel causalModel = new CausalModel(null, new HashSet<>(Arrays.asList(equationA, equationB)),
-                new HashSet<>(Arrays.asList(b, cExo)));
+                new HashSet<>(Arrays.asList(b, cExo)), f);
     }
 
     @Test(expected = InvalidCausalModelException.class)
@@ -87,7 +87,7 @@ public class CausalModelTest {
         Equation equationB = new Equation(b, cExo);
 
         CausalModel causalModel = new CausalModel(null, new HashSet<>(Arrays.asList(equationA, equationB)),
-                new HashSet<>(Collections.singletonList(cExo)));
+                new HashSet<>(Collections.singletonList(cExo)), f);
     }
 
     @Test(expected = InvalidCausalModelException.class)
@@ -100,7 +100,7 @@ public class CausalModelTest {
         Equation equationB = new Equation(b, c);
 
         CausalModel causalModel = new CausalModel(null, new HashSet<>(Arrays.asList(equationA, equationB)),
-                new HashSet<>());
+                new HashSet<>(), f);
     }
 
     @Test(expected = InvalidCausalModelException.class)
@@ -116,7 +116,7 @@ public class CausalModelTest {
 
         CausalModel causalModel = new CausalModel(null,
                 new HashSet<>(Arrays.asList(equationA, equationB, equationD)),
-                new HashSet<>(Collections.singletonList(cExo)));
+                new HashSet<>(Collections.singletonList(cExo)), f);
     }
 
     @Test(expected = InvalidCausalModelException.class)
@@ -132,7 +132,7 @@ public class CausalModelTest {
 
         CausalModel causalModel = new CausalModel(null,
                 new HashSet<>(Arrays.asList(equationA, equationB, equationD)),
-                new HashSet<>(Collections.singletonList(cExo)));
+                new HashSet<>(Collections.singletonList(cExo)), f);
     }
 
     @Test
