@@ -2966,6 +2966,60 @@ public class CausalitySolverInstanceTest {
     // ############################################### LEAKAGE (end) ###################################################
     // #################################################################################################################
 
+    // #################################################################################################################
+    // ############################################## BINARY TREE ######################################################
+    // #################################################################################################################
+    //region BINARY TREE
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L254_IsCauseFor_Root1() throws Exception {
+        CausalModel binaryTreeDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth7.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("254")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth7, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L253AndL254_IsCauseFor_Root1() throws Exception {
+        CausalModel binaryTreeDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth7.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("253"), f.variable("254")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth7, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
+                BRUTE_FORCE_OPTIMIZED_W);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L251AndL252AndL253AndL254_IsCauseFor_Root1() throws Exception {
+        CausalModel binaryTreeDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth7.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("251"), f.variable("252"),
+                f.variable("253"), f.variable("254")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth7, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
+                BRUTE_FORCE_OPTIMIZED_W);
+    }
+    //endregion
+
+    // #################################################################################################################
+    // ############################################ BINARY TREE (end) ##################################################
+    // #################################################################################################################
+
     @Test
     public void Should_FulfillAllACs_When_STIsCauseForBSInExtendedModelWITHOUTWind() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzyExtended();
