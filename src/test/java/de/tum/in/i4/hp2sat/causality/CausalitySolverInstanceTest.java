@@ -4075,42 +4075,6 @@ public class CausalitySolverInstanceTest {
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
         testSolve(benchmarkModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
-        
-        // TODO delete once comprehensive benchmarks for binary tree are created
-        /*CausalModel binaryTreeBenchmarkModelDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
-        CausalModel binaryTreeBenchmarkModelDepth8 = ExampleProvider.generateBinaryTreeBenchmarkModel(8);
-        CausalModel binaryTreeBenchmarkModelDepth9 = ExampleProvider.generateBinaryTreeBenchmarkModel(9);
-        Formula phiBenchmarkModelBinaryTree = f.variable("0");
-
-        CausalitySolverResult causalitySolverResultExpectedDepth7 =
-                new CausalitySolverResult(true, false, true,
-                        new HashSet<>(Collections.singletonList(f.variable("254"))), null);
-        CausalitySolverResult causalitySolverResultActualDepth7 =
-                SATCausalitySolver.solve(binaryTreeBenchmarkModelDepth7,
-                        binaryTreeBenchmarkModelDepth7.getExogenousVariables().stream().map(e -> (Literal) e)
-                                .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree,
-                        new HashSet<>(Collections.singletonList(f.variable("254"))), SolvingStrategy.SAT);
-        assertEquals(causalitySolverResultExpectedDepth7, causalitySolverResultActualDepth7);
-
-        CausalitySolverResult causalitySolverResultExpectedDepth8 =
-                new CausalitySolverResult(true, false, true,
-                        new HashSet<>(Collections.singletonList(f.variable("510"))), null);
-        CausalitySolverResult causalitySolverResultActualDepth8 =
-                SATCausalitySolver.solve(binaryTreeBenchmarkModelDepth8,
-                        binaryTreeBenchmarkModelDepth8.getExogenousVariables().stream().map(e -> (Literal) e)
-                                .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree,
-                        new HashSet<>(Collections.singletonList(f.variable("510"))), SolvingStrategy.SAT);
-        assertEquals(causalitySolverResultExpectedDepth8, causalitySolverResultActualDepth8);
-
-        CausalitySolverResult causalitySolverResultExpectedDepth9 =
-                new CausalitySolverResult(true, false, true,
-                        new HashSet<>(Collections.singletonList(f.variable("1022"))), null);
-        CausalitySolverResult causalitySolverResultActualDepth9 =
-                SATCausalitySolver.solve(binaryTreeBenchmarkModelDepth9,
-                        binaryTreeBenchmarkModelDepth9.getExogenousVariables().stream().map(e -> (Literal) e)
-                                .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree,
-                        new HashSet<>(Collections.singletonList(f.variable("1022"))), SolvingStrategy.SAT);
-        assertEquals(causalitySolverResultExpectedDepth9, causalitySolverResultActualDepth9);*/
     }
 
     @Test
