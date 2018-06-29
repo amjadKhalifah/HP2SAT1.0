@@ -3777,10 +3777,8 @@ public class CausalitySolverInstanceTest {
         // test for real SAT approach only as for the others this is taking too long
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
-        CausalitySolverResult causalitySolverResultActual = SATCausalitySolver.solve(benchmarkModel, context, phi,
-                cause, SolvingStrategy.SAT);
-        assertEquals(causalitySolverResultExpected, causalitySolverResultActual);
-
+        testSolve(benchmarkModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+        
         // TODO delete once comprehensive benchmarks for binary tree are created
         /*CausalModel binaryTreeBenchmarkModelDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
         CausalModel binaryTreeBenchmarkModelDepth8 = ExampleProvider.generateBinaryTreeBenchmarkModel(8);
