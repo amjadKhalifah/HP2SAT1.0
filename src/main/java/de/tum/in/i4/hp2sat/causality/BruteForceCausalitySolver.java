@@ -30,7 +30,7 @@ class BruteForceCausalitySolver extends CausalitySolver {
     CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
                                 Set<Literal> cause, SolvingStrategy solvingStrategy)
             throws InvalidCausalModelException {
-        FormulaFactory f = new FormulaFactory();
+        FormulaFactory f = causalModel.getFormulaFactory();
         Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context, f);
         Pair<Boolean, Boolean> ac1Tuple = fulfillsAC1(evaluation, phi, cause);
         boolean ac1 = ac1Tuple.first() && ac1Tuple.second();

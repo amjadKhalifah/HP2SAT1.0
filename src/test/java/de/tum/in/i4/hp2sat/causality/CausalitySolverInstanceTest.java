@@ -22,7 +22,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 public class CausalitySolverInstanceTest {
-    FormulaFactory f;
     BruteForceCausalitySolver bruteForceCausalitySolver;
     SATCausalitySolver SATCausalitySolver;
     List<SolvingStrategy> solvingStrategies = Arrays.asList(BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W, SAT,
@@ -32,7 +31,6 @@ public class CausalitySolverInstanceTest {
 
     @Before
     public void setUp() throws Exception {
-        f = new FormulaFactory();
         bruteForceCausalitySolver = new BruteForceCausalitySolver();
         SATCausalitySolver = new SATCausalitySolver();
     }
@@ -96,13 +94,15 @@ public class CausalitySolverInstanceTest {
             Set<CausalitySolverResult> causalitySolverResultsActual = null;
             if (solvingStrategy == BRUTE_FORCE || solvingStrategy == BRUTE_FORCE_OPTIMIZED_W) {
                 causalitySolverResultsActual =
-                        bruteForceCausalitySolver.getAllCauses(causalModel, context, phi, solvingStrategy, f);
+                        bruteForceCausalitySolver.getAllCauses(causalModel, context, phi, solvingStrategy,
+                                causalModel.getFormulaFactory());
             } else if (Arrays.asList(SAT, SAT_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_W,
                     SAT_OPTIMIZED_W_MINIMAL, SAT_OPTIMIZED_FORMULAS, SAT_OPTIMIZED_FORMULAS_MINIMAL, SAT_OPTIMIZED_AC3,
                     SAT_OPTIMIZED_AC3_MINIMAL)
                     .contains(solvingStrategy)) {
                 causalitySolverResultsActual =
-                        SATCausalitySolver.getAllCauses(causalModel, context, phi, solvingStrategy, f);
+                        SATCausalitySolver.getAllCauses(causalModel, context, phi, solvingStrategy,
+                                causalModel.getFormulaFactory());
             }
             assertEquals("Error for " + solvingStrategy, causalitySolverResultsExpected.get(solvingStrategy),
                     causalitySolverResultsActual);
@@ -117,6 +117,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_ST_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
@@ -160,6 +161,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_BT_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
@@ -173,6 +175,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_NotFulfillACs_When_NotST_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("ST", false)));
@@ -186,6 +189,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_NotFulfillACs_When_NotBT_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("BT", false)));
@@ -199,6 +203,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_NotFulfillACs_When_NotBH_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("BH", false)));
@@ -212,6 +217,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_SH_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("SH")));
@@ -256,6 +262,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC2Only_When_STandBT_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("BT"), f.variable("ST")));
@@ -269,6 +276,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC2Only_When_STandSH_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("SH")));
@@ -313,6 +321,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_BTandNotBH_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false)));
@@ -325,6 +334,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2Only_When_SHandBH_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("SH"), f.variable("BH")));
@@ -337,6 +347,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1Only_When_SHandNotBH_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("SH"), f.literal("BH", false)));
@@ -349,6 +360,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC2Only_When_STandBTandSH_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("BT"),
@@ -362,6 +374,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1Only_When_STandBTandNotBH_IsCauseFor_BS() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("BT"),
@@ -375,6 +388,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_ST_IsCauseFor_BSOrSH() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
@@ -418,6 +432,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_ST_IsCauseFor_BSAndBH() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
@@ -471,6 +486,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_BT_IsCauseFor_TRUE() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
@@ -483,6 +499,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllAC2AC3Only_When_BTIsCauseForFALSE() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
@@ -497,6 +514,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_ST_IsCauseFor_BS_Given_NotBTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
@@ -510,6 +528,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_BT_IsCauseFor_BS_Given_NotBTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
@@ -523,6 +542,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2Only_When_STAndBT_IsCauseFor_BS_Given_NotBTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("BT")));
@@ -537,6 +557,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_ST_IsCauseFor_BS_Given_NotSTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
@@ -550,6 +571,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_BT_IsCauseFor_BS_Given_NotSTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("BT")));
@@ -563,6 +585,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1A2Only_When_BTandBH_IsCauseFor_BS_Given_NotSTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", false)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("BT"), f.variable("BH")));
@@ -575,6 +598,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillA2Only_When_STAndBT_IsCauseFor_BS_Given_NotSTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", false)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("BT")));
@@ -587,6 +611,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillACs_When_ST_IsCauseFor_NotBH() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
@@ -600,6 +625,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillACs_When_SH_IsCauseFor_NotBH() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("SH")));
@@ -613,6 +639,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC2Only_When_STAndSH_IsCauseFor_NotBH() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("SH")));
@@ -628,6 +655,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_NotST_IsCauseFor_NotBS_Given_NotSTExoAndNotBTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("ST", false)));
@@ -641,6 +669,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_NotBT_IsCauseFor_NotBS_Given_NotSTExoAndNotBTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("BT", false)));
@@ -655,6 +684,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAC1AC2Only_When_NotSTandNotBT_IsCauseFor_NotBS_Given_NotSTExoAndNotBTExo()
             throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", false)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("ST", false),
@@ -668,6 +698,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_NotST_IsCauseFor_NotSHandNotBS_Given_NotSTExoAndNotBTExo() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("ST", false)));
@@ -682,6 +713,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAllACs_When_NotBT_IsCauseFor_NotSHandNotBS_Given_NotSTExoAndNotBTExo()
             throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("BT", false)));
@@ -705,6 +737,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_L_IsCauseFor_FF_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("L")));
@@ -718,6 +751,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_MD_IsCauseFor_FF_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("MD")));
@@ -731,6 +765,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_LAndMD_IsCauseFor_FF_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("L"), f.variable("MD")));
@@ -746,6 +781,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_L_IsCauseFor_FF_Given_NotMDExo_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("L")));
@@ -759,6 +795,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_MD_IsCauseFor_FF_Given_NotMDExo_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("MD")));
@@ -772,6 +809,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2Only_When_LAndMD_IsCauseFor_FF_Given_NotMDExo_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("L"), f.variable("MD")));
@@ -787,6 +825,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_L_IsCauseFor_FF_Given_NotLExo_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("L")));
@@ -800,6 +839,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_MD_IsCauseFor_FF_Given_NotLExo_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("MD")));
@@ -813,6 +853,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2Only_When_LAndMD_IsCauseFor_FF_Given_NotLExo_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("L"), f.variable("MD")));
@@ -828,6 +869,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_L_IsCauseFor_FF_Given_NotLExoAndNotMDExo_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("L")));
@@ -841,6 +883,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_MD_IsCauseFor_FF_Given_NotLExoAndNotMDExo_DISJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("MD")));
@@ -855,6 +898,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAC2Only_When_LAndMD_IsCauseFor_FF_Given_NotLExoAndNotMDExo_DISJUNCTIVE()
             throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("L"), f.variable("MD")));
@@ -869,6 +913,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAllACs_When_NotL_IsCauseFor_NotFF_Given_NotLExoAndNotMDExo_DISJUNCTIVE()
             throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("L", false)));
@@ -883,6 +928,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAllACs_When_NotMD_IsCauseFor_NotFF_Given_NotLExoAndNotMDExo_DISJUNCTIVE()
             throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("MD", false)));
@@ -897,6 +943,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAC1AC2Only_When_NotLAndNotMD_IsCauseFor_NotFF_Given_NotLExoAndNotMDExo_DISJUNCTIVE()
             throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("L", false),
@@ -912,6 +959,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAC2AC3Only_When_LAndMD_IsCauseFor_FF_Given_NotLExoAndNotMDExo_DISJUNCTIVE()
             throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("L"), f.variable("MD")));
@@ -935,6 +983,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_L_IsCauseFor_FF_CONJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(false);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("L")));
@@ -948,6 +997,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_MD_IsCauseFor_FF_CONJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(false);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("MD")));
@@ -961,6 +1011,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_LAndMD_IsCauseFor_FF_CONJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(false);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("L"), f.variable("MD")));
@@ -976,6 +1027,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllAC2AC3Only_When_L_IsCauseFor_FF_Given_NotMDExo_CONJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(false);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("L")));
@@ -989,6 +1041,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_MD_IsCauseFor_FF_Given_NotMDExo_CONJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(false);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("MD")));
@@ -1002,6 +1055,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_LAndMD_IsCauseFor_FF_Given_NotMDExo_CONJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(false);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("L"), f.variable("MD")));
@@ -1017,6 +1071,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_L_IsCauseFor_FF_Given_NotLExo_CONJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(false);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("L")));
@@ -1030,6 +1085,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_MD_IsCauseFor_FF_Given_NotLExo_CONJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(false);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("MD")));
@@ -1043,6 +1099,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_LAndMD_IsCauseFor_FF_Given_NotLExo_CONJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(false);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("L"), f.variable("MD")));
@@ -1058,6 +1115,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_L_IsCauseFor_FF_Given_NotLExoAndNotMDExo_CONJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(false);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("L")));
@@ -1071,6 +1129,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_MD_IsCauseFor_FF_Given_NotLExoAndNotMDExo_CONJUNCTIVE() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(false);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("MD")));
@@ -1085,6 +1144,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAC2Only_When_LAndMD_IsCauseFor_FF_Given_NotLExoAndNotMDExo_CONJUNCTIVE()
             throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(false);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("L"), f.variable("MD")));
@@ -1099,6 +1159,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAC1AC3Only_When_NotL_IsCauseFor_NotFF_Given_NotLExoAndNotMDExo_CONJUNCTIVE()
             throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(false);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("L", false)));
@@ -1113,6 +1174,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAC1AC3Only_When_NotMD_IsCauseFor_NotFF_Given_NotLExoAndNotMDExo_CONJUNCTIVE()
             throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(false);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("MD", false)));
@@ -1127,6 +1189,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAllACs_When_NotLAndNotMD_IsCauseFor_NotFF_Given_NotLExoAndNotMDExo_CONJUNCTIVE()
             throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(false);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("L", false),
@@ -1142,6 +1205,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAC2AC3Only_When_LAndMD_IsCauseFor_FF_Given_NotLExoAndNotMDExo_CONJUNCTIVE()
             throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(false);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", false), f.literal("MD_exo", false)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("L"), f.variable("MD")));
@@ -1165,6 +1229,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_A_IsCauseFor_D() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true),
                 f.literal("C_exo", true)));
@@ -1179,6 +1244,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_B_IsCauseFor_D() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true),
                 f.literal("C_exo", true)));
@@ -1194,6 +1260,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_C_IsCauseFor_D() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true),
                 f.literal("C_exo", true)));
@@ -1208,6 +1275,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC2Only_When_AAndBAndC_IsCauseFor_D() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true),
                 f.literal("C_exo", true)));
@@ -1225,6 +1293,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_A_IsCauseFor_D_AExoAndBExoAndNotCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true),
                 f.literal("C_exo", false)));
@@ -1239,6 +1308,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_B_IsCauseFor_D_AExoAndBExoAndNotCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true),
                 f.literal("C_exo", false)));
@@ -1254,6 +1324,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_C_IsCauseFor_D_AExoAndBExoAndNotCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true),
                 f.literal("C_exo", false)));
@@ -1268,6 +1339,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC2Only_When_AAndBAndC_IsCauseFor_D_AExoAndBExoAndNotCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true),
                 f.literal("C_exo", false)));
@@ -1285,6 +1357,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_A_IsCauseFor_D_Given_AExoAndNotBexoAndCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", false),
                 f.literal("C_exo", true)));
@@ -1299,6 +1372,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_B_IsCauseFor_D_Given_AExoAndNotBexoAndCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", false),
                 f.literal("C_exo", true)));
@@ -1314,6 +1388,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_C_IsCauseFor_D_Given_AExoAndNotBexoAndCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", false),
                 f.literal("C_exo", true)));
@@ -1328,6 +1403,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2Only_When_AAndBAndC_IsCauseFor_D_Given_AExoAndNotBexoAndCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", false),
                 f.literal("C_exo", true)));
@@ -1345,6 +1421,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_A_IsCauseFor_D_Given_AExoAndNotBexoAndNotCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", false),
                 f.literal("C_exo", false)));
@@ -1359,6 +1436,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_B_IsCauseFor_D_Given_AExoAndNotBexoAndNotCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", false),
                 f.literal("C_exo", false)));
@@ -1374,6 +1452,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_C_IsCauseFor_D_Given_AExoAndNotBexoAndNotCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", false),
                 f.literal("C_exo", false)));
@@ -1389,6 +1468,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAC2AC3Only_When_AAndBAndC_IsCauseFor_D_Given_AExoAndNotBexoAndNotCExo()
             throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", false),
                 f.literal("C_exo", false)));
@@ -1406,6 +1486,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_A_IsCauseFor_D_Given_NotAExoAndBExoAndCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", true),
                 f.literal("C_exo", true)));
@@ -1420,6 +1501,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_B_IsCauseFor_D_Given_NotAExoAndBExoAndCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", true),
                 f.literal("C_exo", true)));
@@ -1435,6 +1517,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_C_IsCauseFor_D_Given_NotAExoAndBExoAndCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", true),
                 f.literal("C_exo", true)));
@@ -1449,6 +1532,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2Only_When_AAndBAndC_IsCauseFor_D_Given_NotAExoAndBExoAndCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", true),
                 f.literal("C_exo", true)));
@@ -1466,6 +1550,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_A_IsCauseFor_D_Given_NotAExoAndBExoAndNotCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", true),
                 f.literal("C_exo", false)));
@@ -1480,6 +1565,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_B_IsCauseFor_D_Given_NotAExoAndBExoAndNotCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", true),
                 f.literal("C_exo", false)));
@@ -1495,6 +1581,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_C_IsCauseFor_D_Given_NotAExoAndBExoAndNotCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", true),
                 f.literal("C_exo", false)));
@@ -1510,6 +1597,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAC2AC3Only_When_AAndBAndC_IsCauseFor_D_Given_NotAExoAndBExoAndNotCExo()
             throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", true),
                 f.literal("C_exo", false)));
@@ -1527,6 +1615,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_A_IsCauseFor_D_Given_NotAExoAndNotBExoAndCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", false),
                 f.literal("C_exo", true)));
@@ -1541,6 +1630,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAAC3Only_When_B_IsCauseFor_D_Given_NotAExoAndNotBExoAndCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", false),
                 f.literal("C_exo", true)));
@@ -1556,6 +1646,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_C_IsCauseFor_D_Given_NotAExoAndNotBExoAndCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", false),
                 f.literal("C_exo", true)));
@@ -1570,6 +1661,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2Only_When_AAndBAndC_IsCauseFor_D_Given_NotAExoAndNotBExoAndCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", false),
                 f.literal("C_exo", true)));
@@ -1587,6 +1679,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_A_IsCauseFor_D_Given_NotAExoAndNotBexoAndNotCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", false),
                 f.literal("C_exo", false)));
@@ -1601,6 +1694,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_B_IsCauseFor_D_Given_NotAExoAndNotBexoAndNotCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", false),
                 f.literal("C_exo", false)));
@@ -1616,6 +1710,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_C_IsCauseFor_D_Given_NotAExoAndNotBexoAndNotCExo() throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", false),
                 f.literal("C_exo", false)));
@@ -1631,6 +1726,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAC2AC3Only_When_AAndBAndC_IsCauseFor_D_Given_NotAExoAndNotBexoAndNotCExo()
             throws Exception {
         CausalModel guns = ExampleProvider.prisoners();
+        FormulaFactory f = guns.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", false),
                 f.literal("C_exo", false)));
@@ -1656,6 +1752,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_NotA_IsCauseFor_VS_Given_AExoAndBExo_FIRST() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(true);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("A", false)));
@@ -1669,6 +1766,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_B_IsCauseFor_VS_Given_AExoAndBExo_FIRST() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(true);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B")));
@@ -1682,6 +1780,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2Only_When_NotAAndB_IsCauseFor_VS_GivenAExoAndBExo_FIRST() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(true);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("A", false), f.variable("B")));
@@ -1697,6 +1796,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_NotA_IsCauseFor_VS_Given_AExoAndNotBExo_FIRST() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(true);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("A", false)));
@@ -1710,6 +1810,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_B_IsCauseFor_VS_Given_AExoAndNotBExo_FIRST() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(true);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B")));
@@ -1723,6 +1824,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_NotAAndB_IsCauseFor_VS_GivenAExoAndBNotExo_FIRST() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(true);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", false)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("A", false), f.variable("B")));
@@ -1738,6 +1840,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_NotA_IsCauseFor_VS_Given_NotAExoAndBExo_FIRST() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(true);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("A", false)));
@@ -1751,6 +1854,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3_When_B_IsCauseFor_VS_Given_NotAExoAndBExo_FIRST() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(true);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B")));
@@ -1764,6 +1868,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_NotAAndB_IsCauseFor_VS_GivenNotAExoAndBExo_FIRST() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(true);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("A", false), f.variable("B")));
@@ -1779,6 +1884,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_NotA_IsCauseFor_VS_Given_NotAExoAndNotBExo_FIRST() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(true);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("A", false)));
@@ -1792,6 +1898,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_B_IsCauseFor_VS_Given_NotAExoAndNotBExo_FIRST() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(true);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B")));
@@ -1805,6 +1912,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2Only_When_NotAAndB_IsCauseFor_VS_GivenNotAExoAndBNotExo_FIRST() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(true);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", false)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("A", false), f.variable("B")));
@@ -1828,6 +1936,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_NotA_IsCauseFor_VS_Given_AExoAndBExo_SECOND() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(false);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("A", false)));
@@ -1841,6 +1950,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_B_IsCauseFor_VS_Given_AExoAndBExo_SECOND() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(false);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B")));
@@ -1855,6 +1965,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2Only_When_NotAAndB_IsCauseFor_VS_GivenAExoAndBExo_SECOND() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(false);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("A", false), f.variable("B")));
@@ -1870,6 +1981,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_NotA_IsCauseFor_VS_Given_AExoAndNotBExo_SECOND() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(false);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("A", false)));
@@ -1883,6 +1995,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_B_IsCauseFor_VS_Given_AExoAndNotBExo_SECOND() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(false);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B")));
@@ -1896,6 +2009,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2Only_When_NotAAndB_IsCauseFor_VS_GivenAExoAndBNotExo_SECOND() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(false);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", false)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("A", false), f.variable("B")));
@@ -1911,6 +2025,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_NotA_IsCauseFor_VS_Given_NotAExoAndBExo_SECOND() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(false);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("A", false)));
@@ -1924,6 +2039,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3_When_B_IsCauseFor_VS_Given_NotAExoAndBExo_SECOND() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(false);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B")));
@@ -1937,6 +2053,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_NotAAndB_IsCauseFor_VS_GivenNotAExoAndBExo_SECOND() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(false);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("A", false), f.variable("B")));
@@ -1952,6 +2069,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_NotA_IsCauseFor_VS_Given_NotAExoAndNotBExo_SECOND() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(false);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("A", false)));
@@ -1965,6 +2083,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_B_IsCauseFor_VS_Given_NotAExoAndNotBExo_SECOND() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(false);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B")));
@@ -1978,6 +2097,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2Only_When_NotAAndB_IsCauseFor_VS_GivenNotAExoAndBNotExo_SECOND() throws Exception {
         CausalModel assassin = ExampleProvider.assassin(false);
+        FormulaFactory f = assassin.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", false)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("A", false), f.variable("B")));
@@ -2001,6 +2121,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_LB_IsCauseFor_NotA() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", true), f.literal("F_exo", true),
                 f.literal("RB_exo", true)));
@@ -2015,6 +2136,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_F_IsCauseFor_NotA() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", true), f.literal("F_exo", true),
                 f.literal("RB_exo", true)));
@@ -2029,6 +2151,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_RB_IsCauseFor_NotA() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", true), f.literal("F_exo", true),
                 f.literal("RB_exo", true)));
@@ -2045,6 +2168,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_LB_IsCauseFor_NotA_Given_LBExoAndFExoAndNotRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", true), f.literal("F_exo", true),
                 f.literal("RB_exo", false)));
@@ -2059,6 +2183,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_F_IsCauseFor_NotA_Given_LBExoAndFExoAndNotRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", true), f.literal("F_exo", true),
                 f.literal("RB_exo", false)));
@@ -2076,6 +2201,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_RB_IsCauseFor_NotA_Given_LBExoAndFExoAndNotRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", true), f.literal("F_exo", true),
                 f.literal("RB_exo", false)));
@@ -2092,6 +2218,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_LB_IsCauseFor_NotA_Given_LBExoAndNotFExoAndRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", true), f.literal("F_exo", false),
                 f.literal("RB_exo", true)));
@@ -2106,6 +2233,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_F_IsCauseFor_NotA_Given_LBExoAndNotFExoAndRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", true), f.literal("F_exo", false),
                 f.literal("RB_exo", true)));
@@ -2120,6 +2248,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_RB_IsCauseFor_NotA_Given_LBExoAndNotFExoAndRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", true), f.literal("F_exo", false),
                 f.literal("RB_exo", true)));
@@ -2136,6 +2265,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_LB_IsCauseFor_NotA_Given_LBExoAndNotFExoAndNotRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", true), f.literal("F_exo", false),
                 f.literal("RB_exo", false)));
@@ -2150,6 +2280,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_F_IsCauseFor_NotA_Given_LBExoAndNotFExoAndNotRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", true), f.literal("F_exo", false),
                 f.literal("RB_exo", false)));
@@ -2164,6 +2295,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_RB_IsCauseFor_NotA_Given_LBExoAndNotFExoAndNotRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", true), f.literal("F_exo", false),
                 f.literal("RB_exo", false)));
@@ -2180,6 +2312,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_LB_IsCauseFor_NotA_Given_NotLBExoAndFExoAndRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", false), f.literal("F_exo", true),
                 f.literal("RB_exo", true)));
@@ -2194,6 +2327,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_F_IsCauseFor_NotA_Given_NotLBExoAndFExoAndRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", false), f.literal("F_exo", true),
                 f.literal("RB_exo", true)));
@@ -2208,6 +2342,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_RB_IsCauseFor_NotA_Given_NotLBExoAndFExoAndRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", false), f.literal("F_exo", true),
                 f.literal("RB_exo", true)));
@@ -2224,6 +2359,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_LB_IsCauseFor_NotA_Given_NotLBExoAndFExoAndNotRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", false), f.literal("F_exo", true),
                 f.literal("RB_exo", false)));
@@ -2238,6 +2374,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_F_IsCauseFor_NotA_Given_NotLBExoAndFExoAndNotRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", false), f.literal("F_exo", true),
                 f.literal("RB_exo", false)));
@@ -2252,6 +2389,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_RB_IsCauseFor_NotA_Given_NotLBExoAndFExoAndNotRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", false), f.literal("F_exo", true),
                 f.literal("RB_exo", false)));
@@ -2268,6 +2406,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_LB_IsCauseFor_NotA_Given_NotLBExoAndFExoAndRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", false), f.literal("F_exo", false),
                 f.literal("RB_exo", true)));
@@ -2282,6 +2421,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_F_IsCauseFor_NotA_Given_NotLBExoAndFExoAndRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", false), f.literal("F_exo", false),
                 f.literal("RB_exo", true)));
@@ -2296,6 +2436,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_RB_IsCauseFor_NotA_Given_NotLBExoAndFExoAndRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", false), f.literal("F_exo", false),
                 f.literal("RB_exo", true)));
@@ -2313,6 +2454,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAC2AC3Only_When_LB_IsCauseFor_NotA_Given_NotLBExoAndNotFExoAndNotRBExo()
             throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", false), f.literal("F_exo", false),
                 f.literal("RB_exo", false)));
@@ -2327,6 +2469,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_F_IsCauseFor_NotA_Given_NotLBExoAndNotFExoAndNotRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", false), f.literal("F_exo", false),
                 f.literal("RB_exo", false)));
@@ -2342,6 +2485,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAC2AC3Only_When_RB_IsCauseFor_NotA_Given_NotLBExoAndNotFExoAndNotRBExo()
             throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", false), f.literal("F_exo", false),
                 f.literal("RB_exo", false)));
@@ -2356,6 +2500,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_F_IsCauseFor_A_Given_NotLBExoAndNotFExoAndNotRBExo() throws Exception {
         CausalModel railroad = ExampleProvider.railroad();
+        FormulaFactory f = railroad.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("LB_exo", false), f.literal("F_exo", false),
                 f.literal("RB_exo", false)));
@@ -2380,6 +2525,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllAC1AC3Only_When_FSU1_IsCauseFor_SMK() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (Literal) v).collect(Collectors.toSet());
@@ -2394,6 +2540,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllAC1AC3Only_When_FSU1AndFNU1_IsCauseFor_SMK() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (Literal) v).collect(Collectors.toSet());
@@ -2408,6 +2555,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_FSU1AndFNU1AndAU1_IsCauseFor_SMK() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (Literal) v).collect(Collectors.toSet());
@@ -2427,6 +2575,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_FSU1AndFNU1AndADU1_IsCauseFor_SMK() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (Literal) v).collect(Collectors.toSet());
@@ -2446,6 +2595,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_FSU2AndFNU2AndAU2_IsCauseFor_SMK() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (Literal) v).collect(Collectors.toSet());
@@ -2462,6 +2612,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_FSU3AndFNU3AndAU3_IsCauseFor_SMK() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (Literal) v).collect(Collectors.toSet());
@@ -2478,6 +2629,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC2Only_When_FSU1AndFNU1AndAndAU1AndADU1_IsCauseFor_SMK() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (Literal) v).collect(Collectors.toSet());
@@ -2497,6 +2649,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_FSU1AndFNU1_IsCauseFor_DK() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (Literal) v).collect(Collectors.toSet());
@@ -2514,6 +2667,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_AU1_IsCauseFor_SD() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (Literal) v).collect(Collectors.toSet());
@@ -2531,6 +2685,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC2Only_When_AU1AndADU1_IsCauseFor_SD() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (Literal) v).collect(Collectors.toSet());
@@ -2548,6 +2703,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_FSU1AndFNU1AndAU1_IsCauseFor_DKU1OrSDU1() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (Literal) v).collect(Collectors.toSet());
@@ -2566,6 +2722,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllAC1AC3Only_When_FSU2_IsCauseFor_SMK_Given_U2U3Exos() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
@@ -2580,6 +2737,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllAC1AC3Only_When_FSU2AndFNU2_IsCauseFor_SMK_Given_U2U3Exos() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
@@ -2594,6 +2752,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_FSU2AndFNU2AndAU2_IsCauseFor_SMK_Given_U2U3Exos() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
@@ -2612,6 +2771,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_FSU2AndFNU2AndADU2_IsCauseFor_SMK_Given_U2U3Exos() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
@@ -2630,6 +2790,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_FSU3AndFNU3AndAU3_IsCauseFor_SMK_Given_U2U3Exos() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
@@ -2647,6 +2808,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAC1AC2Only_When_FSU2AndFNU2AndAndAU2AndADU2_IsCauseFor_SMK_Given_U2U3Exos()
             throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
@@ -2665,6 +2827,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_FSU2AndFNU2_IsCauseFor_DK_Given_U2U3Exos() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
@@ -2682,6 +2845,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_AU2_IsCauseFor_SD_Given_U2U3Exos() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
@@ -2699,6 +2863,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC2Only_When_AU2AndADU2_IsCauseFor_SD_Given_U2U3Exos() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
@@ -2716,6 +2881,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_FSU2AndFNU2AndAU2_IsCauseFor_DKU2OrSDU2_Given_U2U3Exos() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all U2/U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> v.name().contains("U1") ? v.negate() : v).collect(Collectors.toSet());
@@ -2734,6 +2900,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllAC1AC3Only_When_FSU3_IsCauseFor_SMK_Given_U3Exos() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ? v.negate() : v)
@@ -2749,6 +2916,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllAC1AC3Only_When_FSU3AndFNU3_IsCauseFor_SMK_Given_U3Exos() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ? v.negate() : v)
@@ -2764,6 +2932,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_FSU3AndFNU3AndAU3_IsCauseFor_SMK_Given_U3Exos() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ? v.negate() : v)
@@ -2781,6 +2950,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_FSU3AndFNU3AndADU3_IsCauseFor_SMK_Given_U3Exos() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ? v.negate() : v)
@@ -2799,6 +2969,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAC1AC2Only_When_FSU3AndFNU3AndAndAU3AndADU3_IsCauseFor_SMK_Given_U3Exos()
             throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ? v.negate() : v)
@@ -2816,6 +2987,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_FSU3AndFNU3_IsCauseFor_DK_Given_U3Exos() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ? v.negate() : v)
@@ -2832,6 +3004,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_AU3_IsCauseFor_SD_Given_U3Exos() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ? v.negate() : v)
@@ -2848,6 +3021,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC2Only_When_AU3AndADU3_IsCauseFor_SD_Given_U3Exos() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ? v.negate() : v)
@@ -2864,6 +3038,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_FSU3AndFNU3AndAU3_IsCauseFor_DKU3OrSDU3_Given_U3Exos() throws Exception {
         CausalModel stealMasterKey = ExampleProvider.stealMasterKey();
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
         // set all U3 exogenous variables to 1
         Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
                 .map(v -> (v.name().contains("U1") || v.name().contains("U2")) ? v.negate() : v)
@@ -2890,6 +3065,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Test_ForAllMinimalCutSets() throws Exception {
         CausalModel leakage = ExampleProvider.leakage();
+        FormulaFactory f = leakage.getFormulaFactory();
         Util<Literal> util = new Util<>();
 
         List<List<Variable>> testSets = Arrays.asList(
@@ -2966,9 +3142,67 @@ public class CausalitySolverInstanceTest {
     // ############################################### LEAKAGE (end) ###################################################
     // #################################################################################################################
 
+    // #################################################################################################################
+    // ############################################## BINARY TREE ######################################################
+    // #################################################################################################################
+    //region BINARY TREE
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L254_IsCauseFor_Root1() throws Exception {
+        CausalModel binaryTreeDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
+        FormulaFactory f = binaryTreeDepth7.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth7.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("254")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth7, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L253AndL254_IsCauseFor_Root1() throws Exception {
+        CausalModel binaryTreeDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
+        FormulaFactory f = binaryTreeDepth7.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth7.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("253"), f.variable("254")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth7, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
+                BRUTE_FORCE_OPTIMIZED_W);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L251AndL252AndL253AndL254_IsCauseFor_Root1() throws Exception {
+        CausalModel binaryTreeDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
+        FormulaFactory f = binaryTreeDepth7.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth7.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("251"), f.variable("252"),
+                f.variable("253"), f.variable("254")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth7, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
+                BRUTE_FORCE_OPTIMIZED_W);
+    }
+    //endregion
+
+    // #################################################################################################################
+    // ############################################ BINARY TREE (end) ##################################################
+    // #################################################################################################################
+
     @Test
     public void Should_FulfillAllACs_When_STIsCauseForBSInExtendedModelWITHOUTWind() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzyExtended();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true),
                 f.literal("W_exo", false)));
@@ -3013,6 +3247,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3_When_STIsCauseForBSInExtendedModelWITHWind() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzyExtended();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true),
                 f.literal("W_exo", true)));
@@ -3027,6 +3262,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_AIsCauseInDummyModel() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummy();
+        FormulaFactory f = dummyModel.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("A")));
@@ -3043,6 +3279,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC2Only_When_AandBIsCauseInDummyModel() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummy();
+        FormulaFactory f = dummyModel.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("A"), f.variable("C")));
@@ -3088,6 +3325,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_AIsCauseForCInDummyModel() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummy();
+        FormulaFactory f = dummyModel.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("A")));
@@ -3137,6 +3375,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_AAndDIsCauseForCInDummyModel() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummy();
+        FormulaFactory f = dummyModel.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("A"), f.variable("D")));
@@ -3186,6 +3425,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC3Only_When_BIsCauseInDummyModel() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummy();
+        FormulaFactory f = dummyModel.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B")));
@@ -3199,6 +3439,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllAC3Only_When_GAndHIsCauseInDummyModel() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummy();
+        FormulaFactory f = dummyModel.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("G"), f.variable("H")));
@@ -3212,6 +3453,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllAC3Only_When_NotGAndNotHIsCauseInDummyModel() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummy();
+        FormulaFactory f = dummyModel.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("G", false),
@@ -3226,6 +3468,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_B1IsCauseForXInDummyModel2() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummy2();
+        FormulaFactory f = dummyModel.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true),
                 f.literal("C_exo", true), f.literal("D_exo", true)));
@@ -3290,6 +3533,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllAC1AC2Only_When_A1AndB1IsCauseForXInDummyModel2() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummy2();
+        FormulaFactory f = dummyModel.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true),
                 f.literal("C_exo", true), f.literal("D_exo", true)));
@@ -3354,6 +3598,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_B1IsCauseForYInDummyModel2() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummy2();
+        FormulaFactory f = dummyModel.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true),
                 f.literal("C_exo", true), f.literal("D_exo", true)));
@@ -3422,6 +3667,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllACs_When_AIsCauseForCInDummyXORModel_GivenNotB() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummyXOR();
+        FormulaFactory f = dummyModel.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", false)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("A")));
@@ -3436,6 +3682,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_AIsCauseForCInDummyXORModel() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummyXOR();
+        FormulaFactory f = dummyModel.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("A")));
@@ -3478,6 +3725,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_AandBIsCauseForCInDummyXORModel() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummyXOR();
+        FormulaFactory f = dummyModel.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("A"), f.variable("B")));
@@ -3491,6 +3739,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC2AC3Only_When_AandBIsCauseForCInDummyXORModel_GivenNotAExo() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummyXOR();
+        FormulaFactory f = dummyModel.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", false), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("A"), f.variable("B")));
@@ -3504,6 +3753,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1Only_When_AandBIsCauseForCInDummyXNORModel() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummyXNOR();
+        FormulaFactory f = dummyModel.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("A_exo", true), f.literal("B_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("A"), f.variable("B")));
@@ -3517,6 +3767,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_InBenchmarkModels() throws Exception {
         CausalModel benchmarkModel = ExampleProvider.benchmarkModel();
+        FormulaFactory f = benchmarkModel.getFormulaFactory();
         // all exogenous variables are true
         Set<Literal> context = benchmarkModel.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
@@ -3526,11 +3777,10 @@ public class CausalitySolverInstanceTest {
         // test for real SAT approach only as for the others this is taking too long
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
-        CausalitySolverResult causalitySolverResultActual = SATCausalitySolver.solve(benchmarkModel, context, phi,
-                cause, SolvingStrategy.SAT);
-        assertEquals(causalitySolverResultExpected, causalitySolverResultActual);
-
-        CausalModel binaryTreeBenchmarkModelDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
+        testSolve(benchmarkModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+        
+        // TODO delete once comprehensive benchmarks for binary tree are created
+        /*CausalModel binaryTreeBenchmarkModelDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
         CausalModel binaryTreeBenchmarkModelDepth8 = ExampleProvider.generateBinaryTreeBenchmarkModel(8);
         CausalModel binaryTreeBenchmarkModelDepth9 = ExampleProvider.generateBinaryTreeBenchmarkModel(9);
         Formula phiBenchmarkModelBinaryTree = f.variable("0");
@@ -3563,12 +3813,13 @@ public class CausalitySolverInstanceTest {
                         binaryTreeBenchmarkModelDepth9.getExogenousVariables().stream().map(e -> (Literal) e)
                                 .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree,
                         new HashSet<>(Collections.singletonList(f.variable("1022"))), SolvingStrategy.SAT);
-        assertEquals(causalitySolverResultExpectedDepth9, causalitySolverResultActualDepth9);
+        assertEquals(causalitySolverResultExpectedDepth9, causalitySolverResultActualDepth9);*/
     }
 
     @Test
     public void Should_ReturnEvaluationForEquationsInBillySuzy_When_BillyAndSuzyThrow() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
 
@@ -3584,6 +3835,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_ReturnEvaluationForEquationsInBillySuzy_When_SuzyThrowsOnly() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", true)));
 
@@ -3599,6 +3851,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_ReturnEvaluationForEquationsInforestFireDisjunctive_When_LightningOnly() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", false)));
 
@@ -3613,6 +3866,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_ReturnAllCauses_WhenSuzyBillyThrow() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Formula phi = f.variable("BS");
@@ -3659,6 +3913,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_ReturnNoCause_WhenSuzyBillyDoNotThrow() throws Exception {
         CausalModel billySuzy = ExampleProvider.billySuzy();
+        FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", false)));
         Formula phi = f.variable("BS");
@@ -3670,6 +3925,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_ReturnAllCauses_WhenLandMDInConjunctiveScenario() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(false);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", true)));
         Formula phi = f.variable("FF");
@@ -3687,6 +3943,7 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_ReturnAllCauses_WhenLandMDInDisjunctiveScenario() throws Exception {
         CausalModel forestFire = ExampleProvider.forestFire(true);
+        FormulaFactory f = forestFire.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("L_exo", true), f.literal("MD_exo", true)));
         Formula phi = f.variable("FF");
