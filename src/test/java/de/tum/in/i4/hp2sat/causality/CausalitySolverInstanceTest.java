@@ -3767,7 +3767,6 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAC1AC3Only_When_InBenchmarkModels() throws Exception {
         CausalModel benchmarkModel = ExampleProvider.benchmarkModel();
-        // TODO separate formulafactories!
         FormulaFactory f = benchmarkModel.getFormulaFactory();
         // all exogenous variables are true
         Set<Literal> context = benchmarkModel.getExogenousVariables().stream().map(e -> (Literal) e)
@@ -3782,7 +3781,8 @@ public class CausalitySolverInstanceTest {
                 cause, SolvingStrategy.SAT);
         assertEquals(causalitySolverResultExpected, causalitySolverResultActual);
 
-        CausalModel binaryTreeBenchmarkModelDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
+        // TODO delete once comprehensive benchmarks for binary tree are created
+        /*CausalModel binaryTreeBenchmarkModelDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
         CausalModel binaryTreeBenchmarkModelDepth8 = ExampleProvider.generateBinaryTreeBenchmarkModel(8);
         CausalModel binaryTreeBenchmarkModelDepth9 = ExampleProvider.generateBinaryTreeBenchmarkModel(9);
         Formula phiBenchmarkModelBinaryTree = f.variable("0");
@@ -3815,7 +3815,7 @@ public class CausalitySolverInstanceTest {
                         binaryTreeBenchmarkModelDepth9.getExogenousVariables().stream().map(e -> (Literal) e)
                                 .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree,
                         new HashSet<>(Collections.singletonList(f.variable("1022"))), SolvingStrategy.SAT);
-        assertEquals(causalitySolverResultExpectedDepth9, causalitySolverResultActualDepth9);
+        assertEquals(causalitySolverResultExpectedDepth9, causalitySolverResultActualDepth9);*/
     }
 
     @Test
