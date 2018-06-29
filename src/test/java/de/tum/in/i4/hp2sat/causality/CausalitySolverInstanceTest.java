@@ -3180,7 +3180,6 @@ public class CausalitySolverInstanceTest {
     @Test
     public void Should_FulfillAllAC1AC3Only_When_L251AndL252AndL253AndL254_IsCauseFor_Root1() throws Exception {
         CausalModel binaryTreeDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
-        // TODO do the same for other tests!?
         FormulaFactory f = binaryTreeDepth7.getFormulaFactory();
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth7.getExogenousVariables().stream().map(e -> (Literal) e)
