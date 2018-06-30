@@ -3644,7 +3644,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAllACs_When_AAndD_IsCauseFor_C() throws Exception {
+    public void Should_FulfillAC1AC3Only_When_AAndD_IsCauseFor_C() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummy();
         FormulaFactory f = dummyModel.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
