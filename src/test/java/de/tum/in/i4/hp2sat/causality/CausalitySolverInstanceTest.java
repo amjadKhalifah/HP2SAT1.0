@@ -3146,8 +3146,202 @@ public class CausalitySolverInstanceTest {
     // ############################################## BINARY TREE ######################################################
     // #################################################################################################################
     //region BINARY TREE
+    //region [BINARY TREE] height 4 (depth 3)
     @Test
-    public void Should_FulfillAllAC1AC3Only_When_L254_IsCauseFor_Root1() throws Exception {
+    public void Should_FulfillAllAC1AC3Only_When_L14_IsCauseFor_Root0_DEPTH3() throws Exception {
+        CausalModel binaryTreeDepth3 = ExampleProvider.generateBinaryTreeBenchmarkModel(3);
+        FormulaFactory f = binaryTreeDepth3.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth3.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("14")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth3, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L13AndL14_IsCauseFor_Root0_DEPTH3() throws Exception {
+        CausalModel binaryTreeDepth3 = ExampleProvider.generateBinaryTreeBenchmarkModel(3);
+        FormulaFactory f = binaryTreeDepth3.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth3.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("13"), f.variable("14")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth3, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L11AndL12AndL13AndL14_IsCauseFor_Root0_DEPTH3() throws Exception {
+        CausalModel binaryTreeDepth3 = ExampleProvider.generateBinaryTreeBenchmarkModel(3);
+        FormulaFactory f = binaryTreeDepth3.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth3.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("11"), f.variable("12"),
+                f.variable("13"), f.variable("14")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth3, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+    //endregion
+
+    //region [BINARY TREE] height 5 (depth 4)
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L31_IsCauseFor_Root0_DEPTH4() throws Exception {
+        CausalModel binaryTreeDepth4 = ExampleProvider.generateBinaryTreeBenchmarkModel(4);
+        FormulaFactory f = binaryTreeDepth4.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth4.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("30")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth4, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L30AndL31_IsCauseFor_Root0_DEPTH4() throws Exception {
+        CausalModel binaryTreeDepth4 = ExampleProvider.generateBinaryTreeBenchmarkModel(4);
+        FormulaFactory f = binaryTreeDepth4.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth4.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("29"), f.variable("30")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth4, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L27AndL28AndL29AndL30_IsCauseFor_Root0_DEPTH4() throws Exception {
+        CausalModel binaryTreeDepth4 = ExampleProvider.generateBinaryTreeBenchmarkModel(4);
+        FormulaFactory f = binaryTreeDepth4.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth4.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("27"), f.variable("28"),
+                f.variable("29"), f.variable("30")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth4, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+    //endregion
+
+    //region [BINARY TREE] height 6 (depth 5)
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L62_IsCauseFor_Root0_DEPTH5() throws Exception {
+        CausalModel binaryTreeDepth5 = ExampleProvider.generateBinaryTreeBenchmarkModel(5);
+        FormulaFactory f = binaryTreeDepth5.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth5.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("62")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth5, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L61AndL62_IsCauseFor_Root0_DEPTH5() throws Exception {
+        CausalModel binaryTreeDepth5 = ExampleProvider.generateBinaryTreeBenchmarkModel(5);
+        FormulaFactory f = binaryTreeDepth5.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth5.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("61"), f.variable("62")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth5, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L59AndL60AndL61AndL62_IsCauseFor_Root0_DEPTH5() throws Exception {
+        CausalModel binaryTreeDepth5 = ExampleProvider.generateBinaryTreeBenchmarkModel(5);
+        FormulaFactory f = binaryTreeDepth5.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth5.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("59"), f.variable("60"),
+                f.variable("61"), f.variable("62")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth5, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+    //endregion
+
+    //region [BINARY TREE] height 7 (depth 6)
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L126_IsCauseFor_Root0_DEPTH6() throws Exception {
+        CausalModel binaryTreeDepth6 = ExampleProvider.generateBinaryTreeBenchmarkModel(6);
+        FormulaFactory f = binaryTreeDepth6.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth6.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("126")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth6, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L125AndL126_IsCauseFor_Root0_DEPTH6() throws Exception {
+        CausalModel binaryTreeDepth6 = ExampleProvider.generateBinaryTreeBenchmarkModel(6);
+        FormulaFactory f = binaryTreeDepth6.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth6.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("125"), f.variable("126")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth6, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L123AndL124AndL125AndL126_IsCauseFor_Root0_DEPTH6() throws Exception {
+        CausalModel binaryTreeDepth6 = ExampleProvider.generateBinaryTreeBenchmarkModel(6);
+        FormulaFactory f = binaryTreeDepth6.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth6.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("123"), f.variable("124"),
+                f.variable("125"), f.variable("126")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth6, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
+                BRUTE_FORCE_OPTIMIZED_W);
+    }
+    //endregion
+
+    //region [BINARY TREE] height 8 (depth 7)
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L254_IsCauseFor_Root0_DEPTH7() throws Exception {
         CausalModel binaryTreeDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
         FormulaFactory f = binaryTreeDepth7.getFormulaFactory();
         // set all exogenous variables to 1
@@ -3162,7 +3356,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAllAC1AC3Only_When_L253AndL254_IsCauseFor_Root1() throws Exception {
+    public void Should_FulfillAllAC1AC3Only_When_L253AndL254_IsCauseFor_Root0_DEPTH7() throws Exception {
         CausalModel binaryTreeDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
         FormulaFactory f = binaryTreeDepth7.getFormulaFactory();
         // set all exogenous variables to 1
@@ -3178,7 +3372,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAllAC1AC3Only_When_L251AndL252AndL253AndL254_IsCauseFor_Root1() throws Exception {
+    public void Should_FulfillAllAC1AC3Only_When_L251AndL252AndL253AndL254_IsCauseFor_Root0_DEPTH7() throws Exception {
         CausalModel binaryTreeDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
         FormulaFactory f = binaryTreeDepth7.getFormulaFactory();
         // set all exogenous variables to 1
@@ -3195,6 +3389,109 @@ public class CausalitySolverInstanceTest {
     }
     //endregion
 
+    //region [BINARY TREE] height 9 (depth 8)
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L510_IsCauseFor_Root0_DEPTH8() throws Exception {
+        CausalModel binaryTreeDepth8 = ExampleProvider.generateBinaryTreeBenchmarkModel(8);
+        FormulaFactory f = binaryTreeDepth8.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth8.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("510")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth8, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
+                BRUTE_FORCE_OPTIMIZED_W);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L509AndL510_IsCauseFor_Root0_DEPTH8() throws Exception {
+        CausalModel binaryTreeDepth8 = ExampleProvider.generateBinaryTreeBenchmarkModel(8);
+        FormulaFactory f = binaryTreeDepth8.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth8.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("509"), f.variable("510")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth8, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
+                BRUTE_FORCE_OPTIMIZED_W);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L507AndL508AndL509AndL510_IsCauseFor_Root0_DEPTH8() throws Exception {
+        CausalModel binaryTreeDepth8 = ExampleProvider.generateBinaryTreeBenchmarkModel(8);
+        FormulaFactory f = binaryTreeDepth8.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth8.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("507"), f.variable("508"),
+                f.variable("509"), f.variable("510")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth8, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
+                BRUTE_FORCE_OPTIMIZED_W);
+    }
+    //endregion
+
+    //region [BINARY TREE] height 10 (depth 9)
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L1022_IsCauseFor_Root0_DEPTH9() throws Exception {
+        CausalModel binaryTreeDepth9 = ExampleProvider.generateBinaryTreeBenchmarkModel(9);
+        FormulaFactory f = binaryTreeDepth9.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth9.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("1022")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth9, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
+                BRUTE_FORCE_OPTIMIZED_W);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L1021AndL1022_IsCauseFor_Root0_DEPTH9() throws Exception {
+        CausalModel binaryTreeDepth9 = ExampleProvider.generateBinaryTreeBenchmarkModel(9);
+        FormulaFactory f = binaryTreeDepth9.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth9.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("1021"), f.variable("1022")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth9, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
+                BRUTE_FORCE_OPTIMIZED_W);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L1019AndL1020AndL1021AndL1022_IsCauseFor_Root0_DEPTH9()
+            throws Exception {
+        CausalModel binaryTreeDepth9 = ExampleProvider.generateBinaryTreeBenchmarkModel(9);
+        FormulaFactory f = binaryTreeDepth9.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth9.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("1019"), f.variable("1020"),
+                f.variable("1021"), f.variable("1022")));
+        Formula phi = f.variable("0");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth9, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
+                BRUTE_FORCE_OPTIMIZED_W);
+    }
+    //endregion
+    //endregion
     // #################################################################################################################
     // ############################################ BINARY TREE (end) ##################################################
     // #################################################################################################################
@@ -3778,42 +4075,6 @@ public class CausalitySolverInstanceTest {
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
         testSolve(benchmarkModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
-        
-        // TODO delete once comprehensive benchmarks for binary tree are created
-        /*CausalModel binaryTreeBenchmarkModelDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
-        CausalModel binaryTreeBenchmarkModelDepth8 = ExampleProvider.generateBinaryTreeBenchmarkModel(8);
-        CausalModel binaryTreeBenchmarkModelDepth9 = ExampleProvider.generateBinaryTreeBenchmarkModel(9);
-        Formula phiBenchmarkModelBinaryTree = f.variable("0");
-
-        CausalitySolverResult causalitySolverResultExpectedDepth7 =
-                new CausalitySolverResult(true, false, true,
-                        new HashSet<>(Collections.singletonList(f.variable("254"))), null);
-        CausalitySolverResult causalitySolverResultActualDepth7 =
-                SATCausalitySolver.solve(binaryTreeBenchmarkModelDepth7,
-                        binaryTreeBenchmarkModelDepth7.getExogenousVariables().stream().map(e -> (Literal) e)
-                                .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree,
-                        new HashSet<>(Collections.singletonList(f.variable("254"))), SolvingStrategy.SAT);
-        assertEquals(causalitySolverResultExpectedDepth7, causalitySolverResultActualDepth7);
-
-        CausalitySolverResult causalitySolverResultExpectedDepth8 =
-                new CausalitySolverResult(true, false, true,
-                        new HashSet<>(Collections.singletonList(f.variable("510"))), null);
-        CausalitySolverResult causalitySolverResultActualDepth8 =
-                SATCausalitySolver.solve(binaryTreeBenchmarkModelDepth8,
-                        binaryTreeBenchmarkModelDepth8.getExogenousVariables().stream().map(e -> (Literal) e)
-                                .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree,
-                        new HashSet<>(Collections.singletonList(f.variable("510"))), SolvingStrategy.SAT);
-        assertEquals(causalitySolverResultExpectedDepth8, causalitySolverResultActualDepth8);
-
-        CausalitySolverResult causalitySolverResultExpectedDepth9 =
-                new CausalitySolverResult(true, false, true,
-                        new HashSet<>(Collections.singletonList(f.variable("1022"))), null);
-        CausalitySolverResult causalitySolverResultActualDepth9 =
-                SATCausalitySolver.solve(binaryTreeBenchmarkModelDepth9,
-                        binaryTreeBenchmarkModelDepth9.getExogenousVariables().stream().map(e -> (Literal) e)
-                                .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree,
-                        new HashSet<>(Collections.singletonList(f.variable("1022"))), SolvingStrategy.SAT);
-        assertEquals(causalitySolverResultExpectedDepth9, causalitySolverResultActualDepth9);*/
     }
 
     @Test
