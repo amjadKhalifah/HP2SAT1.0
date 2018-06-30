@@ -3491,6 +3491,113 @@ public class CausalitySolverInstanceTest {
                 BRUTE_FORCE_OPTIMIZED_W);
     }
     //endregion
+
+    //region [BINARY TREE] intermediate phi
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L13AndL14_IsCauseFor_N2_DEPTH3() throws Exception {
+        CausalModel binaryTreeDepth3 = ExampleProvider.generateBinaryTreeBenchmarkModel(3);
+        FormulaFactory f = binaryTreeDepth3.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth3.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("13"), f.variable("14")));
+        Formula phi = f.variable("2");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth3, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L29AndL30_IsCauseFor_N6_DEPTH4() throws Exception {
+        CausalModel binaryTreeDepth4 = ExampleProvider.generateBinaryTreeBenchmarkModel(4);
+        FormulaFactory f = binaryTreeDepth4.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth4.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("29"), f.variable("30")));
+        Formula phi = f.variable("6");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth4, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L61AndL62_IsCauseFor_N14_DEPTH5() throws Exception {
+        CausalModel binaryTreeDepth5 = ExampleProvider.generateBinaryTreeBenchmarkModel(5);
+        FormulaFactory f = binaryTreeDepth5.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth5.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("61"), f.variable("62")));
+        Formula phi = f.variable("14");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth5, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L125AndL126_IsCauseFor_N30_DEPTH6() throws Exception {
+        CausalModel binaryTreeDepth6 = ExampleProvider.generateBinaryTreeBenchmarkModel(6);
+        FormulaFactory f = binaryTreeDepth6.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth6.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("125"), f.variable("126")));
+        Formula phi = f.variable("30");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth6, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L253AndL254_IsCauseFor_N62_DEPTH7() throws Exception {
+        CausalModel binaryTreeDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
+        FormulaFactory f = binaryTreeDepth7.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth7.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("253"), f.variable("254")));
+        Formula phi = f.variable("62");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth7, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L509AndL510_IsCauseFor_N126_DEPTH8() throws Exception {
+        CausalModel binaryTreeDepth8 = ExampleProvider.generateBinaryTreeBenchmarkModel(8);
+        FormulaFactory f = binaryTreeDepth8.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth8.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("509"), f.variable("510")));
+        Formula phi = f.variable("126");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth8, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC3Only_When_L1021AndL1022_IsCauseFor_N254_DEPTH9() throws Exception {
+        CausalModel binaryTreeDepth9 = ExampleProvider.generateBinaryTreeBenchmarkModel(9);
+        FormulaFactory f = binaryTreeDepth9.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = binaryTreeDepth9.getExogenousVariables().stream().map(e -> (Literal) e)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("1021"), f.variable("1022")));
+        Formula phi = f.variable("254");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(binaryTreeDepth9, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+    }
+    //endregion
     //endregion
     // #################################################################################################################
     // ############################################ BINARY TREE (end) ##################################################
