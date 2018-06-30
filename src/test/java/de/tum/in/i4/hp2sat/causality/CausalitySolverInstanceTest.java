@@ -3717,7 +3717,7 @@ public class CausalitySolverInstanceTest {
     // #################################################################################################################
     //region DUMMY MODEL XNOR
     @Test
-    public void Should_FulfillAC1Only_When_AandBIsCauseForCInDummyXNORModel() throws Exception {
+    public void Should_FulfillAC1Only_When_AAndB_IsCauseFor_C() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummyXNOR();
         FormulaFactory f = dummyModel.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
