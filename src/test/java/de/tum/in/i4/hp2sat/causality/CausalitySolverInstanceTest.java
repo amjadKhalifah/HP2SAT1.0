@@ -3519,7 +3519,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAC1AC2Only_When_AAndB_IsCauseFor_F() throws Exception {
+    public void Should_FulfillAC1AC2Only_When_AAndC_IsCauseFor_F() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummy();
         FormulaFactory f = dummyModel.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
@@ -3579,7 +3579,7 @@ public class CausalitySolverInstanceTest {
     }
 
     @Test
-    public void Should_FulfillAllAC3Only_When_NotGAndNotH_IsCauseFor_F() throws Exception {
+    public void Should_FulfillAC1AC3Only_When_NotGAndNotH_IsCauseFor_F() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummy();
         FormulaFactory f = dummyModel.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
