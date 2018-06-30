@@ -3716,6 +3716,7 @@ public class CausalitySolverInstanceTest {
     // ########################################### DUMMY MODEL XNOR ####################################################
     // #################################################################################################################
     //region DUMMY MODEL XNOR
+    //region A_exo = 1, B_exo = 1
     @Test
     public void Should_FulfillAC1Only_When_AAndB_IsCauseFor_C() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummyXNOR();
@@ -3729,6 +3730,35 @@ public class CausalitySolverInstanceTest {
                 new CausalitySolverResult(true, false, false, cause, null);
         testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected);
     }
+
+    @Test
+    public void Should_FulfillAllACs_When_A_IsCauseFor_C_XNOR() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummyXNOR();
+        FormulaFactory f = dummyModel.getFormulaFactory();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("A")));
+        Formula phi = f.variable("C");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAllACs_When_B_IsCauseFor_C_XNOR() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummyXNOR();
+        FormulaFactory f = dummyModel.getFormulaFactory();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("A_exo", true), f.literal("B_exo", true)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("B")));
+        Formula phi = f.variable("C");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected);
+    }
+    //endregion
     //endregion
     // #################################################################################################################
     // ######################################### DUMMY MODEL XNOR (end) ################################################
