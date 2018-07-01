@@ -39,7 +39,8 @@ Equation SHEquation = new Equation(SH, SHFormula);
 Equation BHEquation = new Equation(BH, BHFormula);
 Equation BSEquation = new Equation(BS, BSFormula);
 
-Set<Equation> equations = new HashSet<>(Arrays.asList(BTEquation, STEquation, SHEquation, BHEquation, BSEquation));
+Set<Equation> equations = new HashSet<>(Arrays.asList(BTEquation, STEquation, SHEquation,
+    BHEquation, BSEquation));
 Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(BTExo, STExo));
 
 CausalModel causalModel = new CausalModel("RockThrowing", equations, exogenousVariables, f);
@@ -47,10 +48,12 @@ CausalModel causalModel = new CausalModel("RockThrowing", equations, exogenousVa
 
 Check whether *ST = 1* is a cause of *BS = 1* in the previously created causal model given *ST_exo, BT_exo = 1*:
 ```java
-Set<Literal> context = new HashSet<>(Arrays.asList(f.literal("BT_exo", true), f.literal("ST_exo", true)));
+Set<Literal> context = new HashSet<>(Arrays.asList(f.literal("BT_exo", true),
+    f.literal("ST_exo", true)));
 Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
 Formula phi = f.variable("BS");
-CausalitySolverResult causalitySolverResult = CauscausalModel.isCause(context, phi, cause, SolvingStrategy.SAT);
+CausalitySolverResult causalitySolverResult =
+    CauscausalModel.isCause(context, phi, cause, SolvingStrategy.SAT);
 ```
 
 ### Important Notes
