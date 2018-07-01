@@ -2,6 +2,9 @@
 
 [![Build Status](https://travis-ci.com/srehwald/hp2sat.svg?token=YUmexXqP9AGj9wNMuDhx&branch=develop)](https://travis-ci.com/srehwald/hp2sat)
 
+## Background
+This library allows to determine actual causality according to the modified Halpern-Pearl definition of causality. The theoretical background can be found in [1].
+
 ## Installation
 
 ```bash
@@ -59,3 +62,7 @@ characteristics; otherwise an exception is thrown:
     - The causal model must be *acyclic*. That is, no variables are allowed to mutually depend on each other 
     (directly and indirectly)
     - Variables must not be named with `"_dummy"`.
+    
+## Literature
+
+[1] J. Y. Halpern. "A Modification of the Halpern-Pearl Definition of Causality." In: Proceedings of the Twenty-Fourth International Joint Conference on Artificial Intelligence, IJCAI 2015, Buenos Aires, Argentina, July 25-31, 2015. 2015, pp. 3022–3033.
