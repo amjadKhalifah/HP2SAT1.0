@@ -10,6 +10,8 @@ $ mvn install
 
 ## Usage
 
+### General
+
 Creation of a causal model:
 ```java
 FormulaFactory f = new FormulaFactory();
@@ -47,3 +49,13 @@ Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
 Formula phi = f.variable("BS");
 CausalitySolverResult causalitySolverResult = CauscausalModel.isCause(context, phi, cause, SolvingStrategy.SAT);
 ```
+
+### Important Notes
+
+- When working with a causal model, *always* use the same `FormulaFactory` instance. If not, an exception might occur.
+- When creating a `CausalModel`, it is checked whether the latter is valid. It needs to fulfill the following 
+characteristics; otherwise an exception is thrown:
+    - Each variable needs to be either exogenous or defined by *exactly one* equation.
+    - The causal model must be *acyclic*. That is, no variables are allowed to mutually depend on each other 
+    (directly and indirectly)
+    - Variables must not be named with `"_dummy"`.
