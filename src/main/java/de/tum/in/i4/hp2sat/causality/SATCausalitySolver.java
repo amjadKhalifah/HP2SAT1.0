@@ -7,6 +7,7 @@ import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
+import org.logicng.solvers.CleaneLing;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
 import org.logicng.util.Pair;
@@ -15,6 +16,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static de.tum.in.i4.hp2sat.causality.SATSolverType.GLUCOSE;
+import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINICARD;
 import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINISAT;
 import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.*;
 
@@ -565,8 +568,12 @@ class SATCausalitySolver extends CausalitySolver {
     private SATSolver selectSATSolver(SATSolverType satSolverType, FormulaFactory f) {
         if (satSolverType == MINISAT) {
             return MiniSat.miniSat(f);
-        } else {
+        } else if (satSolverType == GLUCOSE) {
             return MiniSat.glucose(f);
+        } else if (satSolverType == MINICARD) {
+            return MiniSat.miniCard(f);
+        } else {
+            return CleaneLing.minimalistic(f);
         }
     }
 
