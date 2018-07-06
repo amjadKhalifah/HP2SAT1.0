@@ -63,8 +63,7 @@ class BruteForceCausalitySolver extends CausalitySolver {
         CausalModel causalModelModified = createModifiedCausalModelForCause(causalModel, cause, f);
 
         // evaluate causal model with setting x' for cause
-        Set<Literal> evaluationModified = CausalitySolver.evaluateEquations(causalModelModified, context, f,
-                phiFormula.variables().toArray(new Variable[0]));
+        Set<Literal> evaluationModified = CausalitySolver.evaluateEquations(causalModelModified, context, f);
         // check if not(phi) evaluates to true for empty W -> if yes, no further investigation necessary
         if (phiFormula.evaluate(new Assignment(evaluationModified))) {
             return new HashSet<>();
@@ -91,9 +90,8 @@ class BruteForceCausalitySolver extends CausalitySolver {
         for (Set<Literal> w : allW) {
             // create copy of modified causal model
             CausalModel causalModelModifiedW = createModifiedCausalModelForW(causalModelModified, w, f);
-            // evaluate all variables in the negated phi
-            evaluationModified = CausalitySolver.evaluateEquations(causalModelModifiedW, context, f,
-                    phiFormula.variables().toArray(new Variable[0]));
+            // evaluate all variables
+            evaluationModified = CausalitySolver.evaluateEquations(causalModelModifiedW, context, f);
             /*
              * if the negated phi evaluates to true given the values of the variables in the modified causal model,
              * AC2 is fulfilled an we return the W for which it is fulfilled. */
