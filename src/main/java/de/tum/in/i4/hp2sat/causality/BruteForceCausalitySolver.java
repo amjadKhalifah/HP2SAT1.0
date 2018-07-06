@@ -31,7 +31,7 @@ class BruteForceCausalitySolver extends CausalitySolver {
                                 Set<Literal> cause, SolvingStrategy solvingStrategy)
             throws InvalidCausalModelException {
         FormulaFactory f = causalModel.getFormulaFactory();
-        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context, f);
+        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context);
         Pair<Boolean, Boolean> ac1Tuple = fulfillsAC1(evaluation, phi, cause);
         boolean ac1 = ac1Tuple.first() && ac1Tuple.second();
         Set<Literal> w = fulfillsAC2(causalModel, phi, cause, context, evaluation, solvingStrategy, f);
@@ -63,7 +63,7 @@ class BruteForceCausalitySolver extends CausalitySolver {
         CausalModel causalModelModified = createModifiedCausalModelForCause(causalModel, cause, f);
 
         // evaluate causal model with setting x' for cause
-        Set<Literal> evaluationModified = CausalitySolver.evaluateEquations(causalModelModified, context, f);
+        Set<Literal> evaluationModified = CausalitySolver.evaluateEquations(causalModelModified, context);
         // check if not(phi) evaluates to true for empty W -> if yes, no further investigation necessary
         if (phiFormula.evaluate(new Assignment(evaluationModified))) {
             return new HashSet<>();
@@ -91,7 +91,7 @@ class BruteForceCausalitySolver extends CausalitySolver {
             // create copy of modified causal model
             CausalModel causalModelModifiedW = createModifiedCausalModelForW(causalModelModified, w, f);
             // evaluate all variables
-            evaluationModified = CausalitySolver.evaluateEquations(causalModelModifiedW, context, f);
+            evaluationModified = CausalitySolver.evaluateEquations(causalModelModifiedW, context);
             /*
              * if the negated phi evaluates to true given the values of the variables in the modified causal model,
              * AC2 is fulfilled an we return the W for which it is fulfilled. */

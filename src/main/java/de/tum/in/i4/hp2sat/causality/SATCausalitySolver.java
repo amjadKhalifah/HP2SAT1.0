@@ -58,7 +58,7 @@ class SATCausalitySolver extends CausalitySolver {
                                 Set<Literal> cause, SolvingStrategy solvingStrategy, SATSolverType satSolverType)
             throws InvalidCausalModelException {
         FormulaFactory f = causalModel.getFormulaFactory();
-        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context, f);
+        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context);
         Pair<Boolean, Boolean> ac1Tuple = fulfillsAC1(evaluation, phi, cause);
         boolean ac1 = ac1Tuple.first() && ac1Tuple.second();
         Set<Literal> w;
@@ -103,7 +103,7 @@ class SATCausalitySolver extends CausalitySolver {
         CausalModel causalModelModified = createModifiedCausalModelForCause(causalModel, cause, f);
 
         // evaluate causal model with setting x' for cause
-        Set<Literal> evaluationModified = evaluateEquations(causalModelModified, context, f);
+        Set<Literal> evaluationModified = evaluateEquations(causalModelModified, context);
         // check if not(phi) evaluates to true for empty W -> if yes, no further investigation necessary
         if (negatedPhi.evaluate(new Assignment(evaluationModified))) {
             return new HashSet<>();
@@ -308,7 +308,7 @@ class SATCausalitySolver extends CausalitySolver {
             // create copy of original causal model
             CausalModel causalModelModified = createModifiedCausalModelForCause(causalModel, cause, f);
             // evaluate causal model with setting x' for cause
-            Set<Literal> evaluationModified = evaluateEquations(causalModelModified, context, f);
+            Set<Literal> evaluationModified = evaluateEquations(causalModelModified, context);
             // check if not(phi) evaluates to true for empty W
             if (phiNegated.evaluate(new Assignment(evaluationModified))) {
                 w = new HashSet<>();
