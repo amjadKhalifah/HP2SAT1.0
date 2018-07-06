@@ -96,7 +96,6 @@ class SATCausalitySolver extends CausalitySolver {
                                      Set<Literal> evaluation, SolvingStrategy solvingStrategy,
                                      SATSolverType satSolverType, FormulaFactory f)
             throws InvalidCausalModelException {
-        SATSolver satSolver = selectSATSolver(satSolverType, f);
         Formula negatedPhi = f.not(phi); // negate phi
 
         // create copy of original causal model
@@ -109,6 +108,7 @@ class SATCausalitySolver extends CausalitySolver {
             return new HashSet<>();
         }
 
+        SATSolver satSolver = selectSATSolver(satSolverType, f);
         // generate SAT query
         Formula formula = generateSATQuery(causalModelModified, negatedPhi, cause, context, evaluation,
                 solvingStrategy, false, f);
