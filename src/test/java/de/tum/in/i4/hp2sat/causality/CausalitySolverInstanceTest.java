@@ -4265,7 +4265,7 @@ public class CausalitySolverInstanceTest {
                 f.literal("ST_exo", true), f.literal("BT", true),
                 f.literal("ST", true), f.literal("BH", false),
                 f.literal("SH", true), f.literal("BS", true)));
-        Set<Literal> evaluationActual = CausalitySolver.evaluateEquations(billySuzy, context, f);
+        Set<Literal> evaluationActual = CausalitySolver.evaluateEquations(billySuzy, context);
 
         assertEquals(evaluationExpected, evaluationActual);
     }
@@ -4281,7 +4281,7 @@ public class CausalitySolverInstanceTest {
                 f.literal("ST_exo", true), f.literal("BT", false),
                 f.literal("ST", true), f.literal("BH", false),
                 f.literal("SH", true), f.literal("BS", true)));
-        Set<Literal> evaluationActual = CausalitySolver.evaluateEquations(billySuzy, context, f);
+        Set<Literal> evaluationActual = CausalitySolver.evaluateEquations(billySuzy, context);
 
         assertEquals(evaluationExpected, evaluationActual);
     }
@@ -4296,7 +4296,7 @@ public class CausalitySolverInstanceTest {
         Set<Literal> evaluationExpected = new HashSet<>(Arrays.asList(f.literal("L_exo", true),
                 f.literal("MD_exo", false), f.literal("L", true),
                 f.literal("MD", false), f.literal("FF", true)));
-        Set<Literal> evaluationActual = CausalitySolver.evaluateEquations(forestFire, context, f);
+        Set<Literal> evaluationActual = CausalitySolver.evaluateEquations(forestFire, context);
 
         assertEquals(evaluationExpected, evaluationActual);
     }

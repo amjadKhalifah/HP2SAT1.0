@@ -54,7 +54,7 @@ abstract class CausalitySolver {
                                             SolvingStrategy solvingStrategy, FormulaFactory f)
             throws InvalidCausalModelException {
         // compute all possible combination of primitive events
-        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context, f);
+        Set<Literal> evaluation = CausalitySolver.evaluateEquations(causalModel, context);
         Set<Literal> evaluationWithoutExogenousVariables = evaluation.stream()
                 .filter(l -> !causalModel.getExogenousVariables().contains(l.variable())).collect(Collectors.toSet());
         List<Set<Literal>> allPotentialCauses = new UnifiedSet<>(evaluationWithoutExogenousVariables).powerSet()
@@ -86,12 +86,10 @@ abstract class CausalitySolver {
      * @param causalModel the causal model
      * @param context     the context, i.e. the evaluation of the exogenous variables; positive literal means true,
      *                    negative means false
-     * @param variables   if some variables are given, then only their evaluation is returned
      * @return evaluation for all variables within the causal model (endo and exo); positive literal means true,
      * negative means false
      */
-    static Set<Literal> evaluateEquations(CausalModel causalModel, Set<Literal> context, FormulaFactory f,
-                                          Variable... variables) {
+    static Set<Literal> evaluateEquations(CausalModel causalModel, Set<Literal> context) {
         // initially, we can only assign the exogenous variables as defined by the context
         Assignment assignment = new Assignment(context);
         for (Equation equation : causalModel.getEquationsSorted()) {
@@ -106,17 +104,6 @@ abstract class CausalitySolver {
                 assignment.addLiteral(equation.getVariable());
             } else {
                 assignment.addLiteral(equation.getVariable().negate());
-            }
-
-            /*
-             * If variables are specified, we stop the evaluation once all the specified variables are actually
-             * evaluated.*/
-            if (variables.length > 0 &&
-                    assignment.literals().stream().map(Literal::variable).collect(Collectors.toSet())
-                            .containsAll(Arrays.asList(variables))) {
-                // return the evaluation for the specified variables only
-                return assignment.literals().stream()
-                        .filter(l -> Arrays.asList(variables).contains(l.variable())).collect(Collectors.toSet());
             }
         }
         /*
