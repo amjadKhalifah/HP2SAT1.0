@@ -3171,7 +3171,7 @@ public class CausalitySolverInstanceTest {
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
-        testSolve(binaryTreeDepth3, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+        testSolve(binaryTreeDepth3, context, phi, cause, causalitySolverResultExpected);
     }
 
     @Test
@@ -3187,7 +3187,7 @@ public class CausalitySolverInstanceTest {
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
-        testSolve(binaryTreeDepth3, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+        testSolve(binaryTreeDepth3, context, phi, cause, causalitySolverResultExpected);
     }
     //endregion
 
@@ -3331,8 +3331,7 @@ public class CausalitySolverInstanceTest {
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
-        testSolve(binaryTreeDepth6, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
-                BRUTE_FORCE_OPTIMIZED_W);
+        testSolve(binaryTreeDepth6, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
     }
     //endregion
 
@@ -3364,8 +3363,7 @@ public class CausalitySolverInstanceTest {
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
-        testSolve(binaryTreeDepth7, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
-                BRUTE_FORCE_OPTIMIZED_W);
+        testSolve(binaryTreeDepth7, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
     }
 
     @Test
@@ -3381,8 +3379,7 @@ public class CausalitySolverInstanceTest {
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
-        testSolve(binaryTreeDepth7, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
-                BRUTE_FORCE_OPTIMIZED_W);
+        testSolve(binaryTreeDepth7, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
     }
     //endregion
 
@@ -3399,8 +3396,7 @@ public class CausalitySolverInstanceTest {
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
-        testSolve(binaryTreeDepth8, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
-                BRUTE_FORCE_OPTIMIZED_W);
+        testSolve(binaryTreeDepth8, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
     }
 
     @Test
@@ -3415,8 +3411,7 @@ public class CausalitySolverInstanceTest {
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
-        testSolve(binaryTreeDepth8, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
-                BRUTE_FORCE_OPTIMIZED_W);
+        testSolve(binaryTreeDepth8, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
     }
 
     @Test
