@@ -3013,8 +3013,7 @@ public class CausalitySolverInstanceTest {
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, true, true, cause, new HashSet<>());
-        // exclude brute-force approach (takes too long) and strategies that yield non-minimal W (ease testing)
-        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected);
     }
 
     @Test
@@ -3030,8 +3029,7 @@ public class CausalitySolverInstanceTest {
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, true, false, cause, new HashSet<>());
-        // exclude brute-force approach (takes too long)
-        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
+        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected);
     }
 
     @Test
