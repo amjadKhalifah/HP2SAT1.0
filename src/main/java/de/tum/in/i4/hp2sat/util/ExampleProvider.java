@@ -18,7 +18,7 @@ public class ExampleProvider {
         Variable STExo = f.variable("ST_exo");
 
         Variable BT = f.variable("BT");
-        Variable ST = f.variable("ST");
+        Variable ST = f.variable("XT");
         Variable BH = f.variable("BH");
         Variable SH = f.variable("SH");
         Variable BS = f.variable("BS");
