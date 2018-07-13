@@ -291,7 +291,7 @@ public class ExampleProvider {
         return causalModel;
     }
 
-    public static CausalModel leakage() throws InvalidCausalModelException {
+    public static CausalModel leakage(boolean preemption) throws InvalidCausalModelException {
         FormulaFactory f = new FormulaFactory();
         HashMap<String, Variable> endos = new HashMap<>();
         HashMap<String, Variable> exos = new HashMap<>();
@@ -306,7 +306,12 @@ public class ExampleProvider {
                 String nameExo = nameEndo + "_exo";
                 Variable exo = f.variable(nameExo);
                 exos.put(nameExo, exo);
-                equations.add(new Equation(endo, exo));
+                if (i < 26) {
+                    equations.add(new Equation(endo, exo));
+                } else {
+                    equations.add(new Equation(endo, f.and(exo,
+                            (preemption ? f.not(f.variable("X39")) : f.verum()))));
+                }
             }
         }
 
@@ -323,7 +328,8 @@ public class ExampleProvider {
         Equation X36Equation = new Equation(endos.get("X36"), f.or(endos.get("X27"), endos.get("X28"), endos.get("X29"),
                 endos.get("X30")));
         Equation X37Equation = new Equation(endos.get("X37"), f.and(endos.get("X31"), endos.get("X17")));
-        Equation X38Equation = new Equation(endos.get("X38"), f.and(endos.get("X1"), endos.get("X2")));
+        Equation X38Equation = new Equation(endos.get("X38"), f.and(endos.get("X1"), endos.get("X2"),
+                preemption ? f.not(endos.get("X39")) : f.verum()));
         Equation X39Equation = new Equation(endos.get("X39"), f.and(endos.get("X36"), endos.get("X11")));
         Equation X40Equation = new Equation(endos.get("X40"), f.or(endos.get("X37"), endos.get("X32"), endos.get("X33"),
                 endos.get("X34"), endos.get("X35")));
