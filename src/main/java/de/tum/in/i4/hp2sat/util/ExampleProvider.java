@@ -331,8 +331,9 @@ public class ExampleProvider {
         Equation X38Equation = new Equation(endos.get("X38"), f.and(endos.get("X1"), endos.get("X2"),
                 preemption ? f.not(endos.get("X39")) : f.verum()));
         Equation X39Equation = new Equation(endos.get("X39"), f.and(endos.get("X36"), endos.get("X11")));
-        Equation X40Equation = new Equation(endos.get("X40"), f.or(endos.get("X37"), endos.get("X32"), endos.get("X33"),
-                endos.get("X34"), endos.get("X35")));
+        Equation X40Equation = new Equation(endos.get("X40"), f.and(f.or(endos.get("X37"), endos.get("X32"), endos.get
+                        ("X33"),
+                endos.get("X34"), endos.get("X35")), preemption ? f.not(endos.get("X39")) : f.verum()));
         Equation X41Equation = new Equation(endos.get("X41"), f.or(endos.get("X38"), endos.get("X39"), endos.get("X40"),
                 endos.get("X26")));
 
