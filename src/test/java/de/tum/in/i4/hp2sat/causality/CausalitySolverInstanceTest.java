@@ -3059,9 +3059,10 @@ public class CausalitySolverInstanceTest {
     // ################################################## LEAKAGE ######################################################
     // #################################################################################################################
     //region LEAKAGE
+    //region [LEKAGE] NO Preemption
     @Test
     public void Test_ForAllMinimalCutSets() throws Exception {
-        CausalModel leakage = ExampleProvider.leakage();
+        CausalModel leakage = ExampleProvider.leakage(false);
         FormulaFactory f = leakage.getFormulaFactory();
         Util<Literal> util = new Util<>();
 
@@ -3134,6 +3135,90 @@ public class CausalitySolverInstanceTest {
             }
         }
     }
+    //endregion
+    //region [LEAKAGE] Preemption
+    @Test
+    public void Should_FulfillAllACs_When_X3_IsCauseFor_X41() throws Exception {
+        CausalModel leakage = ExampleProvider.leakage(true);
+        FormulaFactory f = leakage.getFormulaFactory();
+        // set all exogenous variables to 1
+        List<String> contextVars = Arrays.asList("X1_exo", "X2_exo", "X3_exo", "X11_exo", "X24_exo", "X25_exo",
+                "X26_exo");
+        Set<Literal> context = leakage.getExogenousVariables().stream()
+                .map(v -> contextVars.contains(v.name()) ? v : v.negate())
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("X3")));
+        Formula phi = f.variable("X41");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Arrays.asList(f.literal("X38", false),
+                                f.literal("X26", false), f.literal("X40", false))));
+        testSolve(leakage, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE, SAT, SAT_OPTIMIZED_W,
+                SAT_OPTIMIZED_FORMULAS, SAT_COMBINED, SAT_OPTIMIZED_AC3);
+    }
+
+    @Test
+    public void Should_FulfillAllACs_When_X11_IsCauseFor_X41() throws Exception {
+        CausalModel leakage = ExampleProvider.leakage(true);
+        FormulaFactory f = leakage.getFormulaFactory();
+        List<String> contextVars = Arrays.asList("X1_exo", "X2_exo", "X3_exo", "X11_exo", "X24_exo", "X25_exo",
+                "X26_exo");
+        Set<Literal> context = leakage.getExogenousVariables().stream()
+                .map(v -> contextVars.contains(v.name()) ? v : v.negate())
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("X11")));
+        Formula phi = f.variable("X41");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Arrays.asList(f.literal("X38", false),
+                                f.literal("X26", false), f.literal("X40", false))));
+        testSolve(leakage, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE, SAT, SAT_OPTIMIZED_W,
+                SAT_OPTIMIZED_FORMULAS, SAT_COMBINED, SAT_OPTIMIZED_AC3);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC2Only_When_X3_And_X11_IsCauseFor_X41() throws Exception {
+        CausalModel leakage = ExampleProvider.leakage(true);
+        FormulaFactory f = leakage.getFormulaFactory();
+        List<String> contextVars = Arrays.asList("X1_exo", "X2_exo", "X3_exo", "X11_exo", "X24_exo", "X25_exo",
+                "X26_exo");
+        Set<Literal> context = leakage.getExogenousVariables().stream()
+                .map(v -> contextVars.contains(v.name()) ? v : v.negate())
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("X3"), f.variable("X11")));
+        Formula phi = f.variable("X41");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, false, cause,
+                        new HashSet<>(Arrays.asList(f.literal("X38", false),
+                                f.literal("X26", false), f.literal("X40", false))));
+        testSolve(leakage, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE, SAT, SAT_OPTIMIZED_W,
+                SAT_OPTIMIZED_FORMULAS, SAT_COMBINED, SAT_OPTIMIZED_AC3);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC2Only_When_X1_X2_X3_X11_IsCauseFor_X41() throws Exception {
+        CausalModel leakage = ExampleProvider.leakage(true);
+        FormulaFactory f = leakage.getFormulaFactory();
+        List<String> contextVars = Arrays.asList("X1_exo", "X2_exo", "X3_exo", "X11_exo", "X24_exo", "X25_exo",
+                "X26_exo");
+        Set<Literal> context = leakage.getExogenousVariables().stream()
+                .map(v -> contextVars.contains(v.name()) ? v : v.negate())
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("X1"), f.variable("X2"),
+                f.variable("X3"), f.variable("X11")));
+        Formula phi = f.variable("X41");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, false, cause,
+                        new HashSet<>(Arrays.asList(f.literal("X26", false),
+                                f.literal("X40", false))));
+        testSolve(leakage, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE, SAT, SAT_OPTIMIZED_W,
+                SAT_OPTIMIZED_FORMULAS, SAT_COMBINED, SAT_OPTIMIZED_AC3);
+    }
+    //endregion
     //endregion
     // #################################################################################################################
     // ############################################### LEAKAGE (end) ###################################################
