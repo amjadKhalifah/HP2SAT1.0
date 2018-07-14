@@ -5,6 +5,7 @@ import de.tum.in.i4.hp2sat.util.Util;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
@@ -3962,6 +3963,93 @@ public class CausalitySolverInstanceTest {
     //endregion
     // #################################################################################################################
     // ######################################### DUMMY MODEL XNOR (end) ################################################
+    // #################################################################################################################
+
+    // #################################################################################################################
+    // ################################### DUMMY MODEL COMBINED WITH BINARY TREE #######################################
+    // #################################################################################################################
+    //region DUMMY MODEL COMBINED WITH BINARY TREE
+    @Test
+    @Ignore
+    public void Should_FulfillAC1AC3Only_When_L4094_IsCauseFor_F() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummyCombinedWithBinaryTree();
+        FormulaFactory f = dummyModel.getFormulaFactory();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("B_exo", true), f.literal("4094_exo", true),
+                f.literal("4093_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("4094")));
+        Formula phi = f.variable("F");
+
+        // IMPORTANT: THIS TEST CASE WILL FAIL AS WE DO NOT SPECIFY W, BECAUSE IT IS TOO LARGE!!!
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
+                BRUTE_FORCE_OPTIMIZED_W, SAT_MINIMAL, SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL, SAT_OPTIMIZED_FORMULAS,
+                SAT_OPTIMIZED_FORMULAS_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_AC3_MINIMAL);
+    }
+
+    @Test
+    @Ignore
+    public void Should_FulfillAC1AC3Only_When_L4093_IsCauseFor_F() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummyCombinedWithBinaryTree();
+        FormulaFactory f = dummyModel.getFormulaFactory();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("B_exo", true), f.literal("4094_exo", true),
+                f.literal("4093_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("4093")));
+        Formula phi = f.variable("F");
+
+        // IMPORTANT: THIS TEST CASE WILL FAIL AS WE DO NOT SPECIFY W, BECAUSE IT IS TOO LARGE!!!
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
+                BRUTE_FORCE_OPTIMIZED_W, SAT_MINIMAL, SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL, SAT_OPTIMIZED_FORMULAS,
+                SAT_OPTIMIZED_FORMULAS_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_AC3_MINIMAL);
+    }
+
+    @Test
+    @Ignore
+    public void Should_FulfillAllACs_When_L4093AndL4094_IsCauseFor_F() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummyCombinedWithBinaryTree();
+        FormulaFactory f = dummyModel.getFormulaFactory();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("B_exo", true), f.literal("4094_exo", true),
+                f.literal("4093_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("4093"), f.variable("4094")));
+        Formula phi = f.variable("F");
+
+        // IMPORTANT: THIS TEST CASE WILL FAIL AS WE DO NOT SPECIFY W, BECAUSE IT IS TOO LARGE!!!
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, null);
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
+                BRUTE_FORCE_OPTIMIZED_W, SAT, SAT_MINIMAL, SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL,
+                SAT_OPTIMIZED_FORMULAS, SAT_OPTIMIZED_FORMULAS_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL,
+                SAT_OPTIMIZED_AC3_MINIMAL);
+    }
+
+    @Test
+    @Ignore
+    public void Should_FulfillAC1AC2Only_When_NOTL4092AndL4093AndL4094_IsCauseFor_F() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummyCombinedWithBinaryTree();
+        FormulaFactory f = dummyModel.getFormulaFactory();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("B_exo", true), f.literal("4094_exo", true),
+                f.literal("4093_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("4092", false), f.variable("4093"), f.variable
+                ("4094")));
+        Formula phi = f.variable("F");
+
+        // IMPORTANT: THIS TEST CASE WILL FAIL AS WE DO NOT SPECIFY W, BECAUSE IT IS TOO LARGE!!!
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, false, cause, null);
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
+                BRUTE_FORCE_OPTIMIZED_W, SAT, SAT_MINIMAL, SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL,
+                SAT_OPTIMIZED_FORMULAS, SAT_OPTIMIZED_FORMULAS_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL,
+                SAT_OPTIMIZED_AC3_MINIMAL);
+    }
+    //endregion
+    // #################################################################################################################
+    // ################################ DUMMY MODEL COMBINED WITH BINARY TREE (end) ####################################
     // #################################################################################################################
 
     @Test
