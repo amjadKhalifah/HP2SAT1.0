@@ -4029,8 +4029,8 @@ public class CausalitySolverInstanceTest {
         Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo","4094_exo", "4093_exo"));
         Set<Literal> context = dummyModel.getExogenousVariables().stream()
                 .map(v -> contextVars.contains(v.name()) ? v : v.negate()).collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("4092", false), f.variable("4093"), f.variable
-                ("4094")));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("4092", false),
+                f.variable("4093"), f.variable("4094")));
         Formula phi = f.variable("F");
 
         // IMPORTANT: THIS TEST CASE WILL FAIL AS WE DO NOT SPECIFY W, BECAUSE IT IS TOO LARGE!!!
