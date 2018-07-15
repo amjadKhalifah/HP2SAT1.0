@@ -4039,6 +4039,25 @@ public class CausalitySolverInstanceTest {
                 BRUTE_FORCE_OPTIMIZED_W, SAT_MINIMAL, SAT_OPTIMIZED_W_MINIMAL, SAT_OPTIMIZED_FORMULAS_MINIMAL,
                 SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_AC3_MINIMAL);
     }
+
+    @Test
+    @Ignore
+    public void Should_FulfillAC1AC2Only_When_L4094_IsCauseFor_F_Given_4094Exo_BExo() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummyCombinedWithBinaryTree();
+        FormulaFactory f = dummyModel.getFormulaFactory();
+        Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo","4094_exo"));
+        Set<Literal> context = dummyModel.getExogenousVariables().stream()
+                .map(v -> contextVars.contains(v.name()) ? v : v.negate()).collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("4094")));
+        Formula phi = f.variable("F");
+
+        // IMPORTANT: THIS TEST CASE WILL FAIL AS WE DO NOT SPECIFY W, BECAUSE IT IS TOO LARGE!!!
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, null);
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
+                BRUTE_FORCE_OPTIMIZED_W, SAT_MINIMAL, SAT_OPTIMIZED_W_MINIMAL, SAT_OPTIMIZED_FORMULAS_MINIMAL,
+                SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_AC3_MINIMAL);
+    }
     //endregion
     // #################################################################################################################
     // ################################ DUMMY MODEL COMBINED WITH BINARY TREE (end) ####################################
