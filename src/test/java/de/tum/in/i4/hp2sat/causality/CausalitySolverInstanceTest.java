@@ -4016,9 +4016,8 @@ public class CausalitySolverInstanceTest {
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, true, true, cause, null);
         testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
-                BRUTE_FORCE_OPTIMIZED_W, SAT, SAT_MINIMAL, SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL,
-                SAT_OPTIMIZED_FORMULAS, SAT_OPTIMIZED_FORMULAS_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL,
-                SAT_OPTIMIZED_AC3_MINIMAL);
+                BRUTE_FORCE_OPTIMIZED_W, SAT_MINIMAL, SAT_OPTIMIZED_W_MINIMAL, SAT_OPTIMIZED_FORMULAS_MINIMAL,
+                SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_AC3_MINIMAL);
     }
 
     @Test
@@ -4037,9 +4036,8 @@ public class CausalitySolverInstanceTest {
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, true, false, cause, null);
         testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
-                BRUTE_FORCE_OPTIMIZED_W, SAT, SAT_MINIMAL, SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL,
-                SAT_OPTIMIZED_FORMULAS, SAT_OPTIMIZED_FORMULAS_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL,
-                SAT_OPTIMIZED_AC3_MINIMAL);
+                BRUTE_FORCE_OPTIMIZED_W, SAT_MINIMAL, SAT_OPTIMIZED_W_MINIMAL, SAT_OPTIMIZED_FORMULAS_MINIMAL,
+                SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_AC3_MINIMAL);
     }
     //endregion
     // #################################################################################################################
