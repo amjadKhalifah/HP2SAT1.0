@@ -554,9 +554,31 @@ public class ExampleProvider {
         return causalModel;
     }
 
+    public static CausalModel dummyCombinedWithBinaryTree() throws InvalidCausalModelException {
+        CausalModel dummy = ExampleProvider.dummy();
+        FormulaFactory f = dummy.getFormulaFactory();
+        CausalModel binaryTree = generateBinaryTreeBenchmarkModel(11, f);
+        Equation equationA = dummy.getVariableEquationMap().get(f.variable("A"));
+        equationA.setFormula(f.variable("0")); // 0 is the root node
+        dummy.getExogenousVariables().remove(f.variable("A_exo"));
+
+        Set<Equation> equations = new HashSet<>(dummy.getEquationsSorted());
+        equations.addAll(binaryTree.getEquationsSorted());
+        Set<Variable> exogenousVariables = dummy.getExogenousVariables();
+        exogenousVariables.addAll(binaryTree.getExogenousVariables());
+        CausalModel dummyCombinedWithBinaryTree = new CausalModel("DummyCombinedWithBinaryTree", equations,
+                exogenousVariables, f);
+
+        return dummyCombinedWithBinaryTree;
+    }
+
     public static CausalModel generateBinaryTreeBenchmarkModel(int depth) throws InvalidCausalModelException {
+        return generateBinaryTreeBenchmarkModel(depth, new FormulaFactory());
+    }
+
+    private static CausalModel generateBinaryTreeBenchmarkModel(int depth, FormulaFactory f)
+            throws InvalidCausalModelException {
         // TODO doc
-        FormulaFactory f = new FormulaFactory();
         String name = "BinaryTreeBenchmarkModel";
         if (depth >= 0) {
             int numberOfNodes = (int) Math.pow(2, depth + 1) - 1;
