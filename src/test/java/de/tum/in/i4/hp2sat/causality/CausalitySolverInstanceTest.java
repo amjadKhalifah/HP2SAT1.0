@@ -4012,12 +4012,13 @@ public class CausalitySolverInstanceTest {
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("4093"), f.variable("4094")));
         Formula phi = f.variable("F");
 
-        // IMPORTANT: THIS TEST CASE WILL FAIL AS WE DO NOT SPECIFY W, BECAUSE IT IS TOO LARGE!!!
         CausalitySolverResult causalitySolverResultExpected =
-                new CausalitySolverResult(true, true, true, cause, null);
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Arrays.asList(f.literal("E", false),
+                                f.literal("B", false), f.literal("G", false),
+                                f.literal("H", false))));
         testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
-                BRUTE_FORCE_OPTIMIZED_W, SAT_MINIMAL, SAT_OPTIMIZED_W_MINIMAL, SAT_OPTIMIZED_FORMULAS_MINIMAL,
-                SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_AC3_MINIMAL);
+                BRUTE_FORCE_OPTIMIZED_W, SAT, SAT_OPTIMIZED_W, SAT_OPTIMIZED_FORMULAS, SAT_COMBINED, SAT_OPTIMIZED_AC3);
     }
 
     @Test
@@ -4032,12 +4033,13 @@ public class CausalitySolverInstanceTest {
                 f.variable("4093"), f.variable("4094")));
         Formula phi = f.variable("F");
 
-        // IMPORTANT: THIS TEST CASE WILL FAIL AS WE DO NOT SPECIFY W, BECAUSE IT IS TOO LARGE!!!
         CausalitySolverResult causalitySolverResultExpected =
-                new CausalitySolverResult(true, true, false, cause, null);
+                new CausalitySolverResult(true, true, false, cause,
+                        new HashSet<>(Arrays.asList(f.literal("E", false),
+                                f.literal("B", false), f.literal("G", false),
+                                f.literal("H", false), f.literal("2045", false))));
         testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
-                BRUTE_FORCE_OPTIMIZED_W, SAT_MINIMAL, SAT_OPTIMIZED_W_MINIMAL, SAT_OPTIMIZED_FORMULAS_MINIMAL,
-                SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_AC3_MINIMAL);
+                BRUTE_FORCE_OPTIMIZED_W, SAT, SAT_OPTIMIZED_W, SAT_OPTIMIZED_FORMULAS, SAT_COMBINED, SAT_OPTIMIZED_AC3);
     }
 
     @Test
@@ -4051,12 +4053,13 @@ public class CausalitySolverInstanceTest {
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("4094")));
         Formula phi = f.variable("F");
 
-        // IMPORTANT: THIS TEST CASE WILL FAIL AS WE DO NOT SPECIFY W, BECAUSE IT IS TOO LARGE!!!
         CausalitySolverResult causalitySolverResultExpected =
-                new CausalitySolverResult(true, true, true, cause, null);
+                new CausalitySolverResult(true, true, false, cause,
+                        new HashSet<>(Arrays.asList(f.literal("E", false),
+                                f.literal("B", false), f.literal("G", false),
+                                f.literal("H", false), f.literal("2045", false))));
         testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
-                BRUTE_FORCE_OPTIMIZED_W, SAT_MINIMAL, SAT_OPTIMIZED_W_MINIMAL, SAT_OPTIMIZED_FORMULAS_MINIMAL,
-                SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_AC3_MINIMAL);
+                BRUTE_FORCE_OPTIMIZED_W, SAT, SAT_OPTIMIZED_W, SAT_OPTIMIZED_FORMULAS, SAT_COMBINED, SAT_OPTIMIZED_AC3);
     }
     //endregion
     // #################################################################################################################
