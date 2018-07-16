@@ -4057,7 +4057,7 @@ public class CausalitySolverInstanceTest {
                 new CausalitySolverResult(true, true, false, cause,
                         new HashSet<>(Arrays.asList(f.literal("E", false),
                                 f.literal("B", false), f.literal("G", false),
-                                f.literal("H", false), f.literal("2045", false))));
+                                f.literal("H", false))));
         testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
                 BRUTE_FORCE_OPTIMIZED_W, SAT, SAT_OPTIMIZED_W, SAT_OPTIMIZED_FORMULAS, SAT_COMBINED, SAT_OPTIMIZED_AC3);
     }
