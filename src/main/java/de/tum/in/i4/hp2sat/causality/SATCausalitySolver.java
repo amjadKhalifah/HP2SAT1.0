@@ -358,7 +358,7 @@ class SATCausalitySolver extends CausalitySolver {
                     // check if AC3 holds
                     ac3 = fulfillsAC3Helper(causalModel, phi, cause, evaluation, assignments);
                 } else {
-                    // if the SAT query is not satisfiable at all, then both AC2 and AC3 do not hold
+                    // if the SAT query is not satisfiable at all, then AC2 does not hold and AC3 holds
                     w = null;
                     ac3 = true;
                 }

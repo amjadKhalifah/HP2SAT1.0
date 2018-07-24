@@ -5,6 +5,7 @@ import de.tum.in.i4.hp2sat.util.Util;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
@@ -3059,9 +3060,10 @@ public class CausalitySolverInstanceTest {
     // ################################################## LEAKAGE ######################################################
     // #################################################################################################################
     //region LEAKAGE
+    //region [LEKAGE] NO Preemption
     @Test
     public void Test_ForAllMinimalCutSets() throws Exception {
-        CausalModel leakage = ExampleProvider.leakage();
+        CausalModel leakage = ExampleProvider.leakage(false);
         FormulaFactory f = leakage.getFormulaFactory();
         Util<Literal> util = new Util<>();
 
@@ -3134,6 +3136,90 @@ public class CausalitySolverInstanceTest {
             }
         }
     }
+    //endregion
+    //region [LEAKAGE] Preemption
+    @Test
+    public void Should_FulfillAllACs_When_X3_IsCauseFor_X41() throws Exception {
+        CausalModel leakage = ExampleProvider.leakage(true);
+        FormulaFactory f = leakage.getFormulaFactory();
+        // set all exogenous variables to 1
+        List<String> contextVars = Arrays.asList("X1_exo", "X2_exo", "X3_exo", "X11_exo", "X24_exo", "X25_exo",
+                "X26_exo");
+        Set<Literal> context = leakage.getExogenousVariables().stream()
+                .map(v -> contextVars.contains(v.name()) ? v : v.negate())
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("X3")));
+        Formula phi = f.variable("X41");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Arrays.asList(f.literal("X38", false),
+                                f.literal("X26", false), f.literal("X40", false))));
+        testSolve(leakage, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE, SAT, SAT_OPTIMIZED_W,
+                SAT_OPTIMIZED_FORMULAS, SAT_COMBINED, SAT_OPTIMIZED_AC3);
+    }
+
+    @Test
+    public void Should_FulfillAllACs_When_X11_IsCauseFor_X41() throws Exception {
+        CausalModel leakage = ExampleProvider.leakage(true);
+        FormulaFactory f = leakage.getFormulaFactory();
+        List<String> contextVars = Arrays.asList("X1_exo", "X2_exo", "X3_exo", "X11_exo", "X24_exo", "X25_exo",
+                "X26_exo");
+        Set<Literal> context = leakage.getExogenousVariables().stream()
+                .map(v -> contextVars.contains(v.name()) ? v : v.negate())
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("X11")));
+        Formula phi = f.variable("X41");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Arrays.asList(f.literal("X38", false),
+                                f.literal("X26", false), f.literal("X40", false))));
+        testSolve(leakage, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE, SAT, SAT_OPTIMIZED_W,
+                SAT_OPTIMIZED_FORMULAS, SAT_COMBINED, SAT_OPTIMIZED_AC3);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC2Only_When_X3_And_X11_IsCauseFor_X41() throws Exception {
+        CausalModel leakage = ExampleProvider.leakage(true);
+        FormulaFactory f = leakage.getFormulaFactory();
+        List<String> contextVars = Arrays.asList("X1_exo", "X2_exo", "X3_exo", "X11_exo", "X24_exo", "X25_exo",
+                "X26_exo");
+        Set<Literal> context = leakage.getExogenousVariables().stream()
+                .map(v -> contextVars.contains(v.name()) ? v : v.negate())
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("X3"), f.variable("X11")));
+        Formula phi = f.variable("X41");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, false, cause,
+                        new HashSet<>(Arrays.asList(f.literal("X38", false),
+                                f.literal("X26", false), f.literal("X40", false))));
+        testSolve(leakage, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE, SAT, SAT_OPTIMIZED_W,
+                SAT_OPTIMIZED_FORMULAS, SAT_COMBINED, SAT_OPTIMIZED_AC3);
+    }
+
+    @Test
+    public void Should_FulfillAllAC1AC2Only_When_X1_X2_X3_X11_IsCauseFor_X41() throws Exception {
+        CausalModel leakage = ExampleProvider.leakage(true);
+        FormulaFactory f = leakage.getFormulaFactory();
+        List<String> contextVars = Arrays.asList("X1_exo", "X2_exo", "X3_exo", "X11_exo", "X24_exo", "X25_exo",
+                "X26_exo");
+        Set<Literal> context = leakage.getExogenousVariables().stream()
+                .map(v -> contextVars.contains(v.name()) ? v : v.negate())
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("X1"), f.variable("X2"),
+                f.variable("X3"), f.variable("X11")));
+        Formula phi = f.variable("X41");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, false, cause,
+                        new HashSet<>(Arrays.asList(f.literal("X26", false),
+                                f.literal("X40", false))));
+        testSolve(leakage, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE, SAT, SAT_OPTIMIZED_W,
+                SAT_OPTIMIZED_FORMULAS, SAT_COMBINED, SAT_OPTIMIZED_AC3);
+    }
+    //endregion
     //endregion
     // #################################################################################################################
     // ############################################### LEAKAGE (end) ###################################################
@@ -3877,6 +3963,107 @@ public class CausalitySolverInstanceTest {
     //endregion
     // #################################################################################################################
     // ######################################### DUMMY MODEL XNOR (end) ################################################
+    // #################################################################################################################
+
+    // #################################################################################################################
+    // ################################### DUMMY MODEL COMBINED WITH BINARY TREE #######################################
+    // #################################################################################################################
+    //region DUMMY MODEL COMBINED WITH BINARY TREE
+    @Test
+    @Ignore
+    public void Should_FulfillAC1AC3Only_When_L4094_IsCauseFor_F() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummyCombinedWithBinaryTree();
+        FormulaFactory f = dummyModel.getFormulaFactory();
+        Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo","4094_exo", "4093_exo"));
+        Set<Literal> context = dummyModel.getExogenousVariables().stream()
+                .map(v -> contextVars.contains(v.name()) ? v : v.negate()).collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("4094")));
+        Formula phi = f.variable("F");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,BRUTE_FORCE_OPTIMIZED_W);
+    }
+
+    @Test
+    @Ignore
+    public void Should_FulfillAC1AC3Only_When_L4093_IsCauseFor_F() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummyCombinedWithBinaryTree();
+        FormulaFactory f = dummyModel.getFormulaFactory();
+        Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo","4094_exo", "4093_exo"));
+        Set<Literal> context = dummyModel.getExogenousVariables().stream()
+                .map(v -> contextVars.contains(v.name()) ? v : v.negate()).collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("4093")));
+        Formula phi = f.variable("F");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, true, cause, null);
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W);
+    }
+
+    @Test
+    @Ignore
+    public void Should_FulfillAllACs_When_L4093AndL4094_IsCauseFor_F() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummyCombinedWithBinaryTree();
+        FormulaFactory f = dummyModel.getFormulaFactory();
+        Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo","4094_exo", "4093_exo"));
+        Set<Literal> context = dummyModel.getExogenousVariables().stream()
+                .map(v -> contextVars.contains(v.name()) ? v : v.negate()).collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("4093"), f.variable("4094")));
+        Formula phi = f.variable("F");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause,
+                        new HashSet<>(Arrays.asList(f.literal("E", false),
+                                f.literal("B", false), f.literal("G", false),
+                                f.literal("H", false))));
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
+                BRUTE_FORCE_OPTIMIZED_W, SAT, SAT_OPTIMIZED_W, SAT_OPTIMIZED_FORMULAS, SAT_COMBINED, SAT_OPTIMIZED_AC3);
+    }
+
+    @Test
+    @Ignore
+    public void Should_FulfillAC1AC2Only_When_NOTL4092AndL4093AndL4094_IsCauseFor_F() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummyCombinedWithBinaryTree();
+        FormulaFactory f = dummyModel.getFormulaFactory();
+        Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo","4094_exo", "4093_exo"));
+        Set<Literal> context = dummyModel.getExogenousVariables().stream()
+                .map(v -> contextVars.contains(v.name()) ? v : v.negate()).collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("4092", false),
+                f.variable("4093"), f.variable("4094")));
+        Formula phi = f.variable("F");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, false, cause,
+                        new HashSet<>(Arrays.asList(f.literal("E", false),
+                                f.literal("B", false), f.literal("G", false),
+                                f.literal("H", false), f.literal("2045", false))));
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
+                BRUTE_FORCE_OPTIMIZED_W, SAT, SAT_OPTIMIZED_W, SAT_OPTIMIZED_FORMULAS, SAT_COMBINED, SAT_OPTIMIZED_AC3);
+    }
+
+    @Test
+    @Ignore
+    public void Should_FulfillAC1AC2Only_When_L4094_IsCauseFor_F_Given_4094Exo_BExo() throws Exception {
+        CausalModel dummyModel = ExampleProvider.dummyCombinedWithBinaryTree();
+        FormulaFactory f = dummyModel.getFormulaFactory();
+        Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo","4094_exo"));
+        Set<Literal> context = dummyModel.getExogenousVariables().stream()
+                .map(v -> contextVars.contains(v.name()) ? v : v.negate()).collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("4094")));
+        Formula phi = f.variable("F");
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, false, cause,
+                        new HashSet<>(Arrays.asList(f.literal("E", false),
+                                f.literal("B", false), f.literal("G", false),
+                                f.literal("H", false))));
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
+                BRUTE_FORCE_OPTIMIZED_W, SAT, SAT_OPTIMIZED_W, SAT_OPTIMIZED_FORMULAS, SAT_COMBINED, SAT_OPTIMIZED_AC3);
+    }
+    //endregion
+    // #################################################################################################################
+    // ################################ DUMMY MODEL COMBINED WITH BINARY TREE (end) ####################################
     // #################################################################################################################
 
     @Test

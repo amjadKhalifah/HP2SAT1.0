@@ -291,7 +291,7 @@ public class ExampleProvider {
         return causalModel;
     }
 
-    public static CausalModel leakage() throws InvalidCausalModelException {
+    public static CausalModel leakage(boolean preemption) throws InvalidCausalModelException {
         FormulaFactory f = new FormulaFactory();
         HashMap<String, Variable> endos = new HashMap<>();
         HashMap<String, Variable> exos = new HashMap<>();
@@ -306,7 +306,12 @@ public class ExampleProvider {
                 String nameExo = nameEndo + "_exo";
                 Variable exo = f.variable(nameExo);
                 exos.put(nameExo, exo);
-                equations.add(new Equation(endo, exo));
+                if (i < 26) {
+                    equations.add(new Equation(endo, exo));
+                } else {
+                    equations.add(new Equation(endo, f.and(exo,
+                            (preemption ? f.not(f.variable("X39")) : f.verum()))));
+                }
             }
         }
 
@@ -323,10 +328,12 @@ public class ExampleProvider {
         Equation X36Equation = new Equation(endos.get("X36"), f.or(endos.get("X27"), endos.get("X28"), endos.get("X29"),
                 endos.get("X30")));
         Equation X37Equation = new Equation(endos.get("X37"), f.and(endos.get("X31"), endos.get("X17")));
-        Equation X38Equation = new Equation(endos.get("X38"), f.and(endos.get("X1"), endos.get("X2")));
+        Equation X38Equation = new Equation(endos.get("X38"), f.and(endos.get("X1"), endos.get("X2"),
+                preemption ? f.not(endos.get("X39")) : f.verum()));
         Equation X39Equation = new Equation(endos.get("X39"), f.and(endos.get("X36"), endos.get("X11")));
-        Equation X40Equation = new Equation(endos.get("X40"), f.or(endos.get("X37"), endos.get("X32"), endos.get("X33"),
-                endos.get("X34"), endos.get("X35")));
+        Equation X40Equation = new Equation(endos.get("X40"), f.and(f.or(endos.get("X37"), endos.get("X32"), endos.get
+                        ("X33"),
+                endos.get("X34"), endos.get("X35")), preemption ? f.not(endos.get("X39")) : f.verum()));
         Equation X41Equation = new Equation(endos.get("X41"), f.or(endos.get("X38"), endos.get("X39"), endos.get("X40"),
                 endos.get("X26")));
 
@@ -547,9 +554,31 @@ public class ExampleProvider {
         return causalModel;
     }
 
+    public static CausalModel dummyCombinedWithBinaryTree() throws InvalidCausalModelException {
+        CausalModel dummy = ExampleProvider.dummy();
+        FormulaFactory f = dummy.getFormulaFactory();
+        CausalModel binaryTree = generateBinaryTreeBenchmarkModel(11, f);
+        Equation equationA = dummy.getVariableEquationMap().get(f.variable("A"));
+        equationA.setFormula(f.variable("0")); // 0 is the root node
+        dummy.getExogenousVariables().remove(f.variable("A_exo"));
+
+        Set<Equation> equations = new HashSet<>(dummy.getEquationsSorted());
+        equations.addAll(binaryTree.getEquationsSorted());
+        Set<Variable> exogenousVariables = dummy.getExogenousVariables();
+        exogenousVariables.addAll(binaryTree.getExogenousVariables());
+        CausalModel dummyCombinedWithBinaryTree = new CausalModel("DummyCombinedWithBinaryTree", equations,
+                exogenousVariables, f);
+
+        return dummyCombinedWithBinaryTree;
+    }
+
     public static CausalModel generateBinaryTreeBenchmarkModel(int depth) throws InvalidCausalModelException {
+        return generateBinaryTreeBenchmarkModel(depth, new FormulaFactory());
+    }
+
+    private static CausalModel generateBinaryTreeBenchmarkModel(int depth, FormulaFactory f)
+            throws InvalidCausalModelException {
         // TODO doc
-        FormulaFactory f = new FormulaFactory();
         String name = "BinaryTreeBenchmarkModel";
         if (depth >= 0) {
             int numberOfNodes = (int) Math.pow(2, depth + 1) - 1;
