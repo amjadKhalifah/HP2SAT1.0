@@ -1,8 +1,6 @@
 package de.tum.in.i4.hp2sat.causality;
 
 import de.tum.in.i4.hp2sat.util.ExampleProvider;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Test;
 import org.logicng.formulas.Formula;
@@ -10,14 +8,7 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import static de.tum.in.i4.hp2sat.causality.SATSolverType.GLUCOSE;
-import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINISAT;
-import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 
 public class ILPSolverTest {
     FormulaFactory f;
@@ -36,37 +27,23 @@ public class ILPSolverTest {
 		CausalitySolverResult causalitySolverResultActual = null;
 		causalitySolverResultActual = solver.solve(causalModel, context, phi, cause, SolvingStrategy.ILP,
 				ILPSolverType.GUROBI);
-		assertEquals("Error for ILP / Gurobi" , causalitySolverResultActual,
-				causalitySolverResultsExpected);
+		assertEquals("Error for ILP / Gurobi" ,causalitySolverResultsExpected, causalitySolverResultActual);
+		
 	}
 
 
-//    private void testGetAllCauses(CausalModel causalModel, Set<Literal> context, Formula phi,
-//                                  Set<CausalitySolverResult> causalitySolverResultsExpected) throws Exception {
-//        // all have same expected result
-//        Map<SolvingStrategy, Set<CausalitySolverResult>> causalitySolverResultsExpectedMap = solvingStrategies.stream()
-//                .collect(Collectors.toMap(Function.identity(), s -> causalitySolverResultsExpected));
-//        testGetAllCauses(causalModel, context, phi, causalitySolverResultsExpectedMap);
-//    }
-//
-//    private void testGetAllCauses(CausalModel causalModel, Set<Literal> context, Formula phi,
-//                                  Map<SolvingStrategy, Set<CausalitySolverResult>> causalitySolverResultsExpected)
-//            throws Exception {
-//        for (SolvingStrategy solvingStrategy : solvingStrategies) {
-//            Set<CausalitySolverResult> causalitySolverResultsActual = null;
-//            if (solvingStrategy == BRUTE_FORCE || solvingStrategy == BRUTE_FORCE_OPTIMIZED_W) {
-//                causalitySolverResultsActual =
-//                        bruteForceCausalitySolver.getAllCauses(causalModel, context, phi, solvingStrategy, f);
-//            } else if (Arrays.asList(SAT, SAT_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_W,
-//                    SAT_OPTIMIZED_W_MINIMAL, SAT_OPTIMIZED_CLAUSES, SAT_OPTIMIZED_CLAUSES_MINIMAL)
-//                    .contains(solvingStrategy)) {
-//                causalitySolverResultsActual =
-//                        SATCausalitySolver.getAllCauses(causalModel, context, phi, solvingStrategy, f);
-//            }
-//            assertEquals("Error for " + solvingStrategy, causalitySolverResultsExpected.get(solvingStrategy),
-//                    causalitySolverResultsActual);
-//        }
-//    }
+	   @Test
+	    public void Should_FulfillAC1AC2AC3Only_When_STIsCauseForBS() throws Exception {
+	        CausalModel billySuzy = ExampleProvider.billySuzy();
+	        Set<Literal> context = new HashSet<>(Arrays.asList(
+	                f.literal("BT_exo", true), f.literal("ST_exo", true)));
+	        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("XT")));
+	        Formula phi = f.variable("BS");
+
+	        CausalitySolverResult causalitySolverResultExpected =
+	                new CausalitySolverResult(true, true, true, cause, null);
+	        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+	    }
 
     @Test
     public void Should_FulfillAC1AC3Only_When_BTIsCauseForBS() throws Exception {
@@ -77,7 +54,7 @@ public class ILPSolverTest {
         Formula phi = f.variable("BS");
 
         CausalitySolverResult causalitySolverResultExpected =
-                new CausalitySolverResult(true, false, true, cause, null);
+                new CausalitySolverResult(true, false, false, cause, null);
         testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
     }
 
@@ -88,94 +65,105 @@ public class ILPSolverTest {
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("BT"), f.variable("XT")));
         Formula phi = f.variable("BS");
+        // different in results than SAT in this case in the more minimal cause and the W
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, false, new HashSet<>(Arrays.asList(f.variable("XT"))), new HashSet<>(Arrays.asList(f.variable("BH"))));
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+    }
 
+    @Test
+    public void Test_Why_BS() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", true), f.literal("ST_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("BT"), f.variable("XT"), f.variable("SH"), f.literal("BH",false)));
+        Formula phi = f.variable("BS");
+        // different in results than SAT in this case in the more minimal cause and the W
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, false, new HashSet<>(Arrays.asList(f.variable("XT"))), new HashSet<>(Arrays.asList(f.variable("BH"))));
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+    }
+    
+    @Test
+    public void Should_FulfillAC1AC2Only_When_STandSHIsCauseForBS() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", true), f.literal("ST_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("XT"), f.variable("SH")));
+        Formula phi = f.variable("BS");
+
+        // both are two minimum causes
+        CausalitySolverResult causalitySolverResultExpectedSAT =
+                new CausalitySolverResult(true, true, false, new HashSet<>(Arrays.asList(f.variable("SH"))),
+                        new HashSet<>(Arrays.asList(f.variable("BT"), f.variable("BH"))));
+
+
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpectedSAT);
+    }
+
+    @Test
+    public void Should_FulfillAC1AC2Only_When_STandBTandSHIsCauseForBS() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", true), f.literal("ST_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("XT"), f.variable("BT"),
+                f.variable("SH")));
+        Formula phi = f.variable("BS");
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, false, new HashSet<>(Arrays.asList(f.variable("SH"))), new HashSet<>(Arrays.asList( f.variable("BH"))));
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+    }
+// check this case there is a more minimal cause but the W is not so correct based on other causes in the question
+    @Test
+    public void Should_FulfillAC1Only_When_STandBTandNotBHIsCauseForBS() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", true), f.literal("ST_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("XT"), f.variable("BT"),
+                f.literal("BH", false)));
+        Formula phi = f.variable("BS");
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, false,  new HashSet<>(Arrays.asList(f.variable("XT"))), null);
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+    }
+
+    @Test
+    public void Should_FulfillAC1AC3Only_When_BTandNotBHIsCauseForBS() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", true), f.literal("ST_exo", true)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false)));
+        Formula phi = f.variable("BS");
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, false, false, cause, null);
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+    }
+    // TODO fix the w for this case
+    @Test
+    public void Should_FulfillAC1A2Only_When_BTandBHIsCauseForBSGivenNotSTExo() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", true), f.literal("ST_exo", false)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("BT"), f.variable("BH")));
+        Formula phi = f.variable("BS");
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, false,  new HashSet<>(Arrays.asList(f.variable("BH"))), new HashSet<>());
+        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
+    }
+//
+    @Test
+    public void Should_FulfillAC1AC2Only_When_NotSTandNotBTIsCauseForNotBS() throws Exception {
+        CausalModel billySuzy = ExampleProvider.billySuzy();
+        Set<Literal> context = new HashSet<>(Arrays.asList(
+                f.literal("BT_exo", false), f.literal("ST_exo", false)));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("XT", false),
+                f.literal("BT", false)));
+        Formula phi = f.literal("BS", false);
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, true, false, cause, new HashSet<>());
         testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
     }
 
-//    @Test
-//    public void Should_FulfillAC1AC2Only_When_STandSHIsCauseForBS() throws Exception {
-//        CausalModel billySuzy = ExampleProvider.billySuzy();
-//        Set<Literal> context = new HashSet<>(Arrays.asList(
-//                f.literal("BT_exo", true), f.literal("ST_exo", true)));
-//        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("SH")));
-//        Formula phi = f.variable("BS");
-//
-//        CausalitySolverResult causalitySolverResultExpectedEval =
-//                new CausalitySolverResult(true, true, false, cause,
-//                        new HashSet<>(Collections.singletonList(f.literal("BH", false))));
-//        CausalitySolverResult causalitySolverResultExpectedSAT =
-//                new CausalitySolverResult(true, true, false, cause,
-//                        new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false))));
-//
-//
-//        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpectedEval);
-//    }
-//
-//    @Test
-//    public void Should_FulfillAC1AC2Only_When_STandBTandSHIsCauseForBS() throws Exception {
-//        CausalModel billySuzy = ExampleProvider.billySuzy();
-//        Set<Literal> context = new HashSet<>(Arrays.asList(
-//                f.literal("BT_exo", true), f.literal("ST_exo", true)));
-//        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("BT"),
-//                f.variable("SH")));
-//        Formula phi = f.variable("BS");
-//        CausalitySolverResult causalitySolverResultExpected =
-//                new CausalitySolverResult(true, true, false, cause, new HashSet<>());
-//        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
-//    }
-//
-//    @Test
-//    public void Should_FulfillAC1Only_When_STandBTandNotBHIsCauseForBS() throws Exception {
-//        CausalModel billySuzy = ExampleProvider.billySuzy();
-//        Set<Literal> context = new HashSet<>(Arrays.asList(
-//                f.literal("BT_exo", true), f.literal("ST_exo", true)));
-//        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("BT"),
-//                f.literal("BH", false)));
-//        Formula phi = f.variable("BS");
-//        CausalitySolverResult causalitySolverResultExpected =
-//                new CausalitySolverResult(true, false, false, cause, null);
-//        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
-//    }
-
-//    @Test
-//    public void Should_FulfillAC1AC3Only_When_BTandNotBHIsCauseForBS() throws Exception {
-//        CausalModel billySuzy = ExampleProvider.billySuzy();
-//        Set<Literal> context = new HashSet<>(Arrays.asList(
-//                f.literal("BT_exo", true), f.literal("ST_exo", true)));
-//        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false)));
-//        Formula phi = f.variable("BS");
-//        CausalitySolverResult causalitySolverResultExpected =
-//                new CausalitySolverResult(true, false, true, cause, null);
-//        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
-//    }
-//
-//    @Test
-//    public void Should_FulfillAC1A2Only_When_BTandBHIsCauseForBSGivenNotSTExo() throws Exception {
-//        CausalModel billySuzy = ExampleProvider.billySuzy();
-//        Set<Literal> context = new HashSet<>(Arrays.asList(
-//                f.literal("BT_exo", true), f.literal("ST_exo", false)));
-//        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("BT"), f.variable("BH")));
-//        Formula phi = f.variable("BS");
-//        CausalitySolverResult causalitySolverResultExpected =
-//                new CausalitySolverResult(true, true, false, cause, new HashSet<>());
-//        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
-//    }
-//
-//    @Test
-//    public void Should_FulfillAC1AC2Only_When_NotSTandNotBTIsCauseForNotBS() throws Exception {
-//        CausalModel billySuzy = ExampleProvider.billySuzy();
-//        Set<Literal> context = new HashSet<>(Arrays.asList(
-//                f.literal("BT_exo", false), f.literal("ST_exo", false)));
-//        Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("ST", false),
-//                f.literal("BT", false)));
-//        Formula phi = f.literal("BS", false);
-//        CausalitySolverResult causalitySolverResultExpected =
-//                new CausalitySolverResult(true, true, false, cause, new HashSet<>());
-//        testSolve(billySuzy, context, phi, cause, causalitySolverResultExpected);
-//    }
-//
 //    @Test
 //    public void Should_FulfillAC2Only_When_SHandBHIsCauseForBS() throws Exception {
 //        CausalModel billySuzy = ExampleProvider.billySuzy();
