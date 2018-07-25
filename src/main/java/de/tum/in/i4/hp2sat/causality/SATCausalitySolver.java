@@ -240,14 +240,12 @@ class SATCausalitySolver extends CausalitySolver {
                 // compute the value of the current cause candidate using its equation
                 boolean value = causalModel.getVariableEquationMap().get(causeCandidate.variable()).getFormula()
                         .evaluate(assignmentNew);
-                // TODO maybe we need to take W into account; is the current approach correct? -> test case?
                 /*
                  * For each cause candidate we now check whether it evaluates according to its equation or is
-                 * in W. In this case, we found a part of the cause that is not necessarily required, because
-                 * not(phi) is satisfied by a subset of the
-                 * cause, as we do not necessarily need to negate the current cause candidate such that not
-                 * (phi) is fulfilled. We collect all those variables to construct a new potential cause
-                 * later on for which we check AC1. */
+                 * in W as it is equal to its original value. In both cases, we found a part of the cause that is not
+                 * necessarily required, because not(phi) is satisfied by a subset of the cause, as we do not
+                 * necessarily need to negate the current cause candidate such that not(phi) is fulfilled. We collect
+                 * all those variables to construct a new potential cause later on for which we check AC1. */
                 if (causeCandidate.phase() == value || causeCandidate.phase() == variableEvaluationMap
                         .get(causeCandidate.variable()).phase()) {
                     notRequiredForCause.add(causeCandidate.variable());

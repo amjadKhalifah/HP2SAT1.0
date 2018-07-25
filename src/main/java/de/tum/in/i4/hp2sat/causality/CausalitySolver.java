@@ -43,6 +43,8 @@ abstract class CausalitySolver {
 
     /**
      * Returns all causes for a given causal model, a context and phi.
+     * IMPORTANT: This method is not implemented efficiently. In particular for large models, the execution time will
+     * be extremely large as we create the powerset of ALL variables.
      *
      * @param causalModel the underlying causel model
      * @param context     the context

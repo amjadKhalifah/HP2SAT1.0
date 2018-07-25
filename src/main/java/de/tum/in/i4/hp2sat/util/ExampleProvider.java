@@ -578,7 +578,6 @@ public class ExampleProvider {
 
     private static CausalModel generateBinaryTreeBenchmarkModel(int depth, FormulaFactory f)
             throws InvalidCausalModelException {
-        // TODO doc
         String name = "BinaryTreeBenchmarkModel";
         if (depth >= 0) {
             int numberOfNodes = (int) Math.pow(2, depth + 1) - 1;
