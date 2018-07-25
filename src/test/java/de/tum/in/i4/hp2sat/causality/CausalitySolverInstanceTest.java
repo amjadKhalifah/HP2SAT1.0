@@ -4346,7 +4346,6 @@ public class CausalitySolverInstanceTest {
         testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected);
     }
 
-    // TODO does it make sense that phi is in W?
     @Test
     public void Should_FulfillAC2AC3Only_When_AIsCauseForCInDummyXORModel() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummyXOR();
