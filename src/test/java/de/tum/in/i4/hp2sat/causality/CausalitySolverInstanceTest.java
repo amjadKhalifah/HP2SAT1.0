@@ -3120,7 +3120,7 @@ public class CausalitySolverInstanceTest {
                         List<Integer> indices = cause.stream().map(c -> testSet.indexOf(c.variable()))
                                 .collect(Collectors.toList());
                         if (indices.containsAll(Arrays.asList(0, 2)) || indices.containsAll(Arrays.asList(0, 3)) ||
-                                indices.containsAll(Arrays.asList(1, 2)) || indices.containsAll(Arrays.asList(1,3))) {
+                                indices.containsAll(Arrays.asList(1, 2)) || indices.containsAll(Arrays.asList(1, 3))) {
                             causalitySolverResultExpected =
                                     new CausalitySolverResult(true, true, true, cause, new HashSet<>());
                         } else {
@@ -3136,6 +3136,7 @@ public class CausalitySolverInstanceTest {
             }
         }
     }
+
     //endregion
     //region [LEAKAGE] Preemption
     @Test
@@ -3728,8 +3729,8 @@ public class CausalitySolverInstanceTest {
                         put(BRUTE_FORCE_OPTIMIZED_W,
                                 new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                         /*
-                        * even if a non-minimal strategy is applied, the result might be minimal (happens with CLEANLING
-                        * */
+                         * even if a non-minimal strategy is applied, the result might be minimal (happens with CLEANLING
+                         * */
                         put(SAT, new HashSet<>(Arrays.asList(causalitySolverResultExpectedSAT,
                                 causalitySolverResultExpectedEval)));
                         put(SAT_MINIMAL, new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
@@ -3738,15 +3739,15 @@ public class CausalitySolverInstanceTest {
                         put(SAT_COMBINED_MINIMAL,
                                 new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                         put(SAT_OPTIMIZED_W, new HashSet<>(Arrays.asList(causalitySolverResultExpectedSAT,
-                                        causalitySolverResultExpectedEval)));
+                                causalitySolverResultExpectedEval)));
                         put(SAT_OPTIMIZED_W_MINIMAL,
                                 new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                         put(SAT_OPTIMIZED_FORMULAS, new HashSet<>(Arrays.asList(causalitySolverResultExpectedSAT,
-                                        causalitySolverResultExpectedEval)));
+                                causalitySolverResultExpectedEval)));
                         put(SAT_OPTIMIZED_FORMULAS_MINIMAL,
                                 new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                         put(SAT_OPTIMIZED_AC3, new HashSet<>(Arrays.asList(causalitySolverResultExpectedSAT,
-                                        causalitySolverResultExpectedEval)));
+                                causalitySolverResultExpectedEval)));
                         put(SAT_OPTIMIZED_AC3_MINIMAL,
                                 new HashSet<>(Collections.singletonList(causalitySolverResultExpectedEval)));
                     }
@@ -3974,7 +3975,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAC1AC3Only_When_L4094_IsCauseFor_F() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummyCombinedWithBinaryTree();
         FormulaFactory f = dummyModel.getFormulaFactory();
-        Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo","4094_exo", "4093_exo"));
+        Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo", "4094_exo", "4093_exo"));
         Set<Literal> context = dummyModel.getExogenousVariables().stream()
                 .map(v -> contextVars.contains(v.name()) ? v : v.negate()).collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("4094")));
@@ -3982,7 +3983,7 @@ public class CausalitySolverInstanceTest {
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
-        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,BRUTE_FORCE_OPTIMIZED_W);
+        testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W);
     }
 
     @Test
@@ -3990,7 +3991,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAC1AC3Only_When_L4093_IsCauseFor_F() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummyCombinedWithBinaryTree();
         FormulaFactory f = dummyModel.getFormulaFactory();
-        Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo","4094_exo", "4093_exo"));
+        Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo", "4094_exo", "4093_exo"));
         Set<Literal> context = dummyModel.getExogenousVariables().stream()
                 .map(v -> contextVars.contains(v.name()) ? v : v.negate()).collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("4093")));
@@ -4006,7 +4007,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAllACs_When_L4093AndL4094_IsCauseFor_F() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummyCombinedWithBinaryTree();
         FormulaFactory f = dummyModel.getFormulaFactory();
-        Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo","4094_exo", "4093_exo"));
+        Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo", "4094_exo", "4093_exo"));
         Set<Literal> context = dummyModel.getExogenousVariables().stream()
                 .map(v -> contextVars.contains(v.name()) ? v : v.negate()).collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("4093"), f.variable("4094")));
@@ -4026,7 +4027,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAC1AC2Only_When_NOTL4092AndL4093AndL4094_IsCauseFor_F() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummyCombinedWithBinaryTree();
         FormulaFactory f = dummyModel.getFormulaFactory();
-        Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo","4094_exo", "4093_exo"));
+        Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo", "4094_exo", "4093_exo"));
         Set<Literal> context = dummyModel.getExogenousVariables().stream()
                 .map(v -> contextVars.contains(v.name()) ? v : v.negate()).collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("4092", false),
@@ -4047,7 +4048,7 @@ public class CausalitySolverInstanceTest {
     public void Should_FulfillAC1AC2Only_When_L4094_IsCauseFor_F_Given_4094Exo_BExo() throws Exception {
         CausalModel dummyModel = ExampleProvider.dummyCombinedWithBinaryTree();
         FormulaFactory f = dummyModel.getFormulaFactory();
-        Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo","4094_exo"));
+        Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo", "4094_exo"));
         Set<Literal> context = dummyModel.getExogenousVariables().stream()
                 .map(v -> contextVars.contains(v.name()) ? v : v.negate()).collect(Collectors.toSet());
         Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("4094")));
