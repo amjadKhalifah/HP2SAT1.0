@@ -3226,8 +3226,7 @@ public class CausalitySolverInstanceTest {
                         f.literal("DK_U8", false))));
         // exclude brute-force approach (takes too long) and strategies that yield non-minimal W (ease testing)
         testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected,
-                BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W, SAT, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_W, SAT_COMBINED,
-                SAT_OPTIMIZED_FORMULAS);
+                BRUTE_FORCE, SAT, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_W, SAT_COMBINED, SAT_OPTIMIZED_FORMULAS);
     }
 
     @Test
@@ -3248,8 +3247,7 @@ public class CausalitySolverInstanceTest {
                         f.literal("SD_U8", false))));
         // exclude brute-force approach (takes too long) and strategies that yield non-minimal W (ease testing)
         testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected,
-                BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W, SAT, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_W, SAT_COMBINED,
-                SAT_OPTIMIZED_FORMULAS);
+                BRUTE_FORCE, SAT, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_W, SAT_COMBINED, SAT_OPTIMIZED_FORMULAS);
     }
 
     @Test
@@ -3270,8 +3268,7 @@ public class CausalitySolverInstanceTest {
                         f.literal("SD_U8", false))));
         // exclude brute-force approach (takes too long) and strategies that yield non-minimal W (ease testing)
         testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected,
-                BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W,
-                SAT, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_W, SAT_COMBINED, SAT_OPTIMIZED_FORMULAS);
+                BRUTE_FORCE, SAT, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_W, SAT_COMBINED, SAT_OPTIMIZED_FORMULAS);
     }
 
     @Test
@@ -3288,8 +3285,7 @@ public class CausalitySolverInstanceTest {
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, true, true, cause, new HashSet<>());
         // exclude brute-force approach (takes too long)
-        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
-                BRUTE_FORCE_OPTIMIZED_W);
+        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
     }
     //endregion
     // #################################################################################################################
