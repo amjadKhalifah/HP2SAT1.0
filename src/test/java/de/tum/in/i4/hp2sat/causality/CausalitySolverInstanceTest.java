@@ -3087,8 +3087,7 @@ public class CausalitySolverInstanceTest {
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
-        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
-                BRUTE_FORCE_OPTIMIZED_W);
+        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
     }
 
     @Test
