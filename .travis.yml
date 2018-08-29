@@ -10,3 +10,12 @@ cache:
   directories:
   - .autoconf
   - $HOME/.m2
+deploy:
+  provider: releases
+  api_key:
+    secure: qVsGTPy3l7qxsWSmlQg8cH+y5PUTsaIf5QgSRwAPEP3QZH7TP+08yX+OdxbmfoglUHIJ6Dab91G3Esed99VnVTXPpfrRUa+ixnqgDxIyq3HxGxsWVkCpRNMNQmhSxgjss1nnFOaeb/Onsp4+wPzRPt2lNh+szbhlFhDqvF2AazMsbCTD/c2BPMaR50BrZOKl7Kspu7RnYwppGSOjiVSDigN7Exn286c3kAvWlVGZ2FDlHvJfqZPN0M0Uj6ZHAJqPG9TWo0RLmoRXYEhcVAabBbKOMtipPSV9SaJQWxKVU/1gK13Q/EoMyhdliaYPIkcAziLute+hOsLPcHuXsuiEidv3Naq8Bbj0MlovEDC0K+mUyK98qp0Vn29lbGyXjGj6K15ksYYDFbszUUrAlpPNw+R5BVMBzacPpsSAG+NJUQBeIaXcnXWMrMqmaiGUCIo2Um2IjVqRl/X9gq1jH8lKOZDiA2/7C87PJrOCV9pn8ylvHI9BR7+S6Qvp8rD7YDZkZYDc4sN4EUDv8L1g1KbG6aSbc9uHwemW1E7/T3VxnQ7ucbvbPbOF66mVmvfc5ZwApvb+/2Dc43ZloUcHr2lT6MFQa056G3HCOijQgkFQdEvLOTVwenQb9WZVLayZRQb1NaI2G7+vToQ89JtMkGQgjr1TN4iu0zJklwJQ1MYKsgU=
+  file_glob: true
+  file: target/hp2sat-*
+  skip_cleanup: true
+  on:
+    tags: true
