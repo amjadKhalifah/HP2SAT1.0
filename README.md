@@ -9,9 +9,21 @@ This library allows to determine actual causality according to the modified Halp
 
 ## Installation
 
+Currently, this library is _not_ published in a Maven repository. Please build it manually from source: 
+
 ```bash
 $ mvn install
 ```
+Then, you can import it using Maven:
+```xml
+<dependency>
+    <groupId>edu</groupId>
+    <artifactId>hp2sat</artifactId>
+    <version>1.0</version>
+</dependency>
+```
+
+Alternatively, a pre-built ```.jar``` is offered in the [release section](https://github.com/anonymous-submission-dev/HP2SAT/releases) of this repository.
 
 ## Usage
 
@@ -60,7 +72,7 @@ CausalitySolverResult causalitySolverResult =
 
 ### Important Notes
 
-- When working with a causal model, *always* use the same `FormulaFactory` instance. If not, an exception might occur.
+- When working with a causal model, *always* use the *same* `FormulaFactory` instance. If not, an exception might occur.
 - When creating a `CausalModel`, it is checked whether the latter is valid. It needs to fulfill the following 
 characteristics; otherwise an exception is thrown:
     - Each variable needs to be either exogenous or defined by *exactly one* equation.
