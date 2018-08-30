@@ -78,12 +78,14 @@ context:
  */
 Set<Literal> context = new HashSet<>(Arrays.asList(f.literal("BT_exo", true),
     f.literal("ST_exo", true)));
+
 /*
  * Similar as for the context, we specify f.literal("ST", true) as cause and f.variable("BS") as phi, as we 
  * want to express ST = 1 and BS = 1, respectively.
  */
 Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("ST", true)));
 Formula phi = f.variable("BS");
+
 // finally, call isCause on the causal model using the SAT-based algorithm
 CausalitySolverResult causalitySolverResult =
     CauscausalModel.isCause(context, phi, cause, SolvingStrategy.SAT);
