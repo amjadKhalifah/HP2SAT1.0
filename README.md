@@ -31,22 +31,28 @@ Alternatively, a pre-built ```.jar``` is offered in the [release section](https:
 
 Creation of a causal model:
 ```java
+// instantiate a new FormulaFactory
 FormulaFactory f = new FormulaFactory();
+
+// create exogenous variables; using _exo is not required, but used to distinguish them
 Variable BTExo = f.variable("BT_exo");
 Variable STExo = f.variable("ST_exo");
 
+// create endogenous variables; technically, there is no difference to exogenous ones
 Variable BT = f.variable("BT");
 Variable ST = f.variable("ST");
 Variable BH = f.variable("BH");
 Variable SH = f.variable("SH");
 Variable BS = f.variable("BS");
 
+// create the formula/function for each endogenous variable
 Formula BTFormula = BTExo;
 Formula STFormula = STExo;
 Formula SHFormula = ST;
 Formula BHFormula = f.and(BT, f.not(SH));
 Formula BSFormula = f.or(SH, BH);
 
+// create the equations of the causal model: each endogenous variable and its formula form an equation
 Equation BTEquation = new Equation(BT, BTFormula);
 Equation STEquation = new Equation(ST, STFormula);
 Equation SHEquation = new Equation(SH, SHFormula);
@@ -57,15 +63,28 @@ Set<Equation> equations = new HashSet<>(Arrays.asList(BTEquation, STEquation, SH
     BHEquation, BSEquation));
 Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(BTExo, STExo));
 
+// instantiate the CausalModel
 CausalModel causalModel = new CausalModel("RockThrowing", equations, exogenousVariables, f);
 ```
 
-Check whether *ST = 1* is a cause of *BS = 1* in the previously created causal model given *ST_exo, BT_exo = 1*:
+Check whether *ST = 1* is a cause of *BS = 1* in the previously created causal model given *ST_exo, BT_exo = 1* as 
+context:
 ```java
+// IMPORTANT: Use the same FormulaFactory instance as in the above!
+
+/*
+ * Create positive literals for ST_exo and BT_exo. If ST_exo, BT_exo = 0, we would create negative ones,
+ * e.g. f.literal("ST_exo", false). Using f.variable("ST_exo") would be a shortcut for f.literal("ST_exo", true)
+ */
 Set<Literal> context = new HashSet<>(Arrays.asList(f.literal("BT_exo", true),
     f.literal("ST_exo", true)));
-Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
+/*
+ * Similar as for the context, we specify f.literal("ST", true) as cause and f.variable("BS") as phi, as we 
+ * want to express ST = 1 and BS = 1, respectively.
+ */
+Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("ST", true)));
 Formula phi = f.variable("BS");
+// finally, call isCause on the causal model using the SAT-based algorithm
 CausalitySolverResult causalitySolverResult =
     CauscausalModel.isCause(context, phi, cause, SolvingStrategy.SAT);
 ```
