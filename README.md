@@ -29,7 +29,7 @@ Alternatively, a pre-built ```.jar``` is offered in the [release section](https:
 
 ### General
 
-Creation of a causal model:
+#### Creation of a causal model
 ```java
 // instantiate a new FormulaFactory
 FormulaFactory f = new FormulaFactory();
@@ -67,8 +67,7 @@ Set<Variable> exogenousVariables = new HashSet<>(Arrays.asList(BTExo, STExo));
 CausalModel causalModel = new CausalModel("RockThrowing", equations, exogenousVariables, f);
 ```
 
-Check whether *ST = 1* is a cause of *BS = 1* in the previously created causal model given *ST_exo, BT_exo = 1* as 
-context:
+#### Check whether *ST = 1* is a cause of *BS = 1* in the previously created causal model given *ST_exo, BT_exo = 1* as context
 ```java
 // IMPORTANT: Use the same FormulaFactory instance as in the above!
 
@@ -89,6 +88,34 @@ Formula phi = f.variable("BS");
 // finally, call isCause on the causal model using the SAT-based algorithm
 CausalitySolverResult causalitySolverResult =
     CauscausalModel.isCause(context, phi, cause, SolvingStrategy.SAT);
+```
+
+#### Use other algorithms
+
+The ```SolvingStrategy``` enum contains all currently supported algorithms/strategies:
+```java
+public enum SolvingStrategy {
+    BRUTE_FORCE, SAT, SAT_MINIMAL, SAT_COMBINED
+}
+```
+
+Just call the ```isCause```-method with the respective ```SolvingStrategy```:
+```java
+// Brute-Force
+CausalitySolverResult causalitySolverResult =
+    CauscausalModel.isCause(context, phi, cause, SolvingStrategy.BRUTE_FORCE);
+
+// SAT-based
+CausalitySolverResult causalitySolverResult =
+    CauscausalModel.isCause(context, phi, cause, SolvingStrategy.SAT);
+
+// SAT-based returning a minimal W for AC2
+CausalitySolverResult causalitySolverResult =
+    CauscausalModel.isCause(context, phi, cause, SolvingStrategy.SAT_MINIMAL);
+
+// SAT-based where checking AC2 and AC3 is combined
+CausalitySolverResult causalitySolverResult =
+    CauscausalModel.isCause(context, phi, cause, SolvingStrategy.SAT_COMBINED);
 ```
 
 ### Important Notes
