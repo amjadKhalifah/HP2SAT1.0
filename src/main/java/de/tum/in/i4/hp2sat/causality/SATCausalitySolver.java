@@ -112,6 +112,9 @@ class SATCausalitySolver extends CausalitySolver {
         // generate SAT query
         Formula formula = generateSATQuery(causalModelModified, negatedPhi, cause, context, evaluation,
                 solvingStrategy, false, f);
+        /*
+         * If we want to compute metrics of the formula, this should be done here.
+         */
         satSolver.add(formula);
         if (satSolver.sat() == Tristate.TRUE) {
             if (Arrays.asList(SAT, SAT_OPTIMIZED_W, SAT_OPTIMIZED_FORMULAS, SAT_OPTIMIZED_AC3)
@@ -182,6 +185,9 @@ class SATCausalitySolver extends CausalitySolver {
                 // add negated formulas by AND
                 formula = f.and(formula, f.not(formula1), f.not(formula2), f.not(formula3));
             }
+            /*
+             * If we want to compute metrics of the formula, this should be done here.
+             */
             // add query to solver
             satSolver.add(formula);
             if (satSolver.sat() == Tristate.TRUE) {
@@ -319,6 +325,9 @@ class SATCausalitySolver extends CausalitySolver {
                 // generate SAT query for AC3 as this SAT query contains also the satisfying assignments for AC2
                 Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation,
                         solvingStrategy, true, f);
+                /*
+                 * If we want to compute metrics of the formula, this should be done here.
+                 */
                 // add query to solver
                 satSolver.add(formula);
                 if (satSolver.sat() == Tristate.TRUE) {
