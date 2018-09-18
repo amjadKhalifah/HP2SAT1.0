@@ -113,7 +113,8 @@ class SATCausalitySolver extends CausalitySolver {
         Formula formula = generateSATQuery(causalModelModified, negatedPhi, cause, context, evaluation,
                 solvingStrategy, false, f);
         /*
-         * If we want to compute metrics of the formula, this should be done here.
+         * If we want to compute metrics of the formula, this should be done here. Notice that we need to explicitly
+         * convert the formula to CNF.
          */
         satSolver.add(formula);
         if (satSolver.sat() == Tristate.TRUE) {
@@ -186,7 +187,8 @@ class SATCausalitySolver extends CausalitySolver {
                 formula = f.and(formula, f.not(formula1), f.not(formula2), f.not(formula3));
             }
             /*
-             * If we want to compute metrics of the formula, this should be done here.
+             * If we want to compute metrics of the formula, this should be done here. Notice that we need to explicitly
+             * convert the formula to CNF.
              */
             // add query to solver
             satSolver.add(formula);
@@ -326,7 +328,8 @@ class SATCausalitySolver extends CausalitySolver {
                 Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation,
                         solvingStrategy, true, f);
                 /*
-                 * If we want to compute metrics of the formula, this should be done here.
+                 * If we want to compute metrics of the formula, this should be done here. Notice that we need to
+                 * explicitly convert the formula to CNF.
                  */
                 // add query to solver
                 satSolver.add(formula);
