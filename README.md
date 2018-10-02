@@ -69,14 +69,15 @@ CausalModel causalModel = new CausalModel("RockThrowing", equations, exogenousVa
 
 /*
  * Create positive literals for ST_exo and BT_exo. If ST_exo, BT_exo = 0, we would create negative ones,
- * e.g. f.literal("ST_exo", false). Using f.variable("ST_exo") would be a shortcut for f.literal("ST_exo", true)
+ * e.g. f.literal("ST_exo", false). Using f.variable("ST_exo") would be a shortcut for 
+ * f.literal("ST_exo", true)
  */
 Set<Literal> context = new HashSet<>(Arrays.asList(f.literal("BT_exo", true),
     f.literal("ST_exo", true)));
 
 /*
- * Similar as for the context, we specify f.literal("ST", true) as cause and f.variable("BS") as phi, as we 
- * want to express ST = 1 and BS = 1, respectively.
+ * Similar as for the context, we specify f.literal("ST", true) as cause and f.variable("BS") as phi, 
+ * as we want to express ST = 1 and BS = 1, respectively.
  */
 Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("ST", true)));
 Formula phi = f.variable("BS");
@@ -91,9 +92,9 @@ CausalitySolverResult causalitySolverResult =
 The ```SolvingStrategy``` enum contains all currently supported algorithms/strategies:
 ```java
 public enum SolvingStrategy {
-    BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W, SAT, SAT_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_W,
-    SAT_OPTIMIZED_W_MINIMAL, SAT_OPTIMIZED_FORMULAS, SAT_OPTIMIZED_FORMULAS_MINIMAL, SAT_OPTIMIZED_AC3,
-    SAT_OPTIMIZED_AC3_MINIMAL
+    BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W, SAT, SAT_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL,
+    SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL, SAT_OPTIMIZED_FORMULAS, SAT_OPTIMIZED_FORMULAS_MINIMAL,
+    SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_AC3_MINIMAL
 }
 ```
 
