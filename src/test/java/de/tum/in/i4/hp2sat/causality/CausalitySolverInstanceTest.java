@@ -3465,7 +3465,7 @@ public class CausalitySolverInstanceTest {
     // ############################################## BINARY TREE ######################################################
     // #################################################################################################################
     //region BINARY TREE
-    //region [BINARY TREE] height 4 (depth 3)
+    //region [BINARY TREE] height 3
     @Test
     public void Should_FulfillAllAC1AC3Only_When_L14_IsCauseFor_Root0_DEPTH3() throws Exception {
         CausalModel binaryTreeDepth3 = ExampleProvider.generateBinaryTreeBenchmarkModel(3);
@@ -3513,7 +3513,7 @@ public class CausalitySolverInstanceTest {
     }
     //endregion
 
-    //region [BINARY TREE] height 5 (depth 4)
+    //region [BINARY TREE] height 4
     @Test
     public void Should_FulfillAllAC1AC3Only_When_L31_IsCauseFor_Root0_DEPTH4() throws Exception {
         CausalModel binaryTreeDepth4 = ExampleProvider.generateBinaryTreeBenchmarkModel(4);
@@ -3561,7 +3561,7 @@ public class CausalitySolverInstanceTest {
     }
     //endregion
 
-    //region [BINARY TREE] height 6 (depth 5)
+    //region [BINARY TREE] height 5
     @Test
     public void Should_FulfillAllAC1AC3Only_When_L62_IsCauseFor_Root0_DEPTH5() throws Exception {
         CausalModel binaryTreeDepth5 = ExampleProvider.generateBinaryTreeBenchmarkModel(5);
@@ -3609,7 +3609,7 @@ public class CausalitySolverInstanceTest {
     }
     //endregion
 
-    //region [BINARY TREE] height 7 (depth 6)
+    //region [BINARY TREE] height 6
     @Test
     public void Should_FulfillAllAC1AC3Only_When_L126_IsCauseFor_Root0_DEPTH6() throws Exception {
         CausalModel binaryTreeDepth6 = ExampleProvider.generateBinaryTreeBenchmarkModel(6);
@@ -3657,7 +3657,7 @@ public class CausalitySolverInstanceTest {
     }
     //endregion
 
-    //region [BINARY TREE] height 8 (depth 7)
+    //region [BINARY TREE] height 7
     @Test
     public void Should_FulfillAllAC1AC3Only_When_L254_IsCauseFor_Root0_DEPTH7() throws Exception {
         CausalModel binaryTreeDepth7 = ExampleProvider.generateBinaryTreeBenchmarkModel(7);
@@ -3705,7 +3705,7 @@ public class CausalitySolverInstanceTest {
     }
     //endregion
 
-    //region [BINARY TREE] height 9 (depth 8)
+    //region [BINARY TREE] height 8
     @Test
     public void Should_FulfillAllAC1AC3Only_When_L510_IsCauseFor_Root0_DEPTH8() throws Exception {
         CausalModel binaryTreeDepth8 = ExampleProvider.generateBinaryTreeBenchmarkModel(8);
@@ -3754,7 +3754,7 @@ public class CausalitySolverInstanceTest {
     }
     //endregion
 
-    //region [BINARY TREE] height 10 (depth 9)
+    //region [BINARY TREE] height 9
     @Test
     public void Should_FulfillAllAC1AC3Only_When_L1022_IsCauseFor_Root0_DEPTH9() throws Exception {
         CausalModel binaryTreeDepth9 = ExampleProvider.generateBinaryTreeBenchmarkModel(9);
