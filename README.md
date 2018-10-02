@@ -68,8 +68,8 @@ CausalModel causalModel = new CausalModel("RockThrowing", equations, exogenousVa
 // IMPORTANT: Use the same FormulaFactory instance as in the above!
 
 /*
- * Create positive literals for ST_exo and BT_exo. If ST_exo, BT_exo = 0, we would create negative ones,
- * e.g. f.literal("ST_exo", false). Using f.variable("ST_exo") would be a shortcut for 
+ * Create positive literals for ST_exo and BT_exo. If ST_exo, BT_exo = 0, we would create negative 
+ * ones, e.g. f.literal("ST_exo", false). Using f.variable("ST_exo") would be a shortcut for 
  * f.literal("ST_exo", true)
  */
 Set<Literal> context = new HashSet<>(Arrays.asList(f.literal("BT_exo", true),
