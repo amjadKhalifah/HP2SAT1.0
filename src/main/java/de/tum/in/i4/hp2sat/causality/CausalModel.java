@@ -38,6 +38,7 @@ public class CausalModel {
      * @param name               name of the causal model
      * @param equations          equations for the endogenous variables of the causal model
      * @param exogenousVariables the exogenous variables of the causal model
+     * @param formulaFactory     a formula factory
      * @throws InvalidCausalModelException throws an exception if model is not valid: (1) each variable needs to be
      *                                     either defined by an equation or be exogenous; (2) no duplicate definition of
      *                                     variables; (3) no circular dependencies; (4) an exogenous variable must
@@ -152,8 +153,11 @@ public class CausalModel {
 
 
     /**
-     * Checks whether the current causal model is valid.
+     * Checks whether the given equations and exogenous variables are valid.
      *
+     * @param equations          the equations
+     * @param exogenousVariables the exogenous variables
+     * @return true if valid
      * @throws InvalidCausalModelException thrown if invalid
      */
     private boolean isValid(Set<Equation> equations, Set<Variable> exogenousVariables)
@@ -181,8 +185,9 @@ public class CausalModel {
      * Checks whether a given variable is within a given equation or within the equations of the variables used
      * within the given equation (recursive!)
      *
-     * @param variable the variable for which we want to know whether it is in the given equation
-     * @param equation the equation whithin which we search for the variable
+     * @param variable  the variable for which we want to know whether it is in the given equation
+     * @param equation  the equation within which we search for the variable
+     * @param equations the equations
      * @return true, if variable was found; otherwise false
      */
     private boolean isVariableInEquation(Variable variable, Equation equation, Set<Equation> equations) {
@@ -254,6 +259,16 @@ public class CausalModel {
                 .containsAll(literals.stream().map(Literal::variable).collect(Collectors.toSet()));
     }
 
+    /**
+     * Make sure that the passed context, phi and cause are valid for the current causal model.
+     *
+     * @param context the context
+     * @param phi     the phi
+     * @param cause   the cause
+     * @throws InvalidCauseException
+     * @throws InvalidPhiException
+     * @throws InvalidContextException
+     */
     private void validateCausalityCheck(Set<Literal> context, Formula phi, Set<Literal> cause)
             throws InvalidCauseException, InvalidPhiException, InvalidContextException {
         if (!isContextValid(context))
@@ -264,6 +279,11 @@ public class CausalModel {
             throw new InvalidCauseException();
     }
 
+    /**
+     * Sort the equations of the causal model according to the total order proposed by Halpern.
+     *
+     * @return an ordered list of equations
+     */
     private List<Equation> sortEquations() {
         FormulaFactory f = this.formulaFactory;
         // get the causal model as graph
