@@ -17,7 +17,7 @@ Then, you can import it using Maven:
 <dependency>
     <groupId>de.tum.in.i4</groupId>
     <artifactId>hp2sat</artifactId>
-    <version>0.0.1</version>
+    <version>1.0</version>
 </dependency>
 ```
 
