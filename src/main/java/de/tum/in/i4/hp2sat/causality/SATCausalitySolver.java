@@ -486,7 +486,7 @@ class SATCausalitySolver extends CausalitySolver {
                  * OPTIMZED_W Strategy: if the variable of the current equation is in the cause or not in the set of
                  * optimized variables, then we do not allow for its original value and just add (V <=> Formula_V).
                  *
-                 * OPTIMIZED_CLAUSES Strategy: if the variable of the current equation is in the cause or not in the
+                 * OPTIMIZED_FORMULAS Strategy: if the variable of the current equation is in the cause or not in the
                  * set of variables that affect phi, we just add TRUE to the formula
                  * */
                 Formula equationFormula;
@@ -524,7 +524,7 @@ class SATCausalitySolver extends CausalitySolver {
                     equationFormula = f.equivalence(equation.getVariable(), equation.getFormula());
                 }
                 /*
-                 * OPTIMIZED_CLAUSES Strategy: if the variable of the current equation is in the cause or not in the
+                 * OPTIMIZED_FORMULAS Strategy: if the variable of the current equation is in the cause or not in the
                  * set of variables that affect phi, we just add TRUE to the formula*/
                 else if (!causeVariables.contains(equation.getVariable()) &&
                         (solvingStrategy == SAT_OPTIMIZED_FORMULAS || solvingStrategy == SAT_OPTIMIZED_FORMULAS_MINIMAL)

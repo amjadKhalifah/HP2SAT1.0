@@ -149,6 +149,7 @@ abstract class CausalitySolver {
      * Returns only those variables of a causal model that need to be in set W.
      *
      * @param causalModel the causal model
+     * @param phi         the phi
      * @param cause       the cause for which we check the conditions of the HP definition
      * @param f           a formula factory
      * @return a set of variables that need to be in W
