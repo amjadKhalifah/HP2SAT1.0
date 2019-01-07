@@ -74,7 +74,7 @@ class ILPCausalitySolver extends CausalitySolver {
 		w = ac2ac3.second();
 
 		if ( minimalCause!=null ){
-			if (minimalCause.isEmpty()){// means we did n't have to flipp anything, couldn't happen beacause of mimum distance constraint
+			if (minimalCause.isEmpty()){// means we did n't have to flip anything, couldn't happen because of minimum distance constraint
 				ac2=ac3=false;
 				System.out.println("The effect is not at all affected by the cause");
 			}
@@ -118,8 +118,7 @@ class ILPCausalitySolver extends CausalitySolver {
 	private Pair<Set<Literal>, Set<Literal>> fulfillsAC2AC3(CausalModel causalModel, Formula phi, Set<Literal> cause,
 			Set<Literal> context, Set<Literal> evaluation, SolvingStrategy solvingStrategy, ILPSolverType iLPSolverType,
 			FormulaFactory f) throws InvalidCausalModelException {
-		// TODO what to do with singletons?
-		// TODO what to do with but-fors
+		// in ILP we don't handle the but-for explicitly, because we are considering the 
 		Pair<Set<Literal>, Set<Literal>> result;
 		Formula phiNegated = f.not(phi);
 		Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation, solvingStrategy, true,f);
@@ -306,7 +305,6 @@ class ILPCausalitySolver extends CausalitySolver {
 		Set<Literal> w = new HashSet<>();
 		//add the constraints based on the formula
 		addLPConstraints(satFormula, model, evaluation, cause);
-		//TODO check this model.tune(); model.getTuneResult(0); then write them to a pm file and try callback
 		// write the model to file for debugging (should be stopped in benchmarks)
 		model.write("./ILP-models/ptest"+cm.getName()+" "+cause+".lp");
 		// solve the  model
@@ -331,7 +329,6 @@ class ILPCausalitySolver extends CausalitySolver {
 		//INFEASIBLE	3	Model was proven to be infeasible.
 		if (model.get(GRB.IntAttr.Status) == GRB.INFEASIBLE) {
 			System.out.println ("Model is infeasible.");
-			//TODO do we want to refine this result maybe
 			minimalCause = null;
 			w=null;
 		}else if ( model.get(GRB.IntAttr.Status) == GRB.OPTIMAL) {
@@ -345,7 +342,7 @@ class ILPCausalitySolver extends CausalitySolver {
 				String varName = vnames[j];
 				if (cause.stream().anyMatch(element -> element.name().equals(varName))) { // a solution value for a cause
 					System.out.println(varName+" is part of the cause set");
-					// get the variable literal in the original evaluation TODO simplify this
+					// get the variable literal in the original evaluation 
 					Literal partialCause = evaluation.stream().filter(l -> l.name().equals(varName)).findAny().get();
 					if (partialCause.phase() != (x[j] == 1.0)) {// then this part of the cause is  flipped TODO maybe exclude the ST SH here
 						System.out.println("Partial cause found "+ varName +" actual value is "+partialCause.phase() +" solved value "+ x[j] );
@@ -362,7 +359,7 @@ class ILPCausalitySolver extends CausalitySolver {
 					continue;
 				}
 				else {// last group of vars, unkown and possible W
-					// get the variable literal in the original evaluation TODO simplify this
+					// get the variable literal in the original evaluation 
 					Literal potentialWmember = evaluation.stream().filter(l -> l.name().equals(varName)).findAny()
 							.orElse(null);
 					if (potentialWmember==null){// this one of the vars added to the ILP e.g.res
@@ -375,7 +372,7 @@ class ILPCausalitySolver extends CausalitySolver {
 					continue;
 				}
 			}
-		}else{// TODO maybe add a handling of other cases 
+		}else{
 			System.out.println("Unhandled ILP status "+ model.get(GRB.IntAttr.Status) +" check ILP log" );
 			minimalCause = null;
 			w=null;
@@ -400,14 +397,12 @@ class ILPCausalitySolver extends CausalitySolver {
 	/**
 	 * a function that turns a custom causal model to Gurobi causal model the
 	 * location should be changed to inside the causal model for example 
-	 * TODO check if we can do this with addvars
 	 * 
 	 * @param cm
 	 * @param model
 	 */
 	public GRBModel createGRBModel(CausalModel cm, int causeSize) throws GRBException {
 		// basic GRB model, parameters of the model should be set here
-		// TODO a log for each model 
 		GRBEnv env = new GRBEnv("./ILP-LOG/"+cm.getName()+".log");
 		GRBModel model = new GRBModel(env);
 
@@ -425,7 +420,6 @@ class ILPCausalitySolver extends CausalitySolver {
 			try {
 				model.addVar(0.0, 1.0, 0.0, GRB.BINARY, e.getVariable().name());
 			} catch (GRBException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		});
