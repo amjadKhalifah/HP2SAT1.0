@@ -1,6 +1,6 @@
 # hp2sat
 
-  [![Build Status](https://travis-ci.com/amjadKhalifah/HP2SAT1.0.svg?branch=master](https://travis-ci.com/amjadKhalifah/HP2SAT1.0)
+ [![Build Status](https://travis-ci.com/amjadKhalifah/HP2SAT1.0.svg?branch=master)](https://travis-ci.com/amjadKhalifah/HP2SAT1.0)
 
 ## Background
 This library allows to determine actual causality according to the modified Halpern-Pearl definition of causality [1]
