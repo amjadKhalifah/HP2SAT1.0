@@ -1,7 +1,5 @@
-package edu.hp2sat.causality;
+package de.tum.in.i4.hp2sat.causality;
 
-import edu.hp2sat.util.ExampleProvider;
-import edu.hp2sat.util.Util;
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.Matcher;
 import org.junit.Before;
@@ -11,6 +9,16 @@ import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
+
+import de.tum.in.i4.hp2sat.causality.BruteForceCausalitySolver;
+import de.tum.in.i4.hp2sat.causality.CausalModel;
+import de.tum.in.i4.hp2sat.causality.CausalitySolver;
+import de.tum.in.i4.hp2sat.causality.CausalitySolverResult;
+import de.tum.in.i4.hp2sat.causality.SATCausalitySolver;
+import de.tum.in.i4.hp2sat.causality.SATSolverType;
+import de.tum.in.i4.hp2sat.causality.SolvingStrategy;
+import de.tum.in.i4.hp2sat.util.ExampleProvider;
+import de.tum.in.i4.hp2sat.util.Util;
 
 import java.util.*;
 import java.util.function.Function;

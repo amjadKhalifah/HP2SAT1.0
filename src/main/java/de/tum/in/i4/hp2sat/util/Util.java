@@ -1,4 +1,4 @@
-package edu.hp2sat.util;
+package de.tum.in.i4.hp2sat.util;
 
 
 import com.google.common.collect.Sets;

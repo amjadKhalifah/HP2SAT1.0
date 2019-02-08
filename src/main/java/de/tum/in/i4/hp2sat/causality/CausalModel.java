@@ -1,10 +1,5 @@
-package edu.hp2sat.causality;
+package de.tum.in.i4.hp2sat.causality;
 
-import edu.hp2sat.exceptions.InvalidCausalModelException;
-import edu.hp2sat.exceptions.InvalidCauseException;
-import edu.hp2sat.exceptions.InvalidContextException;
-import edu.hp2sat.exceptions.InvalidPhiException;
-import edu.hp2sat.util.Util;
 import org.graphstream.algorithm.TopologicalSortDFS;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -13,6 +8,12 @@ import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
+
+import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidCauseException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidContextException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidPhiException;
+import de.tum.in.i4.hp2sat.util.Util;
 
 import java.util.List;
 import java.util.Map;

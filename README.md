@@ -5,7 +5,7 @@
 ## Background
 This library allows to determine actual causality according to the modified Halpern-Pearl definition of causality [1]
 . The used examples in the unit test cases (specifically in [CausalitySolverInstanceTest](
-./src/test/java/edu/hp2sat/causality/CausalitySolverInstanceTest.java)) are described [here](./doc/evaluated-models.pdf).
+./src/test/java/de/tum/in/i4/hp2sat/causality/CausalitySolverInstanceTest.java)) are described [here](./doc/evaluated-models.pdf).
 
 ## Installation
 
@@ -17,7 +17,7 @@ $ mvn install
 Then, you can import it using Maven:
 ```xml
 <dependency>
-    <groupId>edu</groupId>
+    <groupId>de.tum.in.i4</groupId>
     <artifactId>hp2sat</artifactId>
     <version>1.0</version>
 </dependency>

@@ -1,12 +1,13 @@
-package edu.hp2sat.causality;
+package de.tum.in.i4.hp2sat.causality;
 
-import edu.hp2sat.exceptions.InvalidCausalModelException;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.*;
 import org.logicng.util.Pair;
+
+import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
 
 import java.util.*;
 import java.util.stream.Collectors;

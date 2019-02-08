@@ -1,7 +1,5 @@
-package edu.hp2sat.causality;
+package de.tum.in.i4.hp2sat.causality;
 
-import edu.hp2sat.exceptions.InvalidCausalModelException;
-import edu.hp2sat.util.Util;
 import org.eclipse.collections.impl.set.mutable.UnifiedSet;
 import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.Formula;
@@ -9,6 +7,9 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 import org.logicng.util.Pair;
+
+import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
+import de.tum.in.i4.hp2sat.util.Util;
 
 import java.util.HashSet;
 import java.util.List;

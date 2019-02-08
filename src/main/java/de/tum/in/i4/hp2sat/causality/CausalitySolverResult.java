@@ -1,4 +1,4 @@
-package edu.hp2sat.causality;
+package de.tum.in.i4.hp2sat.causality;
 
 import org.logicng.formulas.Literal;
 

@@ -1,6 +1,5 @@
-package edu.hp2sat.causality;
+package de.tum.in.i4.hp2sat.causality;
 
-import edu.hp2sat.exceptions.InvalidCausalModelException;
 import org.logicng.datastructures.Assignment;
 import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.Formula;
@@ -12,14 +11,16 @@ import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
 import org.logicng.util.Pair;
 
+import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
+
+import static de.tum.in.i4.hp2sat.causality.SATSolverType.GLUCOSE;
+import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINICARD;
+import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINISAT;
+import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.*;
+
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import static edu.hp2sat.causality.SATSolverType.GLUCOSE;
-import static edu.hp2sat.causality.SATSolverType.MINICARD;
-import static edu.hp2sat.causality.SATSolverType.MINISAT;
-import static edu.hp2sat.causality.SolvingStrategy.*;
 
 class SATCausalitySolver extends CausalitySolver {
     static final String DUMMY_VAR_NAME = "_dummy";

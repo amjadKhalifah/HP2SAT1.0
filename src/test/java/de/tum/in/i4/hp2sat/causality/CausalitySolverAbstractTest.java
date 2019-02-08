@@ -1,12 +1,15 @@
-package edu.hp2sat.causality;
+package de.tum.in.i4.hp2sat.causality;
 
-import edu.hp2sat.exceptions.InvalidCausalModelException;
-import edu.hp2sat.util.ExampleProvider;
 import org.junit.Test;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
+
+import de.tum.in.i4.hp2sat.causality.CausalModel;
+import de.tum.in.i4.hp2sat.causality.CausalitySolver;
+import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
+import de.tum.in.i4.hp2sat.util.ExampleProvider;
 
 import java.util.Arrays;
 import java.util.Collections;

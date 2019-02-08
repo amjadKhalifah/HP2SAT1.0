@@ -1,4 +1,4 @@
-package edu.hp2sat.exceptions;
+package de.tum.in.i4.hp2sat.exceptions;
 
 public class InvalidCausalModelException extends Exception {
     public InvalidCausalModelException() {

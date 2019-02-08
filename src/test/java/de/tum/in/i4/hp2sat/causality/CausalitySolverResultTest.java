@@ -1,9 +1,11 @@
-package edu.hp2sat.causality;
+package de.tum.in.i4.hp2sat.causality;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
+
+import de.tum.in.i4.hp2sat.causality.CausalitySolverResult;
 
 import java.util.*;
 
