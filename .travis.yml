@@ -1,0 +1,14 @@
+language: java
+jdk:
+  - oraclejdk8
+
+before_install:
+  - mvn install:install-file -Dfile=./local-repo/org/graphstream/gs-algo/2.0.0-SNAPSHOT/gs-algo-2.0.0-SNAPSHOT.jar -DgroupId=org.graphstream -DartifactId=gs-algo -Dversion=2.0.0-SNAPSHOT -Dpackaging=jar
+  - mvn install:install-file -Dfile=./local-repo/org/graphstream/gs-core/2.0.0-SNAPSHOT/gs-core-2.0.0-SNAPSHOT.jar -DgroupId=org.graphstream -DartifactId=gs-core -Dversion=2.0.0-SNAPSHOT -Dpackaging=jar
+
+cache:
+  directories:
+  - .autoconf
+  - $HOME/.m2
+
+  
