@@ -1,5 +1,10 @@
 package de.tum.in.i4.hp2sat.causality;
 
+import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidCauseException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidContextException;
+import de.tum.in.i4.hp2sat.exceptions.InvalidPhiException;
+import de.tum.in.i4.hp2sat.util.Util;
 import org.graphstream.algorithm.TopologicalSortDFS;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -9,17 +14,13 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 
-import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
-import de.tum.in.i4.hp2sat.exceptions.InvalidCauseException;
-import de.tum.in.i4.hp2sat.exceptions.InvalidContextException;
-import de.tum.in.i4.hp2sat.exceptions.InvalidPhiException;
-import de.tum.in.i4.hp2sat.util.Util;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.*;
 
 public class CausalModel {
     private String name;
@@ -37,6 +38,7 @@ public class CausalModel {
      * @param name               name of the causal model
      * @param equations          equations for the endogenous variables of the causal model
      * @param exogenousVariables the exogenous variables of the causal model
+     * @param formulaFactory     a formula factory
      * @throws InvalidCausalModelException throws an exception if model is not valid: (1) each variable needs to be
      *                                     either defined by an equation or be exogenous; (2) no duplicate definition of
      *                                     variables; (3) no circular dependencies; (4) an exogenous variable must
@@ -110,7 +112,7 @@ public class CausalModel {
             throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
         validateCausalityCheck(context, phi, cause);
         CausalitySolver causalitySolver;
-        if (solvingStrategy == SolvingStrategy.BRUTE_FORCE) {
+        if (solvingStrategy == BRUTE_FORCE || solvingStrategy == BRUTE_FORCE_OPTIMIZED_W) {
             causalitySolver = new BruteForceCausalitySolver();
         } else {
             causalitySolver = new SATCausalitySolver();
@@ -139,7 +141,7 @@ public class CausalModel {
     public CausalitySolverResult isCause(Set<Literal> context, Formula phi, Set<Literal> cause,
                                          SolvingStrategy solvingStrategy, SATSolverType satSolverType)
             throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
-        if (solvingStrategy == SolvingStrategy.BRUTE_FORCE) {
+        if (solvingStrategy == BRUTE_FORCE || solvingStrategy == BRUTE_FORCE_OPTIMIZED_W) {
             // ignore SAT solver type if solving strategy is not SAT related
             return isCause(context, phi, cause, solvingStrategy);
         } else {
@@ -151,8 +153,11 @@ public class CausalModel {
 
 
     /**
-     * Checks whether the current causal model is valid.
+     * Checks whether the given equations and exogenous variables are valid.
      *
+     * @param equations          the equations
+     * @param exogenousVariables the exogenous variables
+     * @return true if valid
      * @throws InvalidCausalModelException thrown if invalid
      */
     private boolean isValid(Set<Equation> equations, Set<Variable> exogenousVariables)
@@ -180,8 +185,9 @@ public class CausalModel {
      * Checks whether a given variable is within a given equation or within the equations of the variables used
      * within the given equation (recursive!)
      *
-     * @param variable the variable for which we want to know whether it is in the given equation
-     * @param equation the equation whithin which we search for the variable
+     * @param variable  the variable for which we want to know whether it is in the given equation
+     * @param equation  the equation within which we search for the variable
+     * @param equations the equations
      * @return true, if variable was found; otherwise false
      */
     private boolean isVariableInEquation(Variable variable, Equation equation, Set<Equation> equations) {
@@ -253,6 +259,16 @@ public class CausalModel {
                 .containsAll(literals.stream().map(Literal::variable).collect(Collectors.toSet()));
     }
 
+    /**
+     * Make sure that the passed context, phi and cause are valid for the current causal model.
+     *
+     * @param context the context
+     * @param phi     the phi
+     * @param cause   the cause
+     * @throws InvalidCauseException
+     * @throws InvalidPhiException
+     * @throws InvalidContextException
+     */
     private void validateCausalityCheck(Set<Literal> context, Formula phi, Set<Literal> cause)
             throws InvalidCauseException, InvalidPhiException, InvalidContextException {
         if (!isContextValid(context))
@@ -263,6 +279,11 @@ public class CausalModel {
             throw new InvalidCauseException();
     }
 
+    /**
+     * Sort the equations of the causal model according to the total order proposed by Halpern.
+     *
+     * @return an ordered list of equations
+     */
     private List<Equation> sortEquations() {
         FormulaFactory f = this.formulaFactory;
         // get the causal model as graph
