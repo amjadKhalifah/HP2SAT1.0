@@ -22,7 +22,7 @@ Then, you can import it using Maven:
 </dependency>
 ```
 
-Alternatively, a pre-built ```.jar``` is offered in the [release section](https://github.com/anonymous-submission-dev/HP2SAT/releases) of this repository.
+Alternatively, a pre-built ```.jar``` is offered in the [release section](https://github.com/amjadKhalifah/HP2SAT1.0/releases) of this repository.
 
 ## Usage
 
