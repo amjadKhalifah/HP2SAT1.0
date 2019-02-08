@@ -95,7 +95,8 @@ CausalitySolverResult causalitySolverResult =
 The ```SolvingStrategy``` enum contains all currently supported algorithms/strategies:
 ```java
 public enum SolvingStrategy {
-    BRUTE_FORCE, SAT, SAT_MINIMAL, SAT_COMBINED
+     BRUTE_FORCE, SAT, SAT_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL, 
+       SAT_OPTIMIZED_AC3,  SAT_OPTIMIZED_AC3_MINIMAL
 }
 ```
 
@@ -116,6 +117,10 @@ CausalitySolverResult causalitySolverResult =
 // SAT-based where checking AC2 and AC3 is combined
 CausalitySolverResult causalitySolverResult =
     CauscausalModel.isCause(context, phi, cause, SolvingStrategy.SAT_COMBINED);
+
+// SAT-based where AC3 check does not require ALL-SAT
+CausalitySolverResult causalitySolverResult =
+    CauscausalModel.isCause(context, phi, cause, SolvingStrategy.SAT_OPTIMIZED_AC3);
 ```
 
 ### Important Notes
