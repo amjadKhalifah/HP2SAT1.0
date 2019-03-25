@@ -559,7 +559,7 @@ public class ExampleProvider {
         FormulaFactory f = dummy.getFormulaFactory();
         CausalModel binaryTree = generateBinaryTreeBenchmarkModel(11, f);
         Equation equationA = dummy.getVariableEquationMap().get(f.variable("A"));
-        equationA.setFormula(f.variable("0")); // 0 is the root node
+        equationA.setFormula(f.variable("n_0")); // 0 is the root node
         dummy.getExogenousVariables().remove(f.variable("A_exo"));
 
         Set<Equation> equations = new HashSet<>(dummy.getEquationsSorted());
@@ -593,7 +593,7 @@ public class ExampleProvider {
             Set<Equation> equations = new HashSet<>();
             List<Variable> variablesInPreviousLevel = new ArrayList<>();
             for (int i = 0; i < rangeArray.length; i++) {
-                Variable endogenousVariable = f.variable("" + rangeArray[i]);
+                Variable endogenousVariable = f.variable("n_" + rangeArray[i]);
                 variablesInPreviousLevel.add(endogenousVariable);
                 Equation equation = new Equation(endogenousVariable, exogenousVariables.get(i));
                 equations.add(equation);
@@ -604,7 +604,7 @@ public class ExampleProvider {
                 int numberOfNodesInCurrentLevel = ((int) Math.pow(2, i + 1) - 1 + 1) / 2;
                 List<Variable> variablesInPreviousLevelNew = new ArrayList<>();
                 for (int k = 0; k < numberOfNodesInCurrentLevel; k++) {
-                    Variable endogenousVariable = f.variable("" + count--);
+                    Variable endogenousVariable = f.variable("n_" + count--);
                     variablesInPreviousLevelNew.add(endogenousVariable);
 
                     Formula formula = f.or(variablesInPreviousLevel.get(2 * k),
