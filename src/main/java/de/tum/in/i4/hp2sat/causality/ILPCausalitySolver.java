@@ -92,6 +92,7 @@ class ILPCausalitySolver extends CausalitySolver {
 
 		}else{ // for the sake of unit-testing
 			minimalCause = cause;
+			w= new HashSet<>();
 			}
 
 		//TODO maybe here filter the w based on relevance to x.
@@ -348,6 +349,8 @@ class ILPCausalitySolver extends CausalitySolver {
 						System.out.println("Partial cause found "+ varName +" actual value is "+partialCause.phase() +" solved value "+ x[j] );
 						minimalCause.add(partialCause);
 					} 	else{
+						//TODO should we add those as W as an over-approximation 
+						w.add(partialCause.variable());
 						System.out.println("Model was solved without flipping "+ varName +" actual value is "+partialCause.phase() +" solved value "+ x[j]+". violation of ac3." );
 					}
 					continue;

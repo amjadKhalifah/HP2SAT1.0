@@ -59,6 +59,18 @@ public class CausalitySolverResult {
                 Objects.equals(w, that.w);
     }
 
+    
+    public boolean equals2(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CausalitySolverResult that = (CausalitySolverResult) o;
+        return ac1 == that.ac1 &&
+                ac2 == that.ac2 &&
+                ac3 == that.ac3 &&
+                Objects.equals(cause, that.cause) &&
+                w.containsAll(that.w);
+    }
+    
     @Override
     public int hashCode() {
 
