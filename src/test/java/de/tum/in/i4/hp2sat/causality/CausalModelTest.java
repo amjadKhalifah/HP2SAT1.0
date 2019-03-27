@@ -150,7 +150,7 @@ public class CausalModelTest {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("XT")));
         Formula phi = f.variable("BS");
 
         CausalitySolverResult causalitySolverResultExpectedEval =

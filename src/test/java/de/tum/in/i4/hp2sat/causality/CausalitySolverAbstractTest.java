@@ -22,7 +22,7 @@ public class CausalitySolverAbstractTest {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         FormulaFactory f = billySuzy.getFormulaFactory();
         Formula phi = f.variable("BS");
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("XT")));
         Set<Variable> wVariablesExpected = new HashSet<>(Arrays.asList(f.variable("BS"), f.variable("SH"),
                 f.variable("BH")));
         Set<Variable> wVariablesActual = CausalitySolver.getMinimalWVariables(billySuzy, phi, cause, f);
@@ -34,7 +34,7 @@ public class CausalitySolverAbstractTest {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         FormulaFactory f = billySuzy.getFormulaFactory();
         Formula phi = f.variable("BS");
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("ST", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("XT", false)));
         Set<Variable> wVariablesExpected = new HashSet<>(Arrays.asList(f.variable("BS"), f.variable("SH"),
                 f.variable("BH")));
         Set<Variable> wVariablesActual = CausalitySolver.getMinimalWVariables(billySuzy, phi, cause, f);
@@ -59,7 +59,7 @@ public class CausalitySolverAbstractTest {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         FormulaFactory f = billySuzy.getFormulaFactory();
         Formula phi = f.variable("BS");
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("BT")));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("XT"), f.variable("BT")));
         Set<Variable> wVariablesExpected = new HashSet<>(Arrays.asList(f.variable("BS"), f.variable("SH"),
                 f.variable("BH")));
         Set<Variable> wVariablesActual = CausalitySolver.getMinimalWVariables(billySuzy, phi, cause, f);
@@ -96,7 +96,7 @@ public class CausalitySolverAbstractTest {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         FormulaFactory f = billySuzy.getFormulaFactory();
         Formula phi = f.variable("BS");
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("SH")));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("XT"), f.variable("SH")));
         Set<Variable> wVariablesExpected = new HashSet<>(Arrays.asList(f.variable("BS"),
                 f.variable("BH")));
         Set<Variable> wVariablesActual = CausalitySolver.getMinimalWVariables(billySuzy, phi, cause, f);
@@ -109,7 +109,7 @@ public class CausalitySolverAbstractTest {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         FormulaFactory f = billySuzy.getFormulaFactory();
         Formula phi = f.variable("SH");
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("XT")));
         Set<Variable> wVariablesExpected = new HashSet<>(Collections.singletonList(f.variable("SH")));
         Set<Variable> wVariablesActual = CausalitySolver.getMinimalWVariables(billySuzy, phi, cause, f);
         assertEquals(wVariablesExpected, wVariablesActual);
@@ -121,7 +121,7 @@ public class CausalitySolverAbstractTest {
         CausalModel billySuzy = ExampleProvider.billySuzy();
         FormulaFactory f = billySuzy.getFormulaFactory();
         Formula phi = f.and(f.variable("SH"), f.variable("BS"));
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("XT")));
         Set<Variable> wVariablesExpected = new HashSet<>(Arrays.asList(f.variable("SH"), f.variable("BH"),
                 f.variable("BS")));
         Set<Variable> wVariablesActual = CausalitySolver.getMinimalWVariables(billySuzy, phi, cause, f);

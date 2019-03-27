@@ -120,7 +120,7 @@ public class CausalitySolverInstanceTest {
         FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("XT")));
         Formula phi = f.variable("BS");
 
         CausalitySolverResult causalitySolverResultExpectedEval =
@@ -178,7 +178,7 @@ public class CausalitySolverInstanceTest {
         FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("ST", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("XT", false)));
         Formula phi = f.variable("BS");
 
         CausalitySolverResult causalitySolverResultExpected =
@@ -228,7 +228,7 @@ public class CausalitySolverInstanceTest {
                         new HashSet<>(Collections.singletonList(f.literal("BH", false))));
         CausalitySolverResult causalitySolverResultExpectedSAT =
                 new CausalitySolverResult(true, true, true, cause,
-                        new HashSet<>(Arrays.asList(f.variable("BT"), f.variable("ST"),
+                        new HashSet<>(Arrays.asList(f.variable("BT"), f.variable("XT"),
                                 f.literal("BH", false))));
         Map<SolvingStrategy, Set<CausalitySolverResult>> causalitySolverResultsExpected =
                 new HashMap<SolvingStrategy, Set<CausalitySolverResult>>() {
@@ -265,7 +265,7 @@ public class CausalitySolverInstanceTest {
         FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("BT"), f.variable("ST")));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("BT"), f.variable("XT")));
         Formula phi = f.variable("BS");
 
         CausalitySolverResult causalitySolverResultExpected =
@@ -279,7 +279,7 @@ public class CausalitySolverInstanceTest {
         FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("SH")));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("XT"), f.variable("SH")));
         Formula phi = f.variable("BS");
 
         CausalitySolverResult causalitySolverResultExpectedEval =
@@ -363,7 +363,7 @@ public class CausalitySolverInstanceTest {
         FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("BT"),
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("XT"), f.variable("BT"),
                 f.variable("SH")));
         Formula phi = f.variable("BS");
         CausalitySolverResult causalitySolverResultExpected =
@@ -377,7 +377,7 @@ public class CausalitySolverInstanceTest {
         FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("BT"),
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("XT"), f.variable("BT"),
                 f.literal("BH", false)));
         Formula phi = f.variable("BS");
         CausalitySolverResult causalitySolverResultExpected =
@@ -391,7 +391,7 @@ public class CausalitySolverInstanceTest {
         FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("XT")));
         Formula phi = f.or(f.variable("BS"), f.variable("SH"));
 
         CausalitySolverResult causalitySolverResultExpectedEval =
@@ -435,7 +435,7 @@ public class CausalitySolverInstanceTest {
         FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("XT")));
         Formula phi = f.and(f.variable("BS"), f.variable("BH"));
 
         CausalitySolverResult causalitySolverResultExpectedEval =
@@ -517,7 +517,7 @@ public class CausalitySolverInstanceTest {
         FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", true)));
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("XT")));
         Formula phi = f.variable("BS");
 
         CausalitySolverResult causalitySolverResultExpected =
@@ -545,7 +545,7 @@ public class CausalitySolverInstanceTest {
         FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", true)));
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("BT")));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("XT"), f.variable("BT")));
         Formula phi = f.variable("BS");
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(false, true, false, cause, new HashSet<>());
@@ -560,7 +560,7 @@ public class CausalitySolverInstanceTest {
         FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", false)));
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("XT")));
         Formula phi = f.variable("BS");
 
         CausalitySolverResult causalitySolverResultExpected =
@@ -601,7 +601,7 @@ public class CausalitySolverInstanceTest {
         FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", false)));
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("BT")));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("XT"), f.variable("BT")));
         Formula phi = f.variable("BS");
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(false, true, false, cause, new HashSet<>());
@@ -614,7 +614,7 @@ public class CausalitySolverInstanceTest {
         FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("XT")));
         Formula phi = f.literal("BH", false);
 
         CausalitySolverResult causalitySolverResultExpected =
@@ -642,7 +642,7 @@ public class CausalitySolverInstanceTest {
         FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true)));
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("SH")));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("XT"), f.variable("SH")));
         Formula phi = f.literal("BH", false);
 
         CausalitySolverResult causalitySolverResultExpected =
@@ -658,7 +658,7 @@ public class CausalitySolverInstanceTest {
         FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", false)));
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("ST", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("XT", false)));
         Formula phi = f.literal("BS", false);
 
         CausalitySolverResult causalitySolverResultExpected =
@@ -687,7 +687,7 @@ public class CausalitySolverInstanceTest {
         FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", false)));
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("ST", false),
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("XT", false),
                 f.literal("BT", false)));
         Formula phi = f.literal("BS", false);
         CausalitySolverResult causalitySolverResultExpected =
@@ -701,7 +701,7 @@ public class CausalitySolverInstanceTest {
         FormulaFactory f = billySuzy.getFormulaFactory();
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", false), f.literal("ST_exo", false)));
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("ST", false)));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.literal("XT", false)));
         Formula phi = f.and(f.not(f.variable("SH")), f.not(f.variable("BS")));
 
         CausalitySolverResult causalitySolverResultExpected =
@@ -3237,8 +3237,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth3.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("14")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_14")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3252,8 +3252,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth3.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("13"), f.variable("14")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_13"), f.variable("n_14")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3267,9 +3267,9 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth3.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("11"), f.variable("12"),
-                f.variable("13"), f.variable("14")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_11"), f.variable("n_12"),
+                f.variable("n_13"), f.variable("n_14")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3285,8 +3285,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth4.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("30")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_30")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3300,8 +3300,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth4.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("29"), f.variable("30")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_29"), f.variable("n_30")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3315,9 +3315,9 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth4.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("27"), f.variable("28"),
-                f.variable("29"), f.variable("30")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_27"), f.variable("n_28"),
+                f.variable("n_29"), f.variable("n_30")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3333,8 +3333,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth5.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("62")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_62")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3348,8 +3348,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth5.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("61"), f.variable("62")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_61"), f.variable("n_62")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3363,9 +3363,9 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth5.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("59"), f.variable("60"),
-                f.variable("61"), f.variable("62")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_59"), f.variable("n_60"),
+                f.variable("n_61"), f.variable("n_62")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3381,8 +3381,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth6.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("126")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_126")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3396,8 +3396,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth6.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("125"), f.variable("126")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_125"), f.variable("n_126")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3411,9 +3411,9 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth6.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("123"), f.variable("124"),
-                f.variable("125"), f.variable("126")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_123"), f.variable("n_124"),
+                f.variable("n_125"), f.variable("n_126")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3429,8 +3429,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth7.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("254")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_254")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3444,8 +3444,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth7.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("253"), f.variable("254")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_253"), f.variable("n_254")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3459,9 +3459,9 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth7.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("251"), f.variable("252"),
-                f.variable("253"), f.variable("254")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_251"), f.variable("n_252"),
+                f.variable("n_253"), f.variable("n_254")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3477,8 +3477,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth8.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("510")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_510")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3492,8 +3492,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth8.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("509"), f.variable("510")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_509"), f.variable("n_510")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3507,9 +3507,9 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth8.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("507"), f.variable("508"),
-                f.variable("509"), f.variable("510")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_507"), f.variable("n_508"),
+                f.variable("n_509"), f.variable("n_510")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3526,8 +3526,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth9.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("1022")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_1022")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3542,8 +3542,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth9.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("1021"), f.variable("1022")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_1021"), f.variable("n_1022")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3559,9 +3559,9 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth9.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("1019"), f.variable("1020"),
-                f.variable("1021"), f.variable("1022")));
-        Formula phi = f.variable("0");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_1019"), f.variable("n_1020"),
+                f.variable("n_1021"), f.variable("n_1022")));
+        Formula phi = f.variable("n_0");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3578,8 +3578,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth3.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("13"), f.variable("14")));
-        Formula phi = f.variable("2");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_13"), f.variable("n_14")));
+        Formula phi = f.variable("n_2");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3593,8 +3593,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth4.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("29"), f.variable("30")));
-        Formula phi = f.variable("6");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_29"), f.variable("n_30")));
+        Formula phi = f.variable("n_6");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3608,8 +3608,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth5.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("61"), f.variable("62")));
-        Formula phi = f.variable("14");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_61"), f.variable("n_62")));
+        Formula phi = f.variable("n_14");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3623,8 +3623,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth6.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("125"), f.variable("126")));
-        Formula phi = f.variable("30");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_125"), f.variable("n_126")));
+        Formula phi = f.variable("n_30");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3638,8 +3638,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth7.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("253"), f.variable("254")));
-        Formula phi = f.variable("62");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_253"), f.variable("n_254")));
+        Formula phi = f.variable("n_62");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3653,8 +3653,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth8.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("509"), f.variable("510")));
-        Formula phi = f.variable("126");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_509"), f.variable("n_510")));
+        Formula phi = f.variable("n_126");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3668,8 +3668,8 @@ public class CausalitySolverInstanceTest {
         // set all exogenous variables to 1
         Set<Literal> context = binaryTreeDepth9.getExogenousVariables().stream().map(e -> (Literal) e)
                 .collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("1021"), f.variable("1022")));
-        Formula phi = f.variable("254");
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_1021"), f.variable("n_1022")));
+        Formula phi = f.variable("n_254");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, false, true, cause, null);
@@ -3977,7 +3977,7 @@ public class CausalitySolverInstanceTest {
         Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo","4094_exo", "4093_exo"));
         Set<Literal> context = dummyModel.getExogenousVariables().stream()
                 .map(v -> contextVars.contains(v.name()) ? v : v.negate()).collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("4094")));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_4094")));
         Formula phi = f.variable("F");
 
         CausalitySolverResult causalitySolverResultExpected =
@@ -3993,7 +3993,7 @@ public class CausalitySolverInstanceTest {
         Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo","4094_exo", "4093_exo"));
         Set<Literal> context = dummyModel.getExogenousVariables().stream()
                 .map(v -> contextVars.contains(v.name()) ? v : v.negate()).collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("4093")));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_4093")));
         Formula phi = f.variable("F");
 
         CausalitySolverResult causalitySolverResultExpected =
@@ -4009,7 +4009,7 @@ public class CausalitySolverInstanceTest {
         Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo","4094_exo", "4093_exo"));
         Set<Literal> context = dummyModel.getExogenousVariables().stream()
                 .map(v -> contextVars.contains(v.name()) ? v : v.negate()).collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("4093"), f.variable("4094")));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("n_4093"), f.variable("n_4094")));
         Formula phi = f.variable("F");
 
         CausalitySolverResult causalitySolverResultExpected =
@@ -4029,15 +4029,15 @@ public class CausalitySolverInstanceTest {
         Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo","4094_exo", "4093_exo"));
         Set<Literal> context = dummyModel.getExogenousVariables().stream()
                 .map(v -> contextVars.contains(v.name()) ? v : v.negate()).collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("4092", false),
-                f.variable("4093"), f.variable("4094")));
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.literal("n_4092", false),
+                f.variable("n_4093"), f.variable("n_4094")));
         Formula phi = f.variable("F");
 
         CausalitySolverResult causalitySolverResultExpected =
                 new CausalitySolverResult(true, true, false, cause,
                         new HashSet<>(Arrays.asList(f.literal("E", false),
                                 f.literal("B", false), f.literal("G", false),
-                                f.literal("H", false), f.literal("2045", false))));
+                                f.literal("H", false), f.literal("n_2045", false))));
         testSolve(dummyModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE,
                 BRUTE_FORCE_OPTIMIZED_W, SAT, SAT_OPTIMIZED_W, SAT_OPTIMIZED_FORMULAS, SAT_COMBINED, SAT_OPTIMIZED_AC3);
     }
@@ -4050,7 +4050,7 @@ public class CausalitySolverInstanceTest {
         Set<String> contextVars = new HashSet<>(Arrays.asList("B_exo","4094_exo"));
         Set<Literal> context = dummyModel.getExogenousVariables().stream()
                 .map(v -> contextVars.contains(v.name()) ? v : v.negate()).collect(Collectors.toSet());
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("4094")));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("n_4094")));
         Formula phi = f.variable("F");
 
         CausalitySolverResult causalitySolverResultExpected =
@@ -4073,7 +4073,7 @@ public class CausalitySolverInstanceTest {
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true),
                 f.literal("W_exo", false)));
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("XT")));
         Formula phi = f.variable("BS");
 
         CausalitySolverResult causalitySolverResultExpectedEval =
@@ -4118,7 +4118,7 @@ public class CausalitySolverInstanceTest {
         Set<Literal> context = new HashSet<>(Arrays.asList(
                 f.literal("BT_exo", true), f.literal("ST_exo", true),
                 f.literal("W_exo", true)));
-        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("ST")));
+        Set<Literal> cause = new HashSet<>(Collections.singletonList(f.variable("XT")));
         Formula phi = f.variable("BS");
 
         CausalitySolverResult causalitySolverResultExpected =
@@ -4443,7 +4443,7 @@ public class CausalitySolverInstanceTest {
 
         Set<Literal> evaluationExpected = new HashSet<>(Arrays.asList(f.literal("BT_exo", true),
                 f.literal("ST_exo", true), f.literal("BT", true),
-                f.literal("ST", true), f.literal("BH", false),
+                f.literal("XT", true), f.literal("BH", false),
                 f.literal("SH", true), f.literal("BS", true)));
         Set<Literal> evaluationActual = CausalitySolver.evaluateEquations(billySuzy, context);
 
@@ -4459,7 +4459,7 @@ public class CausalitySolverInstanceTest {
 
         Set<Literal> evaluationExpected = new HashSet<>(Arrays.asList(f.literal("BT_exo", false),
                 f.literal("ST_exo", true), f.literal("BT", false),
-                f.literal("ST", true), f.literal("BH", false),
+                f.literal("XT", true), f.literal("BH", false),
                 f.literal("SH", true), f.literal("BS", true)));
         Set<Literal> evaluationActual = CausalitySolver.evaluateEquations(billySuzy, context);
 
@@ -4490,7 +4490,7 @@ public class CausalitySolverInstanceTest {
         Formula phi = f.variable("BS");
         Set<CausalitySolverResult> allCausesExpectedEval = new HashSet<>(Arrays.asList(
                 new CausalitySolverResult(true, true, true,
-                        new HashSet<>(Collections.singletonList(f.variable("ST"))),
+                        new HashSet<>(Collections.singletonList(f.variable("XT"))),
                         new HashSet<>(Collections.singletonList(f.literal("BH", false)))),
                 new CausalitySolverResult(true, true, true,
                         new HashSet<>(Collections.singletonList(f.variable("SH"))),
@@ -4499,11 +4499,11 @@ public class CausalitySolverInstanceTest {
                         new HashSet<>(Collections.singletonList(f.variable("BS"))), new HashSet<>())));
         Set<CausalitySolverResult> allCausesExpectedSAT = new HashSet<>(Arrays.asList(
                 new CausalitySolverResult(true, true, true,
-                        new HashSet<>(Collections.singletonList(f.variable("ST"))),
+                        new HashSet<>(Collections.singletonList(f.variable("XT"))),
                         new HashSet<>(Arrays.asList(f.variable("BT"), f.literal("BH", false)))),
                 new CausalitySolverResult(true, true, true,
                         new HashSet<>(Collections.singletonList(f.variable("SH"))),
-                        new HashSet<>(Arrays.asList(f.variable("ST"), f.variable("BT"),
+                        new HashSet<>(Arrays.asList(f.variable("XT"), f.variable("BT"),
                                 f.literal("BH", false)))),
                 new CausalitySolverResult(true, true, true,
                         new HashSet<>(Collections.singletonList(f.variable("BS"))), new HashSet<>())));
