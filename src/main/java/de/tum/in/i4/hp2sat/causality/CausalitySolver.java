@@ -43,6 +43,8 @@ abstract class CausalitySolver {
 
     /**
      * Returns all causes for a given causal model, a context and phi.
+     * IMPORTANT: This method is not implemented efficiently. In particular for large models, the execution time will
+     * be extremely large as we create the powerset of ALL variables.
      *
      * @param causalModel the underlying causel model
      * @param context     the context
@@ -147,6 +149,7 @@ abstract class CausalitySolver {
      * Returns only those variables of a causal model that need to be in set W.
      *
      * @param causalModel the causal model
+     * @param phi         the phi
      * @param cause       the cause for which we check the conditions of the HP definition
      * @param f           a formula factory
      * @return a set of variables that need to be in W

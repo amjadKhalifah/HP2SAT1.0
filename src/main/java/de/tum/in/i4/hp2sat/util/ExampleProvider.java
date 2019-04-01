@@ -10,6 +10,7 @@ import org.logicng.formulas.Variable;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 public class ExampleProvider {
     public static CausalModel billySuzy() throws InvalidCausalModelException {
@@ -346,6 +347,73 @@ public class ExampleProvider {
         return causalModel;
     }
 
+    public static CausalModel stealMasterKey(int users) throws InvalidCausalModelException {
+        FormulaFactory f = new FormulaFactory();
+
+        String fromScript = "FS";
+        String fromNetwork = "FN";
+        String fromFile = "FF";
+        String fromDB = "FDB";
+        String getThePassphrase = "GP";
+        String getTheKey = "GK";
+        String decryptTheKey = "DK";
+        String access = "A";
+        String attachDebugger = "AD";
+        String fromKeyManagementService = "KMS";
+        String stealDecrypted = "SD";
+        String stealMasterKey = "SMK";
+
+        // will be set later on
+        Equation DK_GlobalEquation = new Equation(f.variable(decryptTheKey), f.falsum());
+        Equation SD_GlobalEquation = new Equation(f.variable(stealDecrypted), f.falsum());
+        Equation SMK_Equation = new Equation(f.variable(stealMasterKey), f.or(f.variable(decryptTheKey),
+                f.variable(stealDecrypted)));
+
+        Set<Variable> exogenousVariables = new HashSet<>();
+        Set<Equation> equations = new HashSet<>(Arrays.asList(DK_GlobalEquation, SD_GlobalEquation, SMK_Equation));
+
+        for (int i = 1; i <= users; i++) {
+            for (String s : Arrays.asList(fromScript, fromNetwork, fromFile, fromDB, access, attachDebugger)) {
+                String name = s + "_U" + i;
+                Variable exo = f.variable(name + "_Exo");
+
+                exogenousVariables.add(exo);
+                equations.add(new Equation(f.variable(name), exo));
+            }
+
+            Variable GP = f.variable(getThePassphrase + "_U" + i);
+            Variable GK = f.variable(getTheKey + "_U" + i);
+            Variable KMS = f.variable(fromKeyManagementService + "_U" + i);
+            Variable DK = f.variable(decryptTheKey + "_U" + i);
+            Variable SD = f.variable(stealDecrypted + "_U" + i);
+
+            Equation GP_Equation = new Equation(GP,
+                    f.or(f.variable(fromScript + "_U" + i), f.variable(fromNetwork + "_U" + i)));
+            Equation GK_Equation = new Equation(GK,
+                    f.or(f.variable(fromFile + "_U" + i), f.variable(fromDB + "_U" + i)));
+            Equation KMS_Equation = new Equation(KMS,
+                    f.and(f.variable(access + "_U" + i), f.variable(attachDebugger + "_U" + i)));
+            Equation DK_Equation = new Equation(DK, f.and(GP, GK));
+            Equation SD_Equation = new Equation(SD, KMS);
+            equations.addAll(Arrays.asList(GP_Equation, GK_Equation, KMS_Equation, DK_Equation, SD_Equation));
+
+
+            for (int k = i - 1; k >= 1; k--) {
+                DK_Equation.setFormula(f.and(DK_Equation.getFormula(),
+                        f.not(f.variable(decryptTheKey + "_U" + k))));
+                SD_Equation.setFormula(f.and(SD_Equation.getFormula(),
+                        f.not(f.variable(stealDecrypted + "_U" + k))));
+            }
+
+            DK_GlobalEquation.setFormula(f.or(DK_GlobalEquation.getFormula(), DK));
+            SD_GlobalEquation.setFormula(f.or(SD_GlobalEquation.getFormula(), SD));
+        }
+
+        CausalModel causalModel = new CausalModel("StealMasterKey_" + users + "Users", equations,
+                exogenousVariables, f);
+        return causalModel;
+    }
+
     public static CausalModel dummy() throws InvalidCausalModelException {
         FormulaFactory f = new FormulaFactory();
         Variable AExo = f.variable("A_exo");
@@ -613,7 +681,6 @@ public class ExampleProvider {
 
     private static CausalModel generateBinaryTreeBenchmarkModel(int depth, FormulaFactory f)
             throws InvalidCausalModelException {
-        // TODO doc
         String name = "BinaryTreeBenchmarkModel";
         if (depth >= 0) {
             int numberOfNodes = (int) Math.pow(2, depth + 1) - 1;

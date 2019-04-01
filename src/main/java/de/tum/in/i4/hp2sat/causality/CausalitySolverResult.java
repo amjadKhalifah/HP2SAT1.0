@@ -22,6 +22,11 @@ public class CausalitySolverResult {
         this.w = w;
     }
 
+    /**
+     * Compute the degree of responsibility. IMPORTANT: Does not ensure minimality of cause X and W!
+     *
+     * @return the degree of responsibility of each part of the cause as map
+     */
     public Map<Literal, Double> getResponsibility() {
         Map<Literal, Double> responsibility = new HashMap<>();
 

@@ -112,6 +112,10 @@ class SATCausalitySolver extends CausalitySolver {
         // generate SAT query
         Formula formula = generateSATQuery(causalModelModified, negatedPhi, cause, context, evaluation,
                 solvingStrategy, false, f);
+        /*
+         * If we want to compute metrics of the formula, this should be done here. Notice that we need to explicitly
+         * convert the formula to CNF.
+         */
         satSolver.add(formula);
         if (satSolver.sat() == Tristate.TRUE) {
             if (Arrays.asList(SAT, SAT_OPTIMIZED_W, SAT_OPTIMIZED_FORMULAS, SAT_OPTIMIZED_AC3)
@@ -182,6 +186,10 @@ class SATCausalitySolver extends CausalitySolver {
                 // add negated formulas by AND
                 formula = f.and(formula, f.not(formula1), f.not(formula2), f.not(formula3));
             }
+            /*
+             * If we want to compute metrics of the formula, this should be done here. Notice that we need to explicitly
+             * convert the formula to CNF.
+             */
             // add query to solver
             satSolver.add(formula);
             if (satSolver.sat() == Tristate.TRUE) {
@@ -240,14 +248,12 @@ class SATCausalitySolver extends CausalitySolver {
                 // compute the value of the current cause candidate using its equation
                 boolean value = causalModel.getVariableEquationMap().get(causeCandidate.variable()).getFormula()
                         .evaluate(assignmentNew);
-                // TODO maybe we need to take W into account; is the current approach correct? -> test case?
                 /*
                  * For each cause candidate we now check whether it evaluates according to its equation or is
-                 * in W. In this case, we found a part of the cause that is not necessarily required, because
-                 * not(phi) is satisfied by a subset of the
-                 * cause, as we do not necessarily need to negate the current cause candidate such that not
-                 * (phi) is fulfilled. We collect all those variables to construct a new potential cause
-                 * later on for which we check AC1. */
+                 * in W as it is equal to its original value. In both cases, we found a part of the cause that is not
+                 * necessarily required, because not(phi) is satisfied by a subset of the cause, as we do not
+                 * necessarily need to negate the current cause candidate such that not(phi) is fulfilled. We collect
+                 * all those variables to construct a new potential cause later on for which we check AC1. */
                 if (causeCandidate.phase() == value || causeCandidate.phase() == variableEvaluationMap
                         .get(causeCandidate.variable()).phase()) {
                     notRequiredForCause.add(causeCandidate.variable());
@@ -321,6 +327,10 @@ class SATCausalitySolver extends CausalitySolver {
                 // generate SAT query for AC3 as this SAT query contains also the satisfying assignments for AC2
                 Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation,
                         solvingStrategy, true, f);
+                /*
+                 * If we want to compute metrics of the formula, this should be done here. Notice that we need to
+                 * explicitly convert the formula to CNF.
+                 */
                 // add query to solver
                 satSolver.add(formula);
                 if (satSolver.sat() == Tristate.TRUE) {
@@ -476,7 +486,7 @@ class SATCausalitySolver extends CausalitySolver {
                  * OPTIMZED_W Strategy: if the variable of the current equation is in the cause or not in the set of
                  * optimized variables, then we do not allow for its original value and just add (V <=> Formula_V).
                  *
-                 * OPTIMIZED_CLAUSES Strategy: if the variable of the current equation is in the cause or not in the
+                 * OPTIMIZED_FORMULAS Strategy: if the variable of the current equation is in the cause or not in the
                  * set of variables that affect phi, we just add TRUE to the formula
                  * */
                 Formula equationFormula;
@@ -514,7 +524,7 @@ class SATCausalitySolver extends CausalitySolver {
                     equationFormula = f.equivalence(equation.getVariable(), equation.getFormula());
                 }
                 /*
-                 * OPTIMIZED_CLAUSES Strategy: if the variable of the current equation is in the cause or not in the
+                 * OPTIMIZED_FORMULAS Strategy: if the variable of the current equation is in the cause or not in the
                  * set of variables that affect phi, we just add TRUE to the formula*/
                 else if (!causeVariables.contains(equation.getVariable()) &&
                         (solvingStrategy == SAT_OPTIMIZED_FORMULAS || solvingStrategy == SAT_OPTIMIZED_FORMULAS_MINIMAL)
