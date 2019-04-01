@@ -7,14 +7,11 @@ import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 
-import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.BRUTE_FORCE;
-import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.BRUTE_FORCE_OPTIMIZED_W;
 import static org.junit.Assert.assertTrue;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import javax.print.attribute.HashAttributeSet;
 
 
 
