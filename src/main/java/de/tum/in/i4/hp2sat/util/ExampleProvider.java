@@ -572,6 +572,41 @@ public class ExampleProvider {
         return dummyCombinedWithBinaryTree;
     }
 
+    
+    public static CausalModel dummyCombinedWithBinaryTree2() throws InvalidCausalModelException {
+    	String prefix1= "p1";
+    	String prefix2= "p2";
+        CausalModel dummy = ExampleProvider.dummyXOR();
+        FormulaFactory f = dummy.getFormulaFactory();
+        
+        
+        CausalModel binaryTree = generateBinaryTreeBenchmarkModel(11, f,prefix1);
+        Equation equationA = dummy.getVariableEquationMap().get(f.variable("A"));
+        equationA.setFormula(f.variable(prefix1+"_"+"n_0")); // 0 is the root node
+        dummy.getExogenousVariables().remove(f.variable("A_exo"));
+        
+        CausalModel binaryTree2 = generateBinaryTreeBenchmarkModel(11, f,prefix2);
+        Equation equationB = dummy.getVariableEquationMap().get(f.variable("B"));
+        equationB.setFormula(f.variable(prefix2+"_"+"n_0")); // 0 is the root node
+        dummy.getExogenousVariables().remove(f.variable("B_exo"));
+        
+
+        Set<Equation> equations = new HashSet<>(dummy.getEquationsSorted());
+        equations.addAll(binaryTree.getEquationsSorted());
+        equations.addAll(binaryTree2.getEquationsSorted());
+        Set<Variable> exogenousVariables = dummy.getExogenousVariables();
+        exogenousVariables.addAll(binaryTree.getExogenousVariables());
+        exogenousVariables.addAll(binaryTree2.getExogenousVariables());
+           
+        
+        
+        CausalModel dummyCombinedWithBinaryTree = new CausalModel("DummyCombinedWithBinaryTree2", equations,
+                exogenousVariables, f);
+
+        return dummyCombinedWithBinaryTree;
+    }
+    
+    
     public static CausalModel generateBinaryTreeBenchmarkModel(int depth) throws InvalidCausalModelException {
         return generateBinaryTreeBenchmarkModel(depth, new FormulaFactory());
     }
@@ -605,6 +640,51 @@ public class ExampleProvider {
                 List<Variable> variablesInPreviousLevelNew = new ArrayList<>();
                 for (int k = 0; k < numberOfNodesInCurrentLevel; k++) {
                     Variable endogenousVariable = f.variable("n_" + count--);
+                    variablesInPreviousLevelNew.add(endogenousVariable);
+
+                    Formula formula = f.or(variablesInPreviousLevel.get(2 * k),
+                            variablesInPreviousLevel.get(2 * k + 1));
+                    Equation equation = new Equation(endogenousVariable, formula);
+                    equations.add(equation);
+                }
+                variablesInPreviousLevel = variablesInPreviousLevelNew;
+            }
+            CausalModel causalModel = new CausalModel(name, equations, new HashSet<>(exogenousVariables), f);
+            return causalModel;
+        } else {
+            return null;
+        }
+    }
+    
+    
+    private static CausalModel generateBinaryTreeBenchmarkModel(int depth, FormulaFactory f, String prefix)
+            throws InvalidCausalModelException {
+        String name = "BinaryTreeBenchmarkModel2";
+        if (depth >= 0) {
+            int numberOfNodes = (int) Math.pow(2, depth + 1) - 1;
+            int numberOfLeaves = (numberOfNodes + 1) / 2; // no double needed; is always integer for full binary tree
+
+            int[] rangeArray = IntStream.range(numberOfNodes - numberOfLeaves, numberOfNodes)
+                    .map(i -> numberOfNodes - i + (numberOfNodes - numberOfLeaves) - 1) // reverse
+                    .toArray();
+            List<Variable> exogenousVariables = Arrays.stream(rangeArray).mapToObj(i -> f.variable(prefix+"_"+i + "_exo"))
+                    .collect(Collectors.toList());
+
+            Set<Equation> equations = new HashSet<>();
+            List<Variable> variablesInPreviousLevel = new ArrayList<>();
+            for (int i = 0; i < rangeArray.length; i++) {
+                Variable endogenousVariable = f.variable(prefix+"_"+"n_" + rangeArray[i]);
+                variablesInPreviousLevel.add(endogenousVariable);
+                Equation equation = new Equation(endogenousVariable, exogenousVariables.get(i));
+                equations.add(equation);
+            }
+
+            int count = numberOfNodes - numberOfLeaves - 1;
+            for (int i = depth - 1; i >= 0; i--) {
+                int numberOfNodesInCurrentLevel = ((int) Math.pow(2, i + 1) - 1 + 1) / 2;
+                List<Variable> variablesInPreviousLevelNew = new ArrayList<>();
+                for (int k = 0; k < numberOfNodesInCurrentLevel; k++) {
+                    Variable endogenousVariable = f.variable(prefix+"_"+"n_" + count--);
                     variablesInPreviousLevelNew.add(endogenousVariable);
 
                     Formula formula = f.or(variablesInPreviousLevel.get(2 * k),

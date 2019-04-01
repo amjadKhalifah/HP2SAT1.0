@@ -307,7 +307,7 @@ class ILPCausalitySolver extends CausalitySolver {
 		//add the constraints based on the formula
 		addLPConstraints(satFormula, model, evaluation, cause);
 		// write the model to file for debugging (should be stopped in benchmarks)
-		model.write("./ILP-models/ptest"+cm.getName()+" "+cause+".lp");
+		model.write("./ILP-models/ptest"+cm.getName()+".lp");
 		// solve the  model
 		model.optimize();
 		// Feasibility means that there is x or a subset of it satisfy AC2 and AC3. We don't know anything about W yet
@@ -351,7 +351,7 @@ class ILPCausalitySolver extends CausalitySolver {
 					} 	else{
 						//TODO should we add those as W as an over-approximation 
 						w.add(partialCause.variable());
-						System.out.println("Model was solved without flipping "+ varName +" actual value is "+partialCause.phase() +" solved value "+ x[j]+". violation of ac3." );
+//						System.out.println("Model was solved without flipping "+ varName +" actual value is "+partialCause.phase() +" solved value "+ x[j]+". violation of ac3." );
 					}
 					continue;
 				}
@@ -369,7 +369,7 @@ class ILPCausalitySolver extends CausalitySolver {
 						continue;
 					}
 					if ( potentialWmember.phase() == (x[j] == 1.0)) {// value stayed the same
-						System.out.println("W memeber found "+ varName +" actual value is "+potentialWmember.phase() +" solved value "+ x[j] );
+//						System.out.println("W memeber found "+ varName +" actual value is "+potentialWmember.phase() +" solved value "+ x[j] );
 						w.add(potentialWmember.variable());
 					} 	
 					continue;
