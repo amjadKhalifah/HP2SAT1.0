@@ -2,25 +2,16 @@ package de.tum.in.i4.hp2sat.causality;
 
 import de.tum.in.i4.hp2sat.util.ExampleProvider;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 
-import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.BRUTE_FORCE;
-import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.BRUTE_FORCE_OPTIMIZED_W;
-import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.SAT;
-import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.SAT_COMBINED;
-import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.SAT_OPTIMIZED_AC3;
-import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.SAT_OPTIMIZED_FORMULAS;
-import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.SAT_OPTIMIZED_W;
 import static org.junit.Assert.assertTrue;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import javax.print.attribute.HashAttributeSet;
 
 
 public class ILPSolverTest {
