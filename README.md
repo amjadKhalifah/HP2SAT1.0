@@ -1,3 +1,15 @@
+# Academic Citation 
+Please cite the following paper when using this tool. 
+
+Ibrahim, A., Rehwald, S., Pretschner, A.: Efficiently checking actual causality with sat solving. In: Dependable Software Systems Engineering (2019), https://arxiv.org/abs/1904.13101
+
+@incollection{ibrahim2019,
+	author={Ibrahim, Amjad and Rehwald, Simon and Pretschner, Alexander},
+	title     = {Efficiently Checking Actual Causality with SAT Solving},
+	booktitle = {Dependable Software Systems Engineering},
+	year      = {2019},
+	url ={https://arxiv.org/abs/1904.13101},
+}
 # hp2sat
 
  [![Build Status](https://travis-ci.com/amjadKhalifah/HP2SAT1.0.svg?branch=master)](https://travis-ci.com/amjadKhalifah/HP2SAT1.0)
