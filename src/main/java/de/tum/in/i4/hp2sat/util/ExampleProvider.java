@@ -3,10 +3,20 @@ package de.tum.in.i4.hp2sat.util;
 import de.tum.in.i4.hp2sat.causality.CausalModel;
 import de.tum.in.i4.hp2sat.causality.Equation;
 import de.tum.in.i4.hp2sat.exceptions.InvalidCausalModelException;
+import de.tum.in.i4.hp2sat.util.NewModelData.EndoVar;
+
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
+import org.logicng.io.parsers.ParserException;
+import org.logicng.io.parsers.PropositionalParser;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -766,5 +776,43 @@ public class ExampleProvider {
         } else {
             return null;
         }
+    }
+    
+    
+    public static CausalModel generateCMFromJSON(String path)
+            throws InvalidCausalModelException {
+    	 Gson gson = new Gson();
+         try (Reader reader = new FileReader(path)) {
+             // Convert JSON File to Java Object
+        	 NewModelData cm = gson.fromJson(reader, NewModelData.class);
+
+			FormulaFactory f = new FormulaFactory();
+			PropositionalParser p = new PropositionalParser(f);
+         
+
+         Set<Variable> exoVars = new HashSet<>();
+         for (String exo : cm.exos) {
+             exoVars.add(f.variable(exo));
+         }
+
+         Set<Equation> equations = new HashSet<>();
+         for (EndoVar endo : cm.endos) {
+             Variable v = f.variable(endo.name);
+             try {
+                 equations.add(new Equation(v, p.parse(endo.formula)));
+             } catch (ParserException e) {
+                 // TODO Auto-generated catch block
+                 System.out.println("err");
+                 e.printStackTrace();
+             }
+         }
+         CausalModel causalModel = new CausalModel(cm.name, equations, exoVars, f);
+             return causalModel;
+         } catch (IOException e) {
+             e.printStackTrace();
+             return null;
+         }
+
+      
     }
 }

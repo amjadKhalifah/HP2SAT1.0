@@ -4808,4 +4808,213 @@ public class CausalitySolverInstanceTest {
 
         testGetAllCauses(forestFire, context, phi, allCausesExpected);
     }
+    
+    
+//    @Test
+//    public void testReadCMFromJSONPree12() throws Exception {
+//        CausalModel ueberlingenModel = ExampleProvider.generateCMFromJSON("./wba1semPree1.causalmodel");
+//        
+//        FormulaFactory f = ueberlingenModel.getFormulaFactory();
+//        // set all  exogenous variables to 1
+//        Set<Literal> context = ueberlingenModel.getExogenousVariables().stream()
+//                .map(v -> v)
+//                .collect(Collectors.toSet());
+//        // dummy causes
+//        Set<Literal> cause = new HashSet<>(Arrays.asList(
+////        		f.variable("e18"), f.variable("e30"),f.variable("e35"), f.variable("e38"),f.variable("e36"),
+////        		f.variable("e27"),f.variable("e26"),f.variable("e25"),f.variable("e23"),f.variable("e44"),
+////        		f.variable("e47"),f.variable("e59"),f.variable("e58"),f.variable("e60"),f.variable("e69"),
+////        		f.variable("e77"),f.variable("e75"),f.variable("e71"),f.variable("e73"),f.variable("e74"),
+////        		f.variable("e87"),f.variable("e88"),f.variable("e86"),f.variable("e94"),f.variable("e98"),
+////        		f.variable("e97"),f.variable("e84"),f.variable("e101"),f.variable("e85"),f.variable("e31"),
+//        		f.variable("e13")));
+//        Formula phi = f.or(f.variable("e6"));
+//
+//        CausalitySolverResult causalitySolverResultExpected =
+//                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+//        testSolve(ueberlingenModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W, 
+//                SAT_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL,
+//                SAT_OPTIMIZED_FORMULAS, SAT_OPTIMIZED_FORMULAS_MINIMAL, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_AC3_MINIMAL);
+//        
+//           }
+    
+    
+    @Test
+    public void testReadCMFromJSONANDS() throws Exception {
+        CausalModel ueberlingenModel = ExampleProvider.generateCMFromJSON("./WBAModels/ueberlingen/wba1-ands.causalmodel");
+        
+        FormulaFactory f = ueberlingenModel.getFormulaFactory();
+        // set all  exogenous variables to 1
+        Set<Literal> context = ueberlingenModel.getExogenousVariables().stream()
+                .map(v -> v)
+                .collect(Collectors.toSet());
+        // dummy causes
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("e18"), f.variable("e30"),f.variable("e35"), f.variable("e38"),f.variable("e36"),
+        		f.variable("e27"),f.variable("e26"),f.variable("e25"),f.variable("e23"),f.variable("e44"),
+        		f.variable("e47"),f.variable("e59"),f.variable("e58"),f.variable("e60"),f.variable("e69"),
+        		f.variable("e77"),f.variable("e75"),f.variable("e71"),f.variable("e73"),f.variable("e74"),
+        		f.variable("e87"),f.variable("e88"),f.variable("e86"),f.variable("e94"),f.variable("e98"),
+        		f.variable("e97"),f.variable("e84"),f.variable("e101"),f.variable("e85"),f.variable("e31"),
+        		f.variable("e55")));
+        Formula phi = f.or(f.variable("e6"));
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        // exclude brute-force approach (takes too long)
+        testSolve(ueberlingenModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W, 
+              SAT_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL,
+              SAT_OPTIMIZED_FORMULAS, SAT_OPTIMIZED_FORMULAS_MINIMAL, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_AC3_MINIMAL);
+        
+        
+    }
+    
+    
+    //3
+    // this case shows there is a minimal cause after editing the semantics with preemption
+    // the effect is the collision, and the cause is the set of all root causes, 
+    @Test
+    public void testUeberlingen1() throws Exception {
+        CausalModel ueberlingenModel = ExampleProvider.generateCMFromJSON("./WBAModels/ueberlingen/wba1semPree2.causalmodel");
+        
+        FormulaFactory f = ueberlingenModel.getFormulaFactory();
+        // set all  exogenous variables to 1
+        Set<Literal> context = ueberlingenModel.getExogenousVariables().stream()
+                .map(v -> v)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(
+        		f.variable("e18"), f.variable("e30"),f.variable("e35"), f.variable("e38"),f.variable("e36"),
+        		f.variable("e27"),f.variable("e26"),f.variable("e25"),f.variable("e23"),f.variable("e44"),
+        		f.variable("e47"),f.variable("e59"),f.variable("e58"),f.variable("e60"),f.variable("e69"),
+        		f.variable("e77"),f.variable("e75"),f.variable("e71"),f.variable("e73"),f.variable("e74"),
+        		f.variable("e87"),f.variable("e88"),f.variable("e86"),f.variable("e94"),f.variable("e98"),
+        		f.variable("e97"),f.variable("e84"),f.variable("e101"),f.variable("e85"),f.variable("e31"),
+        		f.literal("e55",false)));
+        Formula phi = f.or(f.variable("e6"));
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, false, cause, new HashSet<>());
+        testSolve(ueberlingenModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W, 
+                SAT_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL,
+                SAT_OPTIMIZED_FORMULAS, SAT_OPTIMIZED_FORMULAS_MINIMAL, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_AC3_MINIMAL);
+        
+//        There is a minimal subset of the cause, i.e,:[e94, e73, e74, e97, e86, e75, e98, e87, e88, e44, e77, e36, e38, e71]
+   // w=[e30, e31, e32, e78, e34, e35, e79, e37, e84, e85, e45, e46, e47, e48, e91, e50, e51, e101, e52, e53, e10, e11, e55, 
+        //e12, e57, e58, e14, e59, e15, e16, e17, e18, e60, e61, e62, e63, e64, e20, e21, e22, e23, e68, e25, e69, e26, e27, e29, e2, e1, e4, e3, e8, e7, e70]}
+       
+           }
+
+    //4
+    // can find a minimal cause about the ATC--> e13 with W 
+    @Test
+    public void testReadCMFromJSONPree12() throws Exception {
+        CausalModel ueberlingenModel = ExampleProvider.generateCMFromJSON("./WBAModels/ueberlingen/wba1semPree2.causalmodel");
+        
+        FormulaFactory f = ueberlingenModel.getFormulaFactory();
+        // set all  exogenous variables to 1
+        Set<Literal> context = ueberlingenModel.getExogenousVariables().stream()
+                .map(v -> v)
+                .collect(Collectors.toSet());
+        // dummy causes
+        Set<Literal> cause = new HashSet<>(Arrays.asList(
+        		f.variable("e70"), f.variable("e74"), f.variable("e13")));
+        Formula phi = f.or(f.variable("e6"));
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        testSolve(ueberlingenModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W, 
+                SAT_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL,
+                SAT_OPTIMIZED_FORMULAS, SAT_OPTIMIZED_FORMULAS_MINIMAL, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_AC3_MINIMAL);
+        //There is a minimal subset of the cause, i.e,:[e13]
+    }
+    
+    // test 5
+    // we are testing phi as e49 at a higher granularity, a non-minimal cause
+    @Test
+    public void testReadCMFromJSONPree2_1() throws Exception {
+        CausalModel ueberlingenModel = ExampleProvider.generateCMFromJSON("./WBAModels/ueberlingen/wba1semPree2.causalmodel");
+        
+        FormulaFactory f = ueberlingenModel.getFormulaFactory();
+        // set all  exogenous variables to 1
+        Set<Literal> context = ueberlingenModel.getExogenousVariables().stream()
+                .map(v -> v)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(
+        		f.variable("e94"), f.variable("e67"), f.variable("e65"), f.variable("e66")));
+        Formula phi = f.or(f.variable("e49"));
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, false, cause, new HashSet<>());
+        testSolve(ueberlingenModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W, 
+                SAT_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL,
+                SAT_OPTIMIZED_FORMULAS, SAT_OPTIMIZED_FORMULAS_MINIMAL, SAT, SAT_OPTIMIZED_AC3_MINIMAL);
+        
+        
+        //There is a minimal subset of the cause, i.e,:[e65, e66, e67]
+        // min w is 3, but here it is more 
+        // it says what are the causes for the late intervention, can also be extended to lower granularity as the next one
+    }
+    
+    // we are testing phi as e49 at a lower granularity, a minimal cause
+    @Test
+    public void testReadCMFromJSONPree2_2() throws Exception {
+        CausalModel ueberlingenModel = ExampleProvider.generateCMFromJSON("./WBAModels/ueberlingen/wba1semPree2.causalmodel");
+        
+        FormulaFactory f = ueberlingenModel.getFormulaFactory();
+        // set all  exogenous variables to 1
+        Set<Literal> context = ueberlingenModel.getExogenousVariables().stream()
+                .map(v -> v)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(
+        		f.variable("e98"), f.variable("e97"), f.variable("e94"),f.variable("e88"), f.variable("e87"), f.variable("e86"),
+        		f.variable("e77"), f.variable("e75"), f.variable("e74"), f.variable("e73"), f.variable("e71")));
+        Formula phi = f.or(f.variable("e49"));
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        testSolve(ueberlingenModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W, 
+                SAT_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL,
+                SAT_OPTIMIZED_FORMULAS, SAT_OPTIMIZED_FORMULAS_MINIMAL, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_AC3_MINIMAL);
+        
+        
+        //TThe cause is minimal and counterfactual.
+        // min w is 3, but here it is more 
+        // question is why
+    }
+    
+
+    
+    // we are testing phi as e49 at a lower granularity, a minimal cause
+    @Test
+    public void findminoflatefromall() throws Exception {
+        CausalModel ueberlingenModel = ExampleProvider.generateCMFromJSON("./WBAModels/ueberlingen/wba1semPree2.causalmodel");
+        
+        FormulaFactory f = ueberlingenModel.getFormulaFactory();
+        // set all  exogenous variables to 1
+        Set<Literal> context = ueberlingenModel.getExogenousVariables().stream()
+                .map(v -> v)
+                .collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(    f.variable("e18"), f.variable("e30"),f.variable("e35"), f.variable("e38"),f.variable("e36"),
+        	    f.variable("e27"),f.variable("e26"),f.variable("e25"),f.variable("e23"),f.variable("e44"),
+        	    f.variable("e47"),f.variable("e59"),f.variable("e58"),f.variable("e60"),f.variable("e69"),
+        	    f.variable("e77"),f.variable("e75"),f.variable("e71"),f.variable("e73"),f.variable("e74"),
+        	    f.variable("e87"),f.variable("e88"),f.variable("e86"),f.variable("e94"),f.variable("e98"),
+        	    f.variable("e97"),f.variable("e84"),f.variable("e101"),f.variable("e85"),f.variable("e31"),
+        	    f.variable("e55")));
+        	    ;
+        Formula phi = f.or(f.variable("e49"));
+
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, true, cause, new HashSet<>());
+        testSolve(ueberlingenModel, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W, 
+                SAT_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL, SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL,
+                SAT_OPTIMIZED_FORMULAS, SAT_OPTIMIZED_FORMULAS_MINIMAL, SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_AC3_MINIMAL);
+        
+        
+        //There is a minimal subset of the cause, i.e,:[e94, e73, e74, e97, e86, e75, e98, e87, e88, e77, e71]
+        // min w is 3, but here it is more 
+        // question is why
+    }
+    
+    
+    
 }
