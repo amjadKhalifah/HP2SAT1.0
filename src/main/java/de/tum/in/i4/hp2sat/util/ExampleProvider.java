@@ -10,9 +10,11 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.io.parsers.PropositionalParser;
+import org.mariuszgromada.math.mxparser.Argument;
+import org.mariuszgromada.math.mxparser.Function;
+import org.mariuszgromada.math.mxparser.NumericCausalModel;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -20,7 +22,6 @@ import java.io.Reader;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public class ExampleProvider {
     public static CausalModel billySuzy() throws InvalidCausalModelException {
@@ -815,4 +816,103 @@ public class ExampleProvider {
 
       
     }
+    
+    
+    
+    public static NumericCausalModel billySuzyNumeric() throws InvalidCausalModelException {
+     		Argument BTExo = new Argument("BT_exo", 1.0);
+     		Argument STExo = new Argument("ST_exo", 1.0);
+     		// Example of Endos
+     		Argument BT = new Argument("BT = BT_exo",BTExo);     
+     		Argument ST = new Argument("XT = ST_exo",STExo);    
+     		Argument SH = new Argument("SH = XT", ST);
+     		Argument BH = new Argument("BH= BT-SH", BT,SH);   
+     		Argument BS = new Argument("BS= BH + SH", BH,SH);  
+
+        Set<Argument> equations = new HashSet<>(Arrays.asList(BT, ST, SH, BH, BS));
+        Set<Argument> exogenousVariables = new HashSet<>(Arrays.asList(BTExo, STExo));
+
+        NumericCausalModel causalModel = new NumericCausalModel("BillySuzyNumeric", equations, exogenousVariables);
+        return causalModel;
+        
+        
+    }
+    
+    public static NumericCausalModel Numeric_dummy_1() throws InvalidCausalModelException {
+     		Argument XExo = new Argument("X_exo", 12.0);
+     		Argument YExo = new Argument("Y_exo", 38.0);
+     		// Example of Endos
+     		Argument X = new Argument("X = X_exo",XExo);     
+     		Argument Y = new Argument("Y = Y_exo",YExo);    
+     		Argument Z = new Argument("Z = 3 * X + 5 * Y", X,Y);
+     		Argument G = new Argument("G= Z - 5", Z);   
+     		Argument H = new Argument("H= Y - G", Y,G);  
+
+        Set<Argument> equations = new HashSet<>(Arrays.asList(X, Y, Z, G, H));
+        Set<Argument> exogenousVariables = new HashSet<>(Arrays.asList(XExo, YExo));
+
+        NumericCausalModel causalModel = new NumericCausalModel("Dummy_1Numeric", equations, exogenousVariables);
+        return causalModel;
+        
+        
+    }
+    
+    
+    
+    public static NumericCausalModel generateNumericTreeBenchmarkModel(int depth)
+            throws InvalidCausalModelException {
+        String name = "NumericBinaryTreeBenchmarkModel";
+        if (depth >= 0) {
+            int numberOfNodes = (int) Math.pow(2, depth + 1) - 1;
+            int numberOfLeaves = (numberOfNodes + 1) / 2; // no double needed; is always integer for full binary tree
+
+          
+            
+            int[] rangeArray = IntStream.range(numberOfNodes - numberOfLeaves, numberOfNodes)
+                    .map(i -> numberOfNodes - i + (numberOfNodes - numberOfLeaves) - 1) // reverse
+                    .toArray();
+            
+            Map<String, Argument> exogenousVariables = new HashMap<String, Argument>();
+            exogenousVariables = Arrays.stream(rangeArray).mapToObj(i -> new Argument("exo_"+i , 1.0))
+                    .collect(Collectors.toMap(Argument::getArgumentName, Argument::clone));
+            
+          
+            Set<Argument> equations = new HashSet<>();
+            List<Argument> variablesInPreviousLevel = new ArrayList<>();
+            for (int i = 0; i < rangeArray.length; i++) {
+                Argument endogenousVariable = new Argument("n_" + rangeArray[i]+"= exo_"+rangeArray[i], exogenousVariables.get("exo_"+rangeArray[i]));
+                variablesInPreviousLevel.add(endogenousVariable);
+                equations.add(endogenousVariable);
+            }
+
+            int count = numberOfNodes - numberOfLeaves - 1;
+            for (int i = depth - 1; i >= 0; i--) {
+                int numberOfNodesInCurrentLevel = ((int) Math.pow(2, i + 1) - 1 + 1) / 2;
+                List<Argument> variablesInPreviousLevelNew = new ArrayList<>();
+                for (int k = 0; k < numberOfNodesInCurrentLevel; k++) {
+                	
+                	String var = "n_" + count--;
+                	Argument arg1 = variablesInPreviousLevel.get(2 * k);
+                	Argument arg2 = variablesInPreviousLevel.get(2 * k+1);
+                	
+                    Argument endogenousVariable = new  Argument(var+ "= "+arg1.getArgumentName()+"+"+arg2.getArgumentName(), arg1,arg2);
+                    
+                    variablesInPreviousLevelNew.add(endogenousVariable);
+                    equations.add(endogenousVariable);
+                }
+                variablesInPreviousLevel = variablesInPreviousLevelNew;
+            }
+            
+            
+    		 NumericCausalModel causalModel = new NumericCausalModel(name, equations, exogenousVariables.values().stream().collect(Collectors.toSet()));
+            return causalModel;
+        } else {
+            return null;
+        }
+        
+        
+        
+    }
+
+
 }
