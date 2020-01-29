@@ -8,8 +8,10 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 import org.logicng.solvers.CleaneLing;
+import org.logicng.solvers.MaxSATSolver;
 import org.logicng.solvers.MiniSat;
 import org.logicng.solvers.SATSolver;
+import org.logicng.solvers.maxsat.algorithms.MaxSAT;
 import org.logicng.util.Pair;
 
 import java.util.*;
@@ -21,14 +23,14 @@ import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINICARD;
 import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINISAT;
 import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.*;
 
-class SATCausalitySolver extends CausalitySolver {
+public class SATCausalitySolver extends CausalitySolver {
     static final String DUMMY_VAR_NAME = "_dummy";
 
     /**
      * Overrides {@link CausalitySolver#solve(CausalModel, Set, Formula, Set, SolvingStrategy)}.
      * Default SATSolver: MINISAT
      *
-     * @param causalModel     the underlying causel model
+     * @param causalModel     the underlying causal model
      * @param context         the context
      * @param phi             the phi
      * @param cause           the cause
@@ -41,7 +43,6 @@ class SATCausalitySolver extends CausalitySolver {
                                 SolvingStrategy solvingStrategy) throws InvalidCausalModelException {
         return solve(causalModel, context, phi, cause, solvingStrategy, MINISAT);
     }
-
     /**
      * Checks AC1, AC2 and AC3 given a causal model, a cause, a context and phi and a solving strategy.
      *
