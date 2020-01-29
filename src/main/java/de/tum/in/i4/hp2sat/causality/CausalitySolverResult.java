@@ -7,14 +7,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-public class CausalitySolverResult {
+public class CausalitySolverResult<T> {
     private boolean ac1;
     private boolean ac2;
     private boolean ac3;
-    private Set<Literal> cause;
-    private Set<Literal> w;
+    private Set<T> cause;
+    private Set<T> w;
 
-    public CausalitySolverResult(boolean ac1, boolean ac2, boolean ac3, Set<Literal> cause, Set<Literal> w) {
+    public CausalitySolverResult(boolean ac1, boolean ac2, boolean ac3, Set<T> cause, Set<T> w) {
         this.ac1 = ac1;
         this.ac2 = ac2;
         this.ac3 = ac3;
@@ -27,8 +27,8 @@ public class CausalitySolverResult {
      *
      * @return the degree of responsibility of each part of the cause as map
      */
-    public Map<Literal, Double> getResponsibility() {
-        Map<Literal, Double> responsibility = new HashMap<>();
+    public Map<T, Double> getResponsibility() {
+        Map<T, Double> responsibility = new HashMap<>();
 
         if (this.ac1 && this.ac2 && this.ac3) {
             int w = this.w == null ? 0 : this.w.size();
@@ -94,11 +94,11 @@ public class CausalitySolverResult {
         return ac3;
     }
 
-    public Set<Literal> getCause() {
+    public Set<T> getCause() {
         return cause;
     }
 
-    public Set<Literal> getW() {
+    public Set<T> getW() {
         return w;
     }
 }

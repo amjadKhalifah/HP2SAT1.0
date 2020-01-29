@@ -11,7 +11,7 @@ import org.logicng.util.Pair;
 import java.util.*;
 import java.util.stream.Collectors;
 
-abstract class CausalitySolver {
+abstract public class CausalitySolver   {
     /**
      * Checks AC1, AC2 and AC3 given a causal model, a cause, a context and phi and a solving strategy.
      *
@@ -114,6 +114,38 @@ abstract class CausalitySolver {
         return assignment.literals();
     }
 
+//    /**
+//     * Evaluates the equations of the given causal model under a given context.
+//     *
+//     * @param causalModel the causal model
+//     * @param context     the context, i.e. the evaluation of the exogenous variables; positive literal means true,
+//     *                    negative means false
+//     * @return evaluation for all variables within the causal model (endo and exo); positive literal means true,
+//     * negative means false
+//     */
+//    static Set<Argument> evaluateEquations(NumericCausalModel causalModel, Set<Argument> context) {
+//        // initially, we can only assign the exogenous variables as defined by the context
+//        Assignment assignment = new Assignment(context);
+//        for (Argument equation : causalModel.getEquationsSorted()) {
+//            /*
+//             * For each equation, we "evaluate" the corresponding formula based on the assignment. Since the equations
+//             * have been sorted according to their dependence on each other, we know that there will ALWAYS be a
+//             * solution that is true or false given that the provided causal model is valid. Once we obtained the
+//             * evaluation, we extend the assignment accordingly */
+//            Formula evaluation = equation.getFormula().restrict(assignment);
+//            // if the causal model is valid than one of the ifs MUST apply!
+//            if (evaluation instanceof CTrue) {
+//                assignment.addLiteral(equation.getVariable());
+//            } else {
+//                assignment.addLiteral(equation.getVariable().negate());
+//            }
+//        }
+//        /*
+//         * Finally, we return the literals of the assignment. A positive/negative literal indicates that the
+//         * corresponding variable evaluates to true/false  */
+//        return assignment.literals();
+//    }
+    
     /**
      * Creates a modified causal model by replacing all equations referring to parts of the cause with the negation
      * of the phase of the respective part of the cause, i.e. with setting x'
