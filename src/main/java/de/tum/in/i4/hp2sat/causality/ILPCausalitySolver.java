@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 import static de.tum.in.i4.hp2sat.causality.ILPSolverType.GUROBI;
 import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.*;
 
-class ILPCausalitySolver extends CausalitySolver {
+public class ILPCausalitySolver extends CausalitySolver {
 	private static final String DISTANCE_VAR_NAME = "res";
 
 	/**
@@ -39,6 +39,7 @@ class ILPCausalitySolver extends CausalitySolver {
 	 * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
 	 */
 	@Override
+	public
 	CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi, Set<Literal> cause,
 			SolvingStrategy solvingStrategy) throws InvalidCausalModelException {
 		return solve(causalModel, context, phi, cause, solvingStrategy, GUROBI);
@@ -56,7 +57,7 @@ class ILPCausalitySolver extends CausalitySolver {
 	 * @return for each AC, true if fulfilled, false else
 	 * @throws InvalidCausalModelException thrown if internally generated causal models are invalid
 	 */
-	CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
+	public CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi,
 			Set<Literal> cause, SolvingStrategy solvingStrategy, ILPSolverType solverType)
 					throws InvalidCausalModelException {
 		FormulaFactory f = new FormulaFactory();
@@ -302,6 +303,13 @@ class ILPCausalitySolver extends CausalitySolver {
 		// create and configure the ilp vars
 		//copy the variables of the causal model to ILP model
 		GRBModel model = createGRBModel(cm, cause.size());
+//		to find more solutions uncomment the following (TODO keep as an different solving strategy)
+//		 use systematic search to find kth best solutions
+//		model.set(GRB.IntParam.PoolSearchMode, 2);
+//		// k is defined here:
+//		model.set(GRB.IntParam.PoolSolutions, 5);
+//		// don't look for any solution with objective value other than the optimal (Gap =0)
+//		model.set(GRB.DoubleParam.PoolGap,0);	
 		Set<Literal> minimalCause = new HashSet<>();
 		Set<Literal> w = new HashSet<>();
 		//add the constraints based on the formula
@@ -334,9 +342,18 @@ class ILPCausalitySolver extends CausalitySolver {
 			w=null;
 		}else if ( model.get(GRB.IntAttr.Status) == GRB.OPTIMAL) {
 			System.out.println("Solution found, distance value = "+ model .get(GRB.DoubleAttr.ObjVal)+" status= "+ model.get(GRB.IntAttr.Status));
+//	[optional]		int nSolutions = model.get(GRB.IntAttr.SolCount);
 			GRBVar[] fvars = model.getVars();
 			double[] x = model.get(GRB.DoubleAttr.X, fvars);
 			String[] vnames = model.get(GRB.StringAttr.VarName, fvars);
+//		[optional]	for (int e = 0; e < nSolutions; e++) {
+			//TODO should fix the cause at each loop; for now i am writing the last cause
+//			[optional]			minimalCause = new HashSet<>();
+//			[optional]			w = new HashSet<>();					
+//			model.set(GRB.IntParam.SolutionNumber, e);
+//			System.out.println(model.get(GRB.IntAttr.SolCount)+ "Solution found, distance value = "+ model .get(GRB.DoubleAttr.ObjVal)+" status= "+ model.get(GRB.IntAttr.Status));				
+			// use Xn when quering the nth solution
+//			[optional]			double[] x = model.get(GRB.DoubleAttr.Xn, fvars);		
 			//by only the distance value "res" we can judge ac3 and conclude that this is a cause or not. so we can have impls that return from here.
 			// interpret the solution
 			for (int j = 0; j < fvars.length; j++) {
@@ -375,12 +392,14 @@ class ILPCausalitySolver extends CausalitySolver {
 					continue;
 				}
 			}
-		}else{
+		}
+		//}
+			else{
 			System.out.println("Unhandled ILP status "+ model.get(GRB.IntAttr.Status) +" check ILP log" );
 			minimalCause = null;
 			w=null;
 		}
-
+	
 		// Dispose of model and environment
 		model.dispose();
 		model.getEnv().dispose();

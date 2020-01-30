@@ -1,5 +1,9 @@
-package de.tum.in.i4.hp2sat.causality;
+package de.tum.in.i4.hp2sat.causality.inference;
 
+import de.tum.in.i4.hp2sat.causality.CausalModel;
+import de.tum.in.i4.hp2sat.causality.CausalitySolverResult;
+import de.tum.in.i4.hp2sat.causality.MaxSATCausalitySolver;
+import de.tum.in.i4.hp2sat.causality.SolvingStrategy;
 import de.tum.in.i4.hp2sat.util.ExampleProvider;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,14 +18,14 @@ import java.util.stream.Collectors;
 
 
 
-public class ILPSolverTest {
+public class MaxSatSolverTest {
     FormulaFactory f;
-  ILPCausalitySolver solver;
+  MaxSATCausalitySolver solver;
 
     @Before
     public void setUp() throws Exception {
         f = new FormulaFactory();
-        solver = new ILPCausalitySolver();
+        solver = new MaxSATCausalitySolver();
     }
 
 
@@ -29,9 +33,8 @@ public class ILPSolverTest {
 			CausalitySolverResult causalitySolverResultsExpected) throws Exception {
 
 		CausalitySolverResult causalitySolverResultActual = null;
-		causalitySolverResultActual = solver.solve(causalModel, context, phi, cause, SolvingStrategy.ILP,
-				ILPSolverType.GUROBI);
-		assertTrue("Error for ILP / Gurobi Expected is "+causalitySolverResultsExpected+", while actual is "+causalitySolverResultActual, causalitySolverResultActual.equals2(causalitySolverResultsExpected));//(,causalitySolverResultsExpected.equals2(causalitySolverResultActual));
+		causalitySolverResultActual = solver.solve(causalModel, context, phi, cause, null);
+		assertTrue("Error for Maxsat  Expected is "+causalitySolverResultsExpected+", while actual is "+causalitySolverResultActual, causalitySolverResultActual.equals2(causalitySolverResultsExpected));//(,causalitySolverResultsExpected.equals2(causalitySolverResultActual));
 		
 	}
 
