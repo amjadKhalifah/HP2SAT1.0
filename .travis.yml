@@ -1,0 +1,22 @@
+language: java
+jdk:
+  - oraclejdk8
+
+before_install:
+  - mvn install:install-file -Dfile=./local-repo/org/graphstream/gs-algo/2.0.0-SNAPSHOT/gs-algo-2.0.0-SNAPSHOT.jar -DgroupId=org.graphstream -DartifactId=gs-algo -Dversion=2.0.0-SNAPSHOT -Dpackaging=jar
+  - mvn install:install-file -Dfile=./local-repo/org/graphstream/gs-core/2.0.0-SNAPSHOT/gs-core-2.0.0-SNAPSHOT.jar -DgroupId=org.graphstream -DartifactId=gs-core -Dversion=2.0.0-SNAPSHOT -Dpackaging=jar
+
+cache:
+  directories:
+  - .autoconf
+  - $HOME/.m2
+
+deploy:
+  provider: releases
+  api_key:
+    secure: ncrb7QcuGNQmBWQ5Zfrsy5YvMS5f6RKQDoH4anHwmD8PyUNZnYvGynNZzFa/AUEipAdcTZSI2uIMYSwsNYPt2unIN0CFIlDvF4UxbmmQ8Nf8jOjRnZJhvq+gTz52s/F0uCDIUwcDHnxEReIb2b5nlW8fkfIL/E14oIcuas+uo9cW3KYukkQWG9yWiD1C2cG/xAfS4KUHOSizyssi4VlurEknZTWcT52oNvEio8PQvgAYK3I7J8Zl3dAamTi2i9DsVDCcHyFlb9cz/7hKOy+pMERYK0/4mJD2Zc1nx8UERcAfhUnx5EqTfsGCqib9Sz5n7y8JRCj11kMvvUphHCexV8h7wolTvWl33x1P+vteQAVbZdoRoNVXq5pqHIPOHAhS3bRi53sVt2BpD/9W7i3+am8l4a1u1hdxx3x9OqNj3ncvofk61f6guNX/AUrgUeFiapv0H21gUsEzrbi8OJVjilQ8gtMBa0g3DZGjavaPaQxneRrS9x8355gkn4GjB5lRDoxcZpcB40Bz2AT+OPPJKSgJawNf2y3rIsNUimMqi44AKeWJ+EzI5Fn04hqd62kjGNkgvDwIg/fX9OYNjKKJlTxAB9eWQtDnNo50DnA5NlNBMpaf5lWflNZWhzXAr3D4mPRnaiXjWXk1qtDMQsm3WLEQBjlInwCaEBFm2znTPTA=
+  file_glob: true
+  file: target/hp2sat-*
+  skip_cleanup: true
+  on:
+    tags: true
