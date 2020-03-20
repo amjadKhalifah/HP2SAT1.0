@@ -372,12 +372,7 @@ class WhySolver extends CausalitySolver {
 		GRBVar c3sum = model.addVar(1.0, cm.getEquationsSorted().size() - phiVariables.size(), 0.0, GRB.INTEGER,
 				C3_SUM_VAR);
 
-//		// stupid hack should be removed
-//		for (int i = 0; i < 15000; i++) {
-//			model.addVar(0.0, 1.0, 0.0, GRB.BINARY, "@RESERVED_CNF_"+i );
-//
-//		}
-//		
+
 		// finalize the equations for the sum constraints
 		c1SumExp.addTerm(-1, c1sum);
 		model.addConstr(c1SumExp, GRB.EQUAL, 0, "c1Sum");
@@ -459,19 +454,12 @@ class WhySolver extends CausalitySolver {
 						expr.addConstant(1.0);
 					}
 				}
-//				try {
+				try {
 				model.addConstr(expr, GRB.GREATER_EQUAL, 1.0, "");
-//				TODO need a way here to catch  "@RESERVED_CNF_0" variable name and adding it as a var then the constraint
 
-//			} catch (Exception e) {
-//				System.out.println("here");
-//				// so far i know about the exception thrown because of the added vars by logicng
-//				// TODO hardcoded
-//				
-//				model.addConstr(expr, GRB.GREATER_EQUAL, 1.0, "");
-////				System.out.println(expr);
-////				e.printStackTrace();
-//			}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 			}
 
 		}
