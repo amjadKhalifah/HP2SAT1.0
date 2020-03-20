@@ -114,10 +114,15 @@ public class CausalModel {
         CausalitySolver causalitySolver;
         if (solvingStrategy == BRUTE_FORCE || solvingStrategy == BRUTE_FORCE_OPTIMIZED_W) {
             causalitySolver = new BruteForceCausalitySolver();
-        } else {
+        }  else if (solvingStrategy == ILP ) {
+        	 causalitySolver = new ILPCausalitySolver();
+        }
+        else if (solvingStrategy == MAX_SAT ) {
+       	 causalitySolver = new MaxSATCausalitySolver();
+       }
+        else {
             causalitySolver = new SATCausalitySolver();
         }
-
         return causalitySolver.solve(this, context, phi, cause, solvingStrategy);
     }
 
@@ -141,7 +146,7 @@ public class CausalModel {
     public CausalitySolverResult isCause(Set<Literal> context, Formula phi, Set<Literal> cause,
                                          SolvingStrategy solvingStrategy, SATSolverType satSolverType)
             throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
-        if (solvingStrategy == BRUTE_FORCE || solvingStrategy == BRUTE_FORCE_OPTIMIZED_W) {
+        if (solvingStrategy == BRUTE_FORCE || solvingStrategy == BRUTE_FORCE_OPTIMIZED_W || solvingStrategy== ILP || solvingStrategy== MAX_SAT) {
             // ignore SAT solver type if solving strategy is not SAT related
             return isCause(context, phi, cause, solvingStrategy);
         } else {
