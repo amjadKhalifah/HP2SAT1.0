@@ -20,6 +20,7 @@ import org.mariuszgromada.math.mxparser.Argument;
 import org.mariuszgromada.math.mxparser.Expression;
 import org.mariuszgromada.math.mxparser.NumericCausalModel;
 import org.mariuszgromada.math.mxparser.mXparser;
+import org.mariuszgromada.math.mxparser.parsertokens.BinaryRelation;
 import org.mariuszgromada.math.mxparser.parsertokens.Operator;
 import org.mariuszgromada.math.mxparser.parsertokens.ParserSymbol;
 import org.mariuszgromada.math.mxparser.parsertokens.Token;
@@ -40,9 +41,9 @@ class NumericCausalitySolver extends CausalitySolver {
 	private static final String DELTA_PREFIX = "DEL_";
 	private static final String ABS_PREFIX = "ABS_";
 	private static final String MIN_PREFIX = "MIN_";
-	private static final int DEFAULT_BIG_M= 1000000;
-	public static Double DEFAULT_UPPER_BOUND = 100000.0;
-	public static Double DEFAULT_LOWER_BOUND = -100000.0;
+	private static final int DEFAULT_BIG_M= 1000000000;
+	public static Double DEFAULT_UPPER_BOUND = 100000000.0;
+	public static Double DEFAULT_LOWER_BOUND = -0.0;
 	
 
 	/**
@@ -581,13 +582,14 @@ class NumericCausalitySolver extends CausalitySolver {
 	}
 	
 	// for now assume the phi expression is as x-4=0 if not the client of this function should convert it
-	//e.g. x-y=1 --> x-y-1=0
+	//e.g. x-y=1 --> x-y-1=0; x-5 != 0
 		private  void addPhiNegation ( Expression equation, GRBModel model) throws GRBException {
 			List<Token> tokens = equation.getCopyOfInitialTokens();
 			Double currentCoefficient = 1.0;
 			double sign = 1.0; // 1.0 or -1.0 
 			GRBLinExpr expr = new GRBLinExpr();
 			GRBVar currentArgument = null;
+			boolean isContrastive= false;
 			for (int i = 0; i < tokens.size(); i++) {
 				Token token = tokens.get(i);
 				// each term is an operator, coefficient, and an argument. A term could also be a constant 
@@ -626,6 +628,18 @@ class NumericCausalitySolver extends CausalitySolver {
 					}
 
 				}
+				
+				else if (token.tokenTypeId == BinaryRelation.TYPE_ID) {// =;!=
+					// in case of not equal as a contrastive should be handled
+					if ((token.tokenId == BinaryRelation.NEQ_ID)) {
+					// this is a phi expression with an inequality != or ~=, so its contrastive
+					// we do nothing but set a flag that should govern the expression operator 
+						isContrastive =true; 
+						System.out.println("contrastive");
+						}
+
+				}
+				
 				else if (token.NOT_MATCHED==1) { // TODO handle unmatched tokens
 
 				}
@@ -642,7 +656,10 @@ class NumericCausalitySolver extends CausalitySolver {
 			model.addGenConstrAbs(phiAbs, phi, "R_PHI_ABS");
 			// PhiAbs>0
 			//TODO for continuous vars maybe the delta is less than one 
-			model.addConstr(phiAbs, GRB.GREATER_EQUAL, 1.0, "R_PHI_intervention" );
+			if (!isContrastive)
+				model.addConstr(phiAbs, GRB.GREATER_EQUAL, 1.0, "R_PHI_intervention" );
+			else // this is the case for contrastive query; phi is of the form y-4 != 0; its negation is y-4 =0
+				model.addConstr(phiAbs, GRB.EQUAL, 0.0, "R_PHI_intervention" );
 			// in summary for the effect we add two variables and 3 constraints
 
 		}

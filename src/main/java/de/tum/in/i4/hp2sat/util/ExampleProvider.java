@@ -921,18 +921,18 @@ public class ExampleProvider {
      */
     public static NumericCausalModel bostonHousingNumeric() throws InvalidCausalModelException {
 //    	medv = -0.071 * crim + 5.58 * rm - 0.007 * tax  - 0.484 * lstat - 3.767 
-// 	example: crim 0.00632	rm	6.575 tax 296		lstat 4.98	medv: 28.43873128
-    	
- 		Argument crim_exo = new Argument("crim_exo", 1.0);
- 		Argument rm_exo = new Argument("rm_exo", 7.0);
- 		Argument tax_exo = new Argument("tax_exo", 296);
- 		Argument lstat_exo = new Argument("lstat_exo", 4.98);
+// 	example: crim 0.006	rm	6.575 tax 296		lstat 4.98	medv: 28.43873128
+    	// every thing in this example is multiplied by 1k; also the bigm is adjusted 
+ 		Argument crim_exo = new Argument("crim_exo", 6.0);
+ 		Argument rm_exo = new Argument("rm_exo", 6575);
+ 		Argument tax_exo = new Argument("tax_exo", 296000);
+ 		Argument lstat_exo = new Argument("lstat_exo", 4980);
  		// Example of Endos
  		Argument crim = new Argument("crim = crim_exo",crim_exo);     
  		Argument rm = new Argument("rm = rm_exo",rm_exo);    
  		Argument tax =  new Argument("tax = tax_exo",tax_exo); 
  		Argument lstat = new Argument("lstat = lstat_exo",lstat_exo); 
- 		Argument medv = new Argument("medv =  -0.071 * crim + 5.58 * rm - 0.007 * tax  - 0.484 * lstat - 3.767 ", crim, rm,tax,lstat);
+ 		Argument medv = new Argument("medv =  -71 * crim + 5580 * rm - 7 * tax  - 484 * lstat - 3676 ", crim, rm,tax,lstat);
 
     Set<Argument> equations = new HashSet<>(Arrays.asList(crim, rm, tax, lstat, medv));
     Set<Argument> exogenousVariables = new HashSet<>(Arrays.asList(crim_exo, rm_exo,tax_exo,lstat_exo));

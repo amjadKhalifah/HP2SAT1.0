@@ -107,18 +107,21 @@ public class NumericSolverTest {
 	        NumericCausalModel bostonModel = ExampleProvider.bostonHousingNumeric();
 	        // this map is OK if it didn't contain every exo
 	        Map<String,Double> context = new HashMap<String, Double>();
-	        context.put("crim_exo", 1.0);
-	        context.put("rm_exo", 7.0);
+	        context.put("crim_exo", 6.0);
+	        context.put("rm_exo", 6575.0);
 	        
 //	        // this statments sets the context from the map; it keeps older values if the exo is not in the map
 	        Map<String,Double> context2 = bostonModel.getExogenousVariables().stream().map(v-> (context.keySet().contains(v.getArgumentName())? new Argument(v.getArgumentName(),context.get(v.getArgumentName())) : v )) .collect(Collectors.toMap(Argument::getArgumentName, Argument::getArgumentValue));
 //	        
 	        
-	        Argument cause1 = new Argument("crim", 1.0);
-	        Argument cause2 = new Argument("rm", 7.0);
+	        Argument cause1 = new Argument("crim", 6.0);
+	        Argument cause2 = new Argument("rm", 6575.0);
 	        System.out.println(bostonModel.getVaribale("medv").getArgumentValue());
-	        Set<Argument> cause = new HashSet<>(Arrays.asList(cause2));       
-	        Expression phi = new Expression("medv-28.43873128000001=0", bostonModel.getVaribale("medv"));
+	        Set<Argument> cause = new HashSet<>(Arrays.asList(cause2,cause1));       
+	        
+	        
+	        // this a contrstive way of adding questions; mind the bounds and 
+	        Expression phi = new Expression("medv-32202076!=0", bostonModel.getVaribale("medv"));
 
 	        bostonModel.print();
 	        CausalitySolverResult causalitySolverResultExpected =
