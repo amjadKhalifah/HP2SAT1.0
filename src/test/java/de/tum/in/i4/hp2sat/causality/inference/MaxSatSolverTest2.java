@@ -38,7 +38,15 @@ public class MaxSatSolverTest2 {
 
 		CausalitySolverResult causalitySolverResultActual = null;
 		causalitySolverResultActual = solver.solve(causalModel, context, phi, cause, null);
+<<<<<<< Updated upstream
 		assertTrue("Error for Maxsat Expected is "+causalitySolverResultsExpected+", while actual is "+causalitySolverResultActual, causalitySolverResultActual.equals2(causalitySolverResultsExpected));//(,causalitySolverResultsExpected.equals2(causalitySolverResultActual));
+=======
+		
+		System.out.println("CM: "+causalModel.getName()+" size:"+ causalModel.getEquationsSorted().size()+" context size: "+ contextVars.size()+" cause size "+ cause.size()+ "phi size: "+phi.numberOfOperands()
+		+" "+ causalitySolverResultActual.toStringSummary() );
+		
+		assertTrue("Error for MaxSat Expected is "+causalitySolverResultsExpected+", while actual is "+causalitySolverResultActual, causalitySolverResultActual.equals2(causalitySolverResultsExpected));//(,causalitySolverResultsExpected.equals2(causalitySolverResultActual));
+>>>>>>> Stashed changes
 		
 	}
 
