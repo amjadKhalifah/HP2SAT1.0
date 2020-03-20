@@ -16,12 +16,12 @@ import static org.junit.Assert.assertTrue;
 
 public class WhySolverTest {
 	FormulaFactory f;
-	WhySolver solver;
+	WhySolverCNF solver;
 
 	@Before
 	public void setUp() throws Exception {
 		f = new FormulaFactory();
-		solver = new WhySolver();
+		solver = new WhySolverCNF();
 	}
 	
 
@@ -522,14 +522,14 @@ public class WhySolverTest {
 
            testNoneCause(binaryTreeBenchmarkModelDepth10, binaryTreeBenchmarkModelDepth10.getExogenousVariables().stream().map(e -> (Literal) e)
                    .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree, causalitySolverResultExpectedDepth10);
-           
-           CausalitySolverResult causalitySolverResultExpectedDepth11 =
-                   new CausalitySolverResult(true, false, true,
-                           new HashSet<>(Collections.singletonList(f.variable("n_4094"))), null);
-   
-
-           testNoneCause(binaryTreeBenchmarkModelDepth11, binaryTreeBenchmarkModelDepth11.getExogenousVariables().stream().map(e -> (Literal) e)
-                   .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree, causalitySolverResultExpectedDepth11);
+//           
+//           CausalitySolverResult causalitySolverResultExpectedDepth11 =
+//                   new CausalitySolverResult(true, false, true,
+//                           new HashSet<>(Collections.singletonList(f.variable("n_4094"))), null);
+//   
+//
+//           testNoneCause(binaryTreeBenchmarkModelDepth11, binaryTreeBenchmarkModelDepth11.getExogenousVariables().stream().map(e -> (Literal) e)
+//                   .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree, causalitySolverResultExpectedDepth11);
            
 //           CausalitySolverResult causalitySolverResultExpectedDepth12 =
 //                   new CausalitySolverResult(true, false, true,
@@ -540,9 +540,8 @@ public class WhySolverTest {
 //                   .collect(Collectors.toSet()), phiBenchmarkModelBinaryTree, causalitySolverResultExpectedDepth12);
            
     }
-
-    @Test
     @Ignore
+    @Test
     public void TestLoad() throws Exception {
 
            CausalModel binaryTreeBenchmarkModelDepth12 = ExampleProvider.generateBinaryTreeBenchmarkModel(12);
