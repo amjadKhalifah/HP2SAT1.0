@@ -1,3 +1,5 @@
+import java.util.Iterator;
+
 import org.junit.Ignore;
 import org.junit.Test;
 import org.logicng.datastructures.Assignment;
@@ -37,7 +39,7 @@ public class Playground {
         final Tristate result = miniSat.sat();
     }
 
-    @Ignore
+    
     @Test
     public void restrict() {
         FormulaFactory f = new FormulaFactory();
@@ -46,14 +48,20 @@ public class Playground {
         Literal notC = f.literal("C", false);
 
         // A & ~(B | ~C); CNF: A & ~B & C => true for A=1, B=0, C=1
-        Formula formula = f.and(a, f.not(f.or(b, notC)));
+        Formula formula = f.or(a, f.and(f.or(b, notC)));
         // assign a positive literal for TRUE and a negative literal for FALSE
         Assignment assignment = new Assignment();
         assignment.addLiteral(a);
         assignment.addLiteral(b.negate());
         assignment.addLiteral(notC.negate());
-
-        System.out.println(assignment.formula(f));
-        System.out.println(formula.restrict(assignment));
+        Iterator<Formula> iter = formula.cnf().iterator();
+		while (iter.hasNext()) {
+			 System.out.println("--"+iter.next());
+		}
+       
+//        System.out.println(assignment.formula(f));
+//        System.out.println(formula.restrict(assignment));
     }
+    
+    
 }
