@@ -913,6 +913,76 @@ public class ExampleProvider {
         
         
     }
+    
+    
+    /** From https://rpubs.com/ezrasote/bostonhousing
+     * @return
+     * @throws InvalidCausalModelException
+     */
+    public static NumericCausalModel bostonHousingNumeric() throws InvalidCausalModelException {
+//    	medv = -0.071 * crim + 5.58 * rm - 0.007 * tax  - 0.484 * lstat - 3.767 
+// 	example: crim 0.00632	rm	6.575 tax 296		lstat 4.98	medv: 28.43873128
+    	
+ 		Argument crim_exo = new Argument("crim_exo", 1.0);
+ 		Argument rm_exo = new Argument("rm_exo", 7.0);
+ 		Argument tax_exo = new Argument("tax_exo", 296);
+ 		Argument lstat_exo = new Argument("lstat_exo", 4.98);
+ 		// Example of Endos
+ 		Argument crim = new Argument("crim = crim_exo",crim_exo);     
+ 		Argument rm = new Argument("rm = rm_exo",rm_exo);    
+ 		Argument tax =  new Argument("tax = tax_exo",tax_exo); 
+ 		Argument lstat = new Argument("lstat = lstat_exo",lstat_exo); 
+ 		Argument medv = new Argument("medv =  -0.071 * crim + 5.58 * rm - 0.007 * tax  - 0.484 * lstat - 3.767 ", crim, rm,tax,lstat);
+
+    Set<Argument> equations = new HashSet<>(Arrays.asList(crim, rm, tax, lstat, medv));
+    Set<Argument> exogenousVariables = new HashSet<>(Arrays.asList(crim_exo, rm_exo,tax_exo,lstat_exo));
+
+    NumericCausalModel causalModel = new NumericCausalModel("BoustonHousing", equations, exogenousVariables);
+    return causalModel;
+    
+    
+}
+    
+    /** from https://rpubs.com/ezrasote/bostonhousing and https://rpubs.com/ezrasote/crimerate
+     * @return
+     * @throws InvalidCausalModelException
+     */
+    public static NumericCausalModel bostonHousingNumericWithCrime() throws InvalidCausalModelException {
+//    	medv = -0.071 * crim + 5.58 * rm - 0.007 * tax  - 0.484 * lstat - 3.767 
+//    	crime_rate = 8.7238 * (percent_m) + 16.7212 * (mean_education) + 7.0635 * (unemploy_m39) + 
+//    	7.0513 * (inequality) - 3863.7869 * (prob_prison) + 6.7957 * (pol_exp) - 4605.8496
+ 		Argument percent_m_exo = new Argument("percent_m_exo", 12.0);
+ 		Argument mean_education_exo = new Argument("mean_education_exo", 12.0);
+ 		Argument unemploy_m39_exo = new Argument("unemploy_m39exo", 12.0);
+ 		Argument inequality_exo = new Argument("inequality_exo", 12.0);
+ 		Argument prob_prison_exo = new Argument("prob_prison_exo", 12.0);
+ 		Argument pol_exp_exo = new Argument("pol_exp_exo", 12.0);
+ 		
+ 		Argument rm_exo = new Argument("rm_exo", 6.575);
+ 		Argument tax_exo = new Argument("tax_exo", 296);
+ 		Argument lstat_exo = new Argument("lstat_exo", 4.98);
+ 		// Example of Endos
+ 		Argument percent_m = new Argument("percent_m = percent_m_exo",percent_m_exo);   
+ 		Argument mean_education = new Argument("mean_education = mean_education_exo",mean_education_exo);   
+ 		Argument unemploy_m39 = new Argument("unemploy_m39 = unemploy_m39_exo",unemploy_m39_exo);   
+ 		Argument inequality = new Argument("inequality = inequality_exo",inequality_exo);   
+ 		Argument prob_prison = new Argument("prob_prison = prob_prison_exo",prob_prison_exo); 
+ 		Argument pol_exp = new Argument("pol_exp = pol_exp_exo",pol_exp_exo); 
+ 		
+ 		Argument crim = new Argument("crim = 8.7238 * percent_m + 16.7212 * mean_education + 7.0635 * unemploy_m39 + 7.0513 * inequality - 3863.7869 * prob_prison + 6.7957 * pol_exp - 4605.8496",percent_m,mean_education,unemploy_m39,inequality,prob_prison,pol_exp);     
+ 		Argument rm = new Argument("rm = rm_exo",rm_exo);    
+ 		Argument tax =  new Argument("tax = tax_exo",tax_exo); 
+ 		Argument lstat = new Argument("lstat = lstat_exo",lstat_exo); 
+ 		Argument medv = new Argument("medv =  -0.071 * crim + 5.58 * rm - 0.007 * tax  - 0.484 * lstat - 3.767 ", crim, rm,tax,lstat);
+
+    Set<Argument> equations = new HashSet<>(Arrays.asList(percent_m,mean_education,unemploy_m39,inequality, prob_prison,pol_exp,crim, rm, tax, lstat, medv));
+    Set<Argument> exogenousVariables = new HashSet<>(Arrays.asList(percent_m_exo,mean_education_exo,unemploy_m39_exo,inequality_exo,prob_prison_exo,pol_exp_exo, rm_exo,tax_exo,lstat_exo));
+
+    NumericCausalModel causalModel = new NumericCausalModel("BoustonHousingCrimeRate", equations, exogenousVariables);
+    return causalModel;
+    
+    
+}
 
 
 }
