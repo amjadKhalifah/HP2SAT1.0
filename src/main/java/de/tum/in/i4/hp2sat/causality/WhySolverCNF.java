@@ -28,13 +28,16 @@ class WhySolverCNF extends CausalitySolver {
 	static final String C1COM_SUM_VAR = C1_VAR_PREFIX + "com_sum";
 	static final String C3_SUM_VAR = C3_VAR_PREFIX + "sum";
 	
-	
-	
 
 	@Override
 	CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi, Set<Literal> cause,
 			SolvingStrategy solvingStrategy) throws InvalidCausalModelException {
-		return null;
+		List<CausalitySolverResult> causes = solve(causalModel, context, phi);
+//		mainly for benchmarking
+		if (causes.isEmpty()) {
+			return new CausalitySolverResult<>();
+		}
+		return causes.get(0);
 	}
 
 	/**
