@@ -1,0 +1,36 @@
+Bostin housoing quries (scaled by 1k):
+
+Effect medv!= 33000000 actual 32202078
+
+All 4 are causes for the exact point: example: crim 0.006	rm	6.575 tax 296		lstat 4.98	medv: 28.43873128
+
+
+Partial cause found rm actual value is 6575.0 solved value 6721.0
+Partial cause found tax actual value is 296000.0 solved value 298394.0
+
+Partial cause found rm actual value is 6575.0 solved value 14540.0
+Partial cause found tax actual value is 296000.0 solved value 6531254.0
+
+One cause: crim infeasible 
+
+One cause: rm infeasible 
+One cause: tax infeasible  
+One cause: lstat infeasible 
+
+two causes: rm and crim 
+
+Partial cause found crim actual value is 6.0 solved value 2364.0
+Partial cause found rm actual value is 6575.0 solved value 6748.0
+
+two causes crim and tax infeasible
+two causes crim and lstat infeasible
+
+two causes rm and tax 
+Partial cause found rm actual value is 6575.0 solved value 6721.0
+Partial cause found tax actual value is 296000.0 solved value 298394.0
+
+two causes rm and lstat infeasible
+
+three causes crim rm tax found minimal both crim rm and rm tax
+ three causes crim rm lstat found minimal both crim rm 
+  three causes  rm tax lstat found minimal both  rm tax
