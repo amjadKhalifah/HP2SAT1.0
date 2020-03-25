@@ -11,7 +11,6 @@ import org.logicng.formulas.Literal;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class WhySolverTest {
@@ -29,17 +28,30 @@ public class WhySolverTest {
 			CausalitySolverResult ... causalitySolverResultsExpected) throws Exception {
 		List<CausalitySolverResult> causalitySolverResultActual = null;
 		causalitySolverResultActual = solver.solveWhy(causalModel, context, phi, null, SolvingStrategy.ILP);
-		assertTrue("The returned cause is not among the known causes",Arrays.asList(causalitySolverResultsExpected).containsAll(causalitySolverResultActual));
-	
+		
+		boolean allCausesKnown = Arrays.asList(causalitySolverResultsExpected).containsAll(causalitySolverResultActual);
+		boolean extraCausesReturned = causalitySolverResultActual.containsAll(Arrays.asList(causalitySolverResultsExpected));
+		int knownCausesSize = causalitySolverResultsExpected.length;
+		int returnedCausesSize = causalitySolverResultActual.size();
+		
+		if (knownCausesSize>=returnedCausesSize)
+			assertTrue("The returned cause is not among the known causes", Arrays.asList(causalitySolverResultsExpected).containsAll(causalitySolverResultActual));
+		else 
+			assertTrue("The returned cause is not among the known causes", causalitySolverResultActual.containsAll(Arrays.asList(causalitySolverResultsExpected)));
+
 	}
 	private void testNoneCause(CausalModel causalModel, Set<Literal> context, Formula phi,
 			CausalitySolverResult ... causalitySolverResultsExpected) throws Exception {
 		List<CausalitySolverResult> causalitySolverResultActual = null;
 		causalitySolverResultActual = solver.solveWhy(causalModel, context, phi, null, SolvingStrategy.ILP);
-//		System.out.println("Actual"+causalitySolverResultActual);
-//		System.out.println(causalitySolverResultsExpected[0]);
-		assertTrue("Wrong cause among the known causes", !Arrays.asList(causalitySolverResultsExpected).containsAll(causalitySolverResultActual));
-	
+		int knownCausesSize = causalitySolverResultsExpected.length;
+		int returnedCausesSize = causalitySolverResultActual.size();
+		
+		if (knownCausesSize<=returnedCausesSize)
+			assertTrue("Wrong cause among the known causes", !Arrays.asList(causalitySolverResultsExpected).containsAll(causalitySolverResultActual));
+		else
+			assertTrue("Wrong cause among the known causes", !causalitySolverResultActual.containsAll(Arrays.asList(causalitySolverResultsExpected)));
+
 	}
 
 	@Test
@@ -178,7 +190,7 @@ public class WhySolverTest {
 
         CausalitySolverResult causalitySolverResultExpected1 =
                 new CausalitySolverResult(true, true, true, cause,
-                        new HashSet<>());
+                        new HashSet<Literal>());
   
    
         testSolve(billySuzy, context, phi, causalitySolverResultExpected1);

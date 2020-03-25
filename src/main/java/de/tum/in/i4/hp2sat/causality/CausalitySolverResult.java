@@ -1,6 +1,5 @@
 package de.tum.in.i4.hp2sat.causality;
 
-import org.logicng.formulas.Literal;
 
 import java.util.HashMap;
 import java.util.Map;
