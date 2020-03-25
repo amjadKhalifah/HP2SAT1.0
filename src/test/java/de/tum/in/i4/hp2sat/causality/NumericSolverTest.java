@@ -116,12 +116,15 @@ public class NumericSolverTest {
 	        
 	        Argument cause1 = new Argument("crim", 6.0);
 	        Argument cause2 = new Argument("rm", 6575.0);
+	        Argument cause3 = new Argument("tax", 296000);
+	        Argument cause4 = new Argument("lstat", 4980);
+	        
 	        System.out.println(bostonModel.getVaribale("medv").getArgumentValue());
-	        Set<Argument> cause = new HashSet<>(Arrays.asList(cause2,cause1));       
+	        Set<Argument> cause = new HashSet<>(Arrays.asList(cause2,cause3));       
 	        
 	        
-	        // this a contrstive way of adding questions; mind the bounds and 
-	        Expression phi = new Expression("medv-32202076!=0", bostonModel.getVaribale("medv"));
+	        // this a contrstive way of adding questions; mind the bounds and bigm
+	        Expression phi = new Expression("medv-33000000!=0", bostonModel.getVaribale("medv"));
 
 	        bostonModel.print();
 	        CausalitySolverResult causalitySolverResultExpected =
