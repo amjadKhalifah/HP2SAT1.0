@@ -110,7 +110,7 @@ public class CausalModel {
     public CausalitySolverResult isCause(Set<Literal> context, Formula phi, Set<Literal> cause,
                                          SolvingStrategy solvingStrategy)
             throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
-        validateCausalityCheck(context, phi, cause);
+        validateCausalityCheck(context, phi, cause, solvingStrategy);
         CausalitySolver causalitySolver;
         if (solvingStrategy == BRUTE_FORCE || solvingStrategy == BRUTE_FORCE_OPTIMIZED_W) {
             causalitySolver = new BruteForceCausalitySolver();
@@ -153,7 +153,7 @@ public class CausalModel {
             // ignore SAT solver type if solving strategy is not SAT related
             return isCause(context, phi, cause, solvingStrategy);
         } else {
-            validateCausalityCheck(context, phi, cause);
+            validateCausalityCheck(context, phi, cause,  solvingStrategy);
             SATCausalitySolver satCausalitySolver = new SATCausalitySolver();
             return satCausalitySolver.solve(this, context, phi, cause, solvingStrategy, satSolverType);
         }
@@ -277,13 +277,13 @@ public class CausalModel {
      * @throws InvalidPhiException
      * @throws InvalidContextException
      */
-    private void validateCausalityCheck(Set<Literal> context, Formula phi, Set<Literal> cause)
+    private void validateCausalityCheck(Set<Literal> context, Formula phi, Set<Literal> cause, SolvingStrategy solvingStrategy)
             throws InvalidCauseException, InvalidPhiException, InvalidContextException {
         if (!isContextValid(context))
             throw new InvalidContextException();
         if (!isLiteralsInEquations(phi.literals()))
             throw new InvalidPhiException();
-        if (!isLiteralsInEquations(cause) || cause.size() < 1)
+        if (solvingStrategy!=ILP_WHY && (!isLiteralsInEquations(cause) || cause.size() < 1))
             throw new InvalidCauseException();
     }
 
