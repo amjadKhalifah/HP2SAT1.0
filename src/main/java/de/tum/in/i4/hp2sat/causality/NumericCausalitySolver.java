@@ -8,31 +8,23 @@ import gurobi.GRBLinExpr;
 import gurobi.GRBModel;
 import gurobi.GRBVar;
 
-import org.apache.commons.math3.analysis.function.Exp;
-import org.logicng.datastructures.Assignment;
 import org.logicng.formulas.Formula;
-import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
-import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
 import org.logicng.util.Pair;
 import org.mariuszgromada.math.mxparser.Argument;
 import org.mariuszgromada.math.mxparser.Expression;
 import org.mariuszgromada.math.mxparser.NumericCausalModel;
-import org.mariuszgromada.math.mxparser.mXparser;
 import org.mariuszgromada.math.mxparser.parsertokens.BinaryRelation;
 import org.mariuszgromada.math.mxparser.parsertokens.Operator;
 import org.mariuszgromada.math.mxparser.parsertokens.ParserSymbol;
 import org.mariuszgromada.math.mxparser.parsertokens.Token;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static de.tum.in.i4.hp2sat.causality.ILPSolverType.GUROBI;
-import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.*;
 //TODO fix the generality of CausalitySolver
-class NumericCausalitySolver extends CausalitySolver {
+public class NumericCausalitySolver extends CausalitySolver {
 	private static final String DISTANCE_VAR_NAME = "res";
 	private static final String IND_1_PREFIX = "IND1_";
 	private static final String IND_2_PREFIX = "IND2_";
@@ -41,9 +33,9 @@ class NumericCausalitySolver extends CausalitySolver {
 	private static final String DELTA_PREFIX = "DEL_";
 	private static final String ABS_PREFIX = "ABS_";
 	private static final String MIN_PREFIX = "MIN_";
-	private static final int DEFAULT_BIG_M= 1000000000;
-	public static Double DEFAULT_UPPER_BOUND = 100000000.0;
-	public static Double DEFAULT_LOWER_BOUND = -0.0;
+	private  int DEFAULT_BIG_M= 1000000000;
+	private  Double DEFAULT_UPPER_BOUND =  100000000.0;
+	private  Double DEFAULT_LOWER_BOUND = -100000000.0;
 	
 
 	/**
@@ -66,7 +58,7 @@ class NumericCausalitySolver extends CausalitySolver {
 
 	
 	
-	CausalitySolverResult solve(NumericCausalModel causalModel,  Map<String, Double> context, Expression phi, Set<Argument> cause,
+	public CausalitySolverResult solve(NumericCausalModel causalModel,  Map<String, Double> context, Expression phi, Set<Argument> cause,
 			SolvingStrategy solvingStrategy) throws InvalidCausalModelException, GRBException {
 		return solve(causalModel, context, phi, cause, solvingStrategy, GUROBI);
 	}
@@ -662,5 +654,52 @@ class NumericCausalitySolver extends CausalitySolver {
 				model.addConstr(phiAbs, GRB.EQUAL, 0.0, "R_PHI_intervention" );
 			// in summary for the effect we add two variables and 3 constraints
 
+		}
+
+
+
+		public int getDEFAULT_BIG_M() {
+			return DEFAULT_BIG_M;
+		}
+
+
+
+		public void setDEFAULT_BIG_M(int dEFAULT_BIG_M) {
+			DEFAULT_BIG_M = dEFAULT_BIG_M;
+		}
+
+
+
+		public Double getDEFAULT_UPPER_BOUND() {
+			return DEFAULT_UPPER_BOUND;
+		}
+
+
+
+		public void setDEFAULT_UPPER_BOUND(Double dEFAULT_UPPER_BOUND) {
+			DEFAULT_UPPER_BOUND = dEFAULT_UPPER_BOUND;
+		}
+
+
+
+		public Double getDEFAULT_LOWER_BOUND() {
+			return DEFAULT_LOWER_BOUND;
+		}
+
+
+
+		public void setDEFAULT_LOWER_BOUND(Double dEFAULT_LOWER_BOUND) {
+			DEFAULT_LOWER_BOUND = dEFAULT_LOWER_BOUND;
+		}
+
+
+
+		public NumericCausalitySolver(int dEFAULT_BIG_M, Double dEFAULT_UPPER_BOUND, Double dEFAULT_LOWER_BOUND) {
+			super();
+			DEFAULT_BIG_M = dEFAULT_BIG_M;
+			DEFAULT_UPPER_BOUND = dEFAULT_UPPER_BOUND;
+			DEFAULT_LOWER_BOUND = dEFAULT_LOWER_BOUND;
+		}
+		public NumericCausalitySolver() {
 		}
 }

@@ -859,9 +859,16 @@ public class ExampleProvider {
     
     
     
+    /** generates random binary like numeric trees
+     * @param depth
+     * @return
+     * @throws InvalidCausalModelException
+     */
     public static NumericCausalModel generateNumericTreeBenchmarkModel(int depth)
             throws InvalidCausalModelException {
         String name = "NumericBinaryTreeBenchmarkModel";
+        Random rand = new Random(); 
+        int randmax= 10;
         if (depth >= 0) {
             int numberOfNodes = (int) Math.pow(2, depth + 1) - 1;
             int numberOfLeaves = (numberOfNodes + 1) / 2; // no double needed; is always integer for full binary tree
@@ -873,7 +880,7 @@ public class ExampleProvider {
                     .toArray();
             
             Map<String, Argument> exogenousVariables = new HashMap<String, Argument>();
-            exogenousVariables = Arrays.stream(rangeArray).mapToObj(i -> new Argument("exo_"+i , 1.0))
+            exogenousVariables = Arrays.stream(rangeArray).mapToObj(i -> new Argument("exo_"+i , rand.nextInt(randmax)))
                     .collect(Collectors.toMap(Argument::getArgumentName, Argument::clone));
             
           
@@ -894,9 +901,12 @@ public class ExampleProvider {
                 	String var = "n_" + count--;
                 	Argument arg1 = variablesInPreviousLevel.get(2 * k);
                 	Argument arg2 = variablesInPreviousLevel.get(2 * k+1);
+                	int coef1 = rand.nextInt(randmax)%5 + 1;
+                	int coef2 = rand.nextInt(randmax)%5 + 1;
+                	String operation = (rand.nextInt(2)==1?"+":"-");
                 	
-                    Argument endogenousVariable = new  Argument(var+ "= "+arg1.getArgumentName()+"+"+arg2.getArgumentName(), arg1,arg2);
-                    
+                	
+                    Argument endogenousVariable = new  Argument(var+ "= "+coef1 + "*"+ arg1.getArgumentName()+operation+coef2 + "*"+arg2.getArgumentName(), arg1,arg2);
                     variablesInPreviousLevelNew.add(endogenousVariable);
                     equations.add(endogenousVariable);
                 }
@@ -958,9 +968,9 @@ public class ExampleProvider {
  		Argument prob_prison_exo = new Argument("prob_prison_exo", 12.0);
  		Argument pol_exp_exo = new Argument("pol_exp_exo", 12.0);
  		
- 		Argument rm_exo = new Argument("rm_exo", 6.575);
- 		Argument tax_exo = new Argument("tax_exo", 296);
- 		Argument lstat_exo = new Argument("lstat_exo", 4.98);
+ 		Argument rm_exo = new Argument("rm_exo", 6575);
+ 		Argument tax_exo = new Argument("tax_exo", 296000);
+ 		Argument lstat_exo = new Argument("lstat_exo", 4980);
  		// Example of Endos
  		Argument percent_m = new Argument("percent_m = percent_m_exo",percent_m_exo);   
  		Argument mean_education = new Argument("mean_education = mean_education_exo",mean_education_exo);   
@@ -969,11 +979,11 @@ public class ExampleProvider {
  		Argument prob_prison = new Argument("prob_prison = prob_prison_exo",prob_prison_exo); 
  		Argument pol_exp = new Argument("pol_exp = pol_exp_exo",pol_exp_exo); 
  		
- 		Argument crim = new Argument("crim = 8.7238 * percent_m + 16.7212 * mean_education + 7.0635 * unemploy_m39 + 7.0513 * inequality - 3863.7869 * prob_prison + 6.7957 * pol_exp - 4605.8496",percent_m,mean_education,unemploy_m39,inequality,prob_prison,pol_exp);     
+ 		Argument crim = new Argument("crim = 8724 * percent_m + 16721 * mean_education + 7063 * unemploy_m39 + 7051 * inequality - 3863787 * prob_prison + 6796 * pol_exp - 4605849",percent_m,mean_education,unemploy_m39,inequality,prob_prison,pol_exp);     
  		Argument rm = new Argument("rm = rm_exo",rm_exo);    
  		Argument tax =  new Argument("tax = tax_exo",tax_exo); 
  		Argument lstat = new Argument("lstat = lstat_exo",lstat_exo); 
- 		Argument medv = new Argument("medv =  -0.071 * crim + 5.58 * rm - 0.007 * tax  - 0.484 * lstat - 3.767 ", crim, rm,tax,lstat);
+ 		Argument medv = new Argument("medv =  -71 * crim + 5580 * rm - 7 * tax  - 484 * lstat - 3676 ", crim, rm,tax,lstat);
 
     Set<Argument> equations = new HashSet<>(Arrays.asList(percent_m,mean_education,unemploy_m39,inequality, prob_prison,pol_exp,crim, rm, tax, lstat, medv));
     Set<Argument> exogenousVariables = new HashSet<>(Arrays.asList(percent_m_exo,mean_education_exo,unemploy_m39_exo,inequality_exo,prob_prison_exo,pol_exp_exo, rm_exo,tax_exo,lstat_exo));

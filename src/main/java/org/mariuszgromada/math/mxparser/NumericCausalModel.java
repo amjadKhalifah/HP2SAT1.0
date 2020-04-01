@@ -3,6 +3,8 @@ package org.mariuszgromada.math.mxparser;
 import de.tum.in.i4.hp2sat.causality.CausalitySolver;
 import de.tum.in.i4.hp2sat.causality.CausalitySolverResult;
 import de.tum.in.i4.hp2sat.causality.Equation;
+import de.tum.in.i4.hp2sat.causality.ILPCausalitySolver;
+import de.tum.in.i4.hp2sat.causality.NumericCausalitySolver;
 import de.tum.in.i4.hp2sat.causality.SATCausalitySolver;
 import de.tum.in.i4.hp2sat.causality.SATSolverType;
 import de.tum.in.i4.hp2sat.causality.SolvingStrategy;
@@ -11,6 +13,8 @@ import de.tum.in.i4.hp2sat.exceptions.InvalidCauseException;
 import de.tum.in.i4.hp2sat.exceptions.InvalidContextException;
 import de.tum.in.i4.hp2sat.exceptions.InvalidPhiException;
 import de.tum.in.i4.hp2sat.util.Util;
+import gurobi.GRBException;
+
 import org.graphstream.algorithm.TopologicalSortDFS;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -125,17 +129,15 @@ public class NumericCausalModel {
 	 *                                 equations
 	 * @throws InvalidPhiException     thrown if phi is invalid: each literal of phi
 	 *                                 needs to be defined in the equations
+	 * @throws GRBException 
 	 */
-	public CausalitySolverResult isCause(Set<Argument> context, Expression phi, Set<Argument> cause,
-			SolvingStrategy solvingStrategy)
-			throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
-		validateCausalityCheck(context, phi, cause);
+	public CausalitySolverResult isCause( Map<String, Double> context, Expression phi, Set<Argument> cause, int BIGM,  double upperBound, double lowerBound)
+			throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException, GRBException {
 		
+		NumericCausalitySolver cm = new NumericCausalitySolver(BIGM,upperBound,lowerBound);
 		
-		CausalitySolver causalitySolver;
-			causalitySolver = new SATCausalitySolver();
-		return null;
-		//return causalitySolver.solve(this, context, phi, cause, solvingStrategy);
+		return cm.solve(this, context, phi, cause, SolvingStrategy.ILP_NUM);
+		
 	}
 
 	/**
@@ -382,8 +384,8 @@ public class NumericCausalModel {
 	
 	public void print () {
 		System.out.println("Model "+ getName()+" size:"+ exogenousVariables.size()+" exogenous vars, and "+equationsSorted.size()+" endogenous"  );
-	//	exogenousVariables.stream().forEach(e-> System.out.println("EX "+e.getArgumentName()+"= "+e.getArgumentValue() ));
+		exogenousVariables.stream().forEach(e-> System.out.println("EX "+e.getArgumentName()+"= "+e.getArgumentValue() ));
 //		variableEquationMap.entrySet().stream().forEach(e-> System.out.println(e.getKey()+"= "+e.getValue().getArgumentExpressionString()+" ="+e.getValue().getArgumentValue()));
-		//sortEquations().stream().forEach(e-> System.out.println(e.getArgumentName()+"= "+e.getArgumentValue()));
+		equationsSorted.stream().forEach(e-> System.out.println(e.getArgumentName()+"= "+e.getArgumentValue()));
 	}
 }
