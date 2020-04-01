@@ -131,7 +131,7 @@ public class NumericCausalModel {
 	 *                                 needs to be defined in the equations
 	 * @throws GRBException 
 	 */
-	public CausalitySolverResult isCause( Map<String, Double> context, Expression phi, Set<Argument> cause, int BIGM,  double upperBound, double lowerBound)
+	public CausalitySolverResult isCause( Map<String, Double> context, Expression phi, Set<Argument> cause, double BIGM,  double upperBound, double lowerBound)
 			throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException, GRBException {
 		
 		NumericCausalitySolver cm = new NumericCausalitySolver(BIGM,upperBound,lowerBound);

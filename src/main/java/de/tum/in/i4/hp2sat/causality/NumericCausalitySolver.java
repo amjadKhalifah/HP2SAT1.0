@@ -33,7 +33,7 @@ public class NumericCausalitySolver extends CausalitySolver {
 	private static final String DELTA_PREFIX = "DEL_";
 	private static final String ABS_PREFIX = "ABS_";
 	private static final String MIN_PREFIX = "MIN_";
-	private  int DEFAULT_BIG_M= 1000000000;
+	private  Double DEFAULT_BIG_M= 1000000000.0;
 	private  Double DEFAULT_UPPER_BOUND =  100000000.0;
 	private  Double DEFAULT_LOWER_BOUND = -100000000.0;
 	
@@ -658,13 +658,13 @@ public class NumericCausalitySolver extends CausalitySolver {
 
 
 
-		public int getDEFAULT_BIG_M() {
+		public double getDEFAULT_BIG_M() {
 			return DEFAULT_BIG_M;
 		}
 
 
 
-		public void setDEFAULT_BIG_M(int dEFAULT_BIG_M) {
+		public void setDEFAULT_BIG_M(double dEFAULT_BIG_M) {
 			DEFAULT_BIG_M = dEFAULT_BIG_M;
 		}
 
@@ -694,7 +694,7 @@ public class NumericCausalitySolver extends CausalitySolver {
 
 
 
-		public NumericCausalitySolver(int dEFAULT_BIG_M, Double dEFAULT_UPPER_BOUND, Double dEFAULT_LOWER_BOUND) {
+		public NumericCausalitySolver(double dEFAULT_BIG_M, Double dEFAULT_UPPER_BOUND, Double dEFAULT_LOWER_BOUND) {
 			super();
 			DEFAULT_BIG_M = dEFAULT_BIG_M;
 			DEFAULT_UPPER_BOUND = dEFAULT_UPPER_BOUND;
