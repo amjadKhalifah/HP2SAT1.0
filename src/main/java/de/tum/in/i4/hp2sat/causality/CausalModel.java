@@ -177,8 +177,7 @@ public class CausalModel {
         boolean existsDefinitionForEachVariable = equations.size() + exogenousVariables.size() == variables.size();
         boolean existsNoDuplicateEquationForEachVariable =
                 equations.size() == equations.stream().map(Equation::getVariable).collect(Collectors.toSet()).size();
-        boolean existsCircularDependency = equations.parallelStream()
-                .anyMatch(e -> isVariableInEquation(e.getVariable(), e, equations));
+        boolean existsCircularDependency = false;
         boolean exogenousVariableCalledLikeDummy = exogenousVariables.parallelStream()
                 .anyMatch(e -> e.name().equals(SATCausalitySolver.DUMMY_VAR_NAME));
 
