@@ -3286,6 +3286,28 @@ public class CausalitySolverInstanceTest {
         // exclude brute-force approach (takes too long)
         testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected, BRUTE_FORCE);
     }
+    @Test
+    public void Should_FulfillAC1AC2Only_When_AU1AndADU1_IsCauseFor_SD_16Users() throws Exception {
+        CausalModel stealMasterKey = ExampleProvider.stealMasterKey(50);
+        FormulaFactory f = stealMasterKey.getFormulaFactory();
+        // set all exogenous variables to 1
+        Set<Literal> context = stealMasterKey.getExogenousVariables().stream()
+                .map(v -> (Literal) v).collect(Collectors.toSet());
+        Set<Literal> cause = new HashSet<>(Arrays.asList(f.variable("A_U1"), f.variable("AD_U1")));
+        Formula phi = f.variable("SD");
+System.out.println("solve");
+        CausalitySolverResult causalitySolverResultExpected =
+                new CausalitySolverResult(true, true, false, cause, new HashSet<>(Arrays.asList(
+                        f.literal("SD_U2", false), f.literal("SD_U3", false),
+                        f.literal("SD_U4", false), f.literal("SD_U5", false),
+                        f.literal("SD_U6", false), f.literal("SD_U7", false),
+                        f.literal("SD_U8", false))));
+        // exclude brute-force approach (takes too long) and strategies that yield non-minimal W (ease testing)
+        testSolve(stealMasterKey, context, phi, cause, causalitySolverResultExpected,
+                 SAT);
+    }
+    
+    
     //endregion
     // #################################################################################################################
     // ##################################### STEAL MASTER KEY (8 USERS) (end) ##########################################

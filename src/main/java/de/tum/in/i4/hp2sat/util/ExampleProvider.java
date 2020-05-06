@@ -382,9 +382,10 @@ public class ExampleProvider {
 
         Set<Variable> exogenousVariables = new HashSet<>();
         Set<Equation> equations = new HashSet<>(Arrays.asList(DK_GlobalEquation, SD_GlobalEquation, SMK_Equation));
+        List<String> attributedNodes = Arrays.asList(fromScript, fromNetwork, fromFile, fromDB, access, attachDebugger);
 
         for (int i = 1; i <= users; i++) {
-            for (String s : Arrays.asList(fromScript, fromNetwork, fromFile, fromDB, access, attachDebugger)) {
+            for (String s : attributedNodes) {
                 String name = s + "_U" + i;
                 Variable exo = f.variable(name + "_Exo");
 
