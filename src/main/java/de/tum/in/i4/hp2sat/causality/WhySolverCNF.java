@@ -13,6 +13,8 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
+import org.logicng.transformations.cnf.CNFConfig;
+import org.logicng.transformations.cnf.CNFEncoder;
 import org.logicng.util.Pair;
 
 import java.util.*;
@@ -21,7 +23,7 @@ import java.util.stream.Collectors;
 
 
 class WhySolverCNF extends CausalitySolver {
-	static final String C1_VAR_PREFIX = "C1_";
+	static final String C1_VAR_PREFIX = "C1_"; 
 	static final String C2_VAR_PREFIX = "C2_";
 	static final String C3_VAR_PREFIX = "C3_";
 	static final String C1_SUM_VAR = C1_VAR_PREFIX + "sum";
@@ -179,7 +181,7 @@ class WhySolverCNF extends CausalitySolver {
 						f.or(f.and(originalValue, c2), f.and(f.not(originalValue), f.not(c2))));
 			}
 			// add created formula to global formula by AND
-			formula = f.and(formula, equationFormula.cnf());
+			formula = f.and(formula, equationFormula);
 		}
 
 		return formula;
@@ -426,7 +428,12 @@ class WhySolverCNF extends CausalitySolver {
 
 		// add constraints to the ILP model based on the CNF clauses
 		// this formula doesn't contain any constraint about the cause
-		Iterator<Formula> iter = satFormula.cnf().iterator();
+		CNFEncoder encoder = new CNFEncoder(f, new CNFConfig.Builder().algorithm(CNFConfig.Algorithm.FACTORIZATION).build());
+	    Formula phi1CNF = encoder.encode(satFormula);
+		
+		Iterator<Formula> iter = phi1CNF.iterator();
+		
+//		Iterator<Formula> iter = satFormula.cnf().iterator();
 
 		while (iter.hasNext()) {
 			// one clause in the cnf
@@ -454,7 +461,8 @@ class WhySolverCNF extends CausalitySolver {
 				model.addConstr(expr, GRB.GREATER_EQUAL, 1.0, "");
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				System.out.println(e.getMessage()+ clause.toString());
+//				e.printStackTrace();
 			}
 			}
 
