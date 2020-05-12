@@ -8,46 +8,38 @@ import gurobi.GRBLinExpr;
 import gurobi.GRBModel;
 import gurobi.GRBVar;
 
-import org.logicng.datastructures.Assignment;
-import org.logicng.datastructures.Tristate;
 import org.logicng.formulas.Formula;
 import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
-import org.logicng.io.parsers.PropositionalParser;
-import org.logicng.solvers.CleaneLing;
-import org.logicng.solvers.MiniSat;
-import org.logicng.solvers.SATSolver;
-import org.logicng.transformations.cnf.CNFFactorization;
+import org.logicng.transformations.cnf.CNFConfig;
+import org.logicng.transformations.cnf.CNFEncoder;
 import org.logicng.util.Pair;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static de.tum.in.i4.hp2sat.causality.ILPSolverType.GUROBI;
-import static de.tum.in.i4.hp2sat.causality.SATSolverType.GLUCOSE;
-import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINICARD;
-import static de.tum.in.i4.hp2sat.causality.SATSolverType.MINISAT;
-import static de.tum.in.i4.hp2sat.causality.SolvingStrategy.*;
 
-class WhySolver extends CausalitySolver {
-	static final String C1_VAR_PREFIX = "C1_";
+class WhySolverCNF extends CausalitySolver {
+	static final String C1_VAR_PREFIX = "C1_"; 
 	static final String C2_VAR_PREFIX = "C2_";
 	static final String C3_VAR_PREFIX = "C3_";
 	static final String C1_SUM_VAR = C1_VAR_PREFIX + "sum";
 	static final String C1COM_SUM_VAR = C1_VAR_PREFIX + "com_sum";
 	static final String C3_SUM_VAR = C3_VAR_PREFIX + "sum";
 	
-	
-	
 
 	@Override
 	CausalitySolverResult solve(CausalModel causalModel, Set<Literal> context, Formula phi, Set<Literal> cause,
 			SolvingStrategy solvingStrategy) throws InvalidCausalModelException {
-		// TODO Auto-generated method stub
-		return null;
+		List<CausalitySolverResult> causes = solve(causalModel, context, phi);
+//		mainly for benchmarking
+		if (causes.isEmpty()) {
+			return new CausalitySolverResult<>();
+		}
+		return causes.get(0);
 	}
 
 	/**
@@ -140,7 +132,6 @@ class WhySolver extends CausalitySolver {
 		List<Pair<Set<Literal>, Set<Literal>>> result;
 		Formula phiNegated = f.not(phi);
 		Formula formula = generateSATQuery(causalModel, phiNegated, context, evaluation, f);
-//		System.out.println("G:=" + formula.toString());
 
 		try {
 			result = solveILP(causalModel, phi, formula, evaluation, f);
@@ -165,14 +156,14 @@ class WhySolver extends CausalitySolver {
 	 * @param f           a formula factory
 	 * @return a formula
 	 */
-	private Formula generateSATQuery(CausalModel causalModel, Formula notPhi, Set<Literal> context,
+	private Formula  generateSATQuery(CausalModel causalModel, Formula notPhi, Set<Literal> context,
 			Set<Literal> evaluation, FormulaFactory f) {
 		Set<Variable> phiVariables = notPhi.variables();
 		// create map of variables and corresponding evaluation
 		Map<Variable, Literal> variableEvaluationMap = evaluation.stream()
 				.collect(Collectors.toMap(Literal::variable, Function.identity()));
 		// create formula: !phi AND context
-		Formula formula = f.and(notPhi, f.and(context));
+		Formula formula = f.and(notPhi.cnf(), f.and(context));
 
 		for (Equation equation : causalModel.getVariableEquationMap().values()) {
 
@@ -228,7 +219,9 @@ class WhySolver extends CausalitySolver {
 		addLPConstraints(satFormula, model, f);
 		// write the model to file for debugging (should be stopped in benchmarks)
 		model.write("./ILP-models/ptest" + cm.getName() + "why.lp");
-		model.set(GRB.IntParam.OutputFlag, 0);
+
+		
+		
 		// solve the model
 		model.optimize();
 //		Feasibility of the program means that there is a cause of size at least 1 (exact size is c3sum), that makes phi not hold, 
@@ -278,7 +271,7 @@ class WhySolver extends CausalitySolver {
 						} else {
 							GRBVar c1 = model.getVarByName(C1_VAR_PREFIX + name);
 							GRBVar c2 = model.getVarByName(C2_VAR_PREFIX + name);
-							if (c1.get(GRB.DoubleAttr.Xn) == 0 && (c2.get(GRB.DoubleAttr.X) == 1.0))// this is a W
+							if (c1.get(GRB.DoubleAttr.Xn) == 0 && (c2.get(GRB.DoubleAttr.Xn) == 1.0))// this is a W
 							{
 								w.add(variable);
 							}
@@ -325,7 +318,16 @@ class WhySolver extends CausalitySolver {
 		// basic GRB model, parameters of the model should be set here
 		GRBEnv env = new GRBEnv("./ILP-LOG/" + cm.getName() + "_why.log");
 		GRBModel model = new GRBModel(env);
-
+		
+		model.set(GRB.IntParam.OutputFlag, 0);
+		// options for the solving
+		// use systematic search to find kth best solutions
+		model.set(GRB.IntParam.PoolSearchMode, 2);
+		// k is defined here:
+		model.set(GRB.IntParam.PoolSolutions, 5);
+		// don't look for any solution with objective value other than the optimal (Gap =0)
+		model.set(GRB.DoubleParam.PoolGap,0);
+		
 		GRBLinExpr c1SumExp = new GRBLinExpr();
 		GRBLinExpr c3SumExp = new GRBLinExpr();
 		// start with exo vars
@@ -426,11 +428,12 @@ class WhySolver extends CausalitySolver {
 
 		// add constraints to the ILP model based on the CNF clauses
 		// this formula doesn't contain any constraint about the cause
-//		PropositionalParser p = new PropositionalParser(f);
-//		Formula cnf = satFormula.transform(new CNFFactorization());
-		Iterator<Formula> iter = satFormula.cnf().iterator();
-//TODO check the performance of this against satFormula.cnf();
-		// https://github.com/logic-ng/LogicNG/issues/15
+		CNFEncoder encoder = new CNFEncoder(f, new CNFConfig.Builder().algorithm(CNFConfig.Algorithm.FACTORIZATION).build());
+	    Formula phi1CNF = encoder.encode(satFormula);
+		
+		Iterator<Formula> iter = phi1CNF.iterator();
+		
+//		Iterator<Formula> iter = satFormula.cnf().iterator();
 
 		while (iter.hasNext()) {
 			// one clause in the cnf
@@ -458,7 +461,8 @@ class WhySolver extends CausalitySolver {
 				model.addConstr(expr, GRB.GREATER_EQUAL, 1.0, "");
 
 			} catch (Exception e) {
-				e.printStackTrace();
+				System.out.println(e.getMessage()+ clause.toString());
+//				e.printStackTrace();
 			}
 			}
 

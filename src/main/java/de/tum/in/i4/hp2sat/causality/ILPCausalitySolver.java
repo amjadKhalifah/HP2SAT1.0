@@ -14,6 +14,8 @@ import org.logicng.formulas.FormulaFactory;
 import org.logicng.formulas.Literal;
 import org.logicng.formulas.Variable;
 import org.logicng.io.parsers.ParserException;
+import org.logicng.transformations.cnf.CNFConfig;
+import org.logicng.transformations.cnf.CNFEncoder;
 import org.logicng.util.Pair;
 
 import java.util.*;
@@ -125,7 +127,7 @@ public class ILPCausalitySolver extends CausalitySolver {
 		Formula phiNegated = f.not(phi);
 		Formula formula = generateSATQuery(causalModel, phiNegated, cause, context, evaluation, solvingStrategy, true,f);
 		try {
-			result = solveILP(causalModel,phi, formula, cause, evaluation);
+			result = solveILP(f, causalModel,phi, formula, cause, evaluation);
 		} catch (ParserException | GRBException e) {
 			result= null;
 			e.printStackTrace();
@@ -297,7 +299,7 @@ public class ILPCausalitySolver extends CausalitySolver {
 	 * @throws GRBException
 	 * @throws InvalidCausalModelException
 	 */
-	public Pair<Set<Literal>, Set<Literal>>  solveILP(CausalModel cm, Formula phi, Formula satFormula, Set<Literal> cause,  Set<Literal> evaluation ) throws ParserException, GRBException, InvalidCausalModelException {
+	public Pair<Set<Literal>, Set<Literal>>  solveILP(FormulaFactory f, CausalModel cm, Formula phi, Formula satFormula, Set<Literal> cause,  Set<Literal> evaluation ) throws ParserException, GRBException, InvalidCausalModelException {
 		//		printProblem(satFormula, cause, evaluation);
 		Pair<Set<Literal>, Boolean> result;
 		// create and configure the ilp vars
@@ -313,7 +315,7 @@ public class ILPCausalitySolver extends CausalitySolver {
 		Set<Literal> minimalCause = new HashSet<>();
 		Set<Literal> w = new HashSet<>();
 		//add the constraints based on the formula
-		addLPConstraints(satFormula, model, evaluation, cause);
+		addLPConstraints(f, satFormula, model, evaluation, cause);
 		// write the model to file for debugging (should be stopped in benchmarks)
 		model.write("./ILP-models/ptest"+cm.getName()+".lp");
 		// solve the  model
@@ -461,7 +463,7 @@ public class ILPCausalitySolver extends CausalitySolver {
 	 * @param fm
 	 * @param model
 	 */
-	public void addLPConstraints(Formula satFormula, GRBModel model, Set<Literal> evaluation, Set<Literal> cause) throws GRBException {
+	public void addLPConstraints(FormulaFactory f, Formula satFormula, GRBModel model, Set<Literal> evaluation, Set<Literal> cause) throws GRBException {
 
 		// Set objective: min res
 		GRBLinExpr expr = new GRBLinExpr();
@@ -471,7 +473,11 @@ public class ILPCausalitySolver extends CausalitySolver {
 
 		// add constraints to the ILP model based on the CNF clauses
 		// this formula doesn't contain any constraint about the cause 
-		Iterator<Formula> iter = satFormula.cnf().iterator();
+		
+		CNFEncoder encoder = new CNFEncoder(f, new CNFConfig.Builder().algorithm(CNFConfig.Algorithm.FACTORIZATION).build());
+	    Formula phi1CNF = encoder.encode(satFormula);
+		
+		Iterator<Formula> iter = phi1CNF.iterator();
 		while (iter.hasNext()) {
 			// one clause in the cnf
 			Formula clause = iter.next();

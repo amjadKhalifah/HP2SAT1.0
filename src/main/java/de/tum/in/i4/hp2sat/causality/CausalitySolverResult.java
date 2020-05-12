@@ -1,6 +1,5 @@
 package de.tum.in.i4.hp2sat.causality;
 
-import org.logicng.formulas.Literal;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,8 +12,12 @@ public class CausalitySolverResult<T> {
     private boolean ac3;
     private Set<T> cause;
     private Set<T> w;
+    
 
-    public CausalitySolverResult(boolean ac1, boolean ac2, boolean ac3, Set<T> cause, Set<T> w) {
+    public CausalitySolverResult() {
+	}
+
+	public CausalitySolverResult(boolean ac1, boolean ac2, boolean ac3, Set<T> cause, Set<T> w) {
         this.ac1 = ac1;
         this.ac2 = ac2;
         this.ac3 = ac3;

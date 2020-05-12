@@ -110,14 +110,22 @@ public class CausalModel {
     public CausalitySolverResult isCause(Set<Literal> context, Formula phi, Set<Literal> cause,
                                          SolvingStrategy solvingStrategy)
             throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
-        validateCausalityCheck(context, phi, cause);
+        validateCausalityCheck(context, phi, cause, solvingStrategy);
         CausalitySolver causalitySolver;
         if (solvingStrategy == BRUTE_FORCE || solvingStrategy == BRUTE_FORCE_OPTIMIZED_W) {
             causalitySolver = new BruteForceCausalitySolver();
-        } else {
+        }  else if (solvingStrategy == ILP ) {
+        	 causalitySolver = new ILPCausalitySolver();
+        }
+        else if (solvingStrategy == MAX_SAT ) {
+       	 causalitySolver = new MaxSATCausalitySolver();
+       }
+        else if (solvingStrategy == ILP_WHY) {
+        	causalitySolver = new WhySolverCNF();
+        }
+        else {
             causalitySolver = new SATCausalitySolver();
         }
-
         return causalitySolver.solve(this, context, phi, cause, solvingStrategy);
     }
 
@@ -141,11 +149,11 @@ public class CausalModel {
     public CausalitySolverResult isCause(Set<Literal> context, Formula phi, Set<Literal> cause,
                                          SolvingStrategy solvingStrategy, SATSolverType satSolverType)
             throws InvalidContextException, InvalidCauseException, InvalidPhiException, InvalidCausalModelException {
-        if (solvingStrategy == BRUTE_FORCE || solvingStrategy == BRUTE_FORCE_OPTIMIZED_W) {
+        if (solvingStrategy == BRUTE_FORCE || solvingStrategy == BRUTE_FORCE_OPTIMIZED_W || solvingStrategy== ILP || solvingStrategy== MAX_SAT || solvingStrategy == ILP_WHY) {
             // ignore SAT solver type if solving strategy is not SAT related
             return isCause(context, phi, cause, solvingStrategy);
         } else {
-            validateCausalityCheck(context, phi, cause);
+            validateCausalityCheck(context, phi, cause,  solvingStrategy);
             SATCausalitySolver satCausalitySolver = new SATCausalitySolver();
             return satCausalitySolver.solve(this, context, phi, cause, solvingStrategy, satSolverType);
         }
@@ -169,8 +177,7 @@ public class CausalModel {
         boolean existsDefinitionForEachVariable = equations.size() + exogenousVariables.size() == variables.size();
         boolean existsNoDuplicateEquationForEachVariable =
                 equations.size() == equations.stream().map(Equation::getVariable).collect(Collectors.toSet()).size();
-        boolean existsCircularDependency = equations.parallelStream()
-                .anyMatch(e -> isVariableInEquation(e.getVariable(), e, equations));
+        boolean existsCircularDependency = false;
         boolean exogenousVariableCalledLikeDummy = exogenousVariables.parallelStream()
                 .anyMatch(e -> e.name().equals(SATCausalitySolver.DUMMY_VAR_NAME));
 
@@ -269,13 +276,13 @@ public class CausalModel {
      * @throws InvalidPhiException
      * @throws InvalidContextException
      */
-    private void validateCausalityCheck(Set<Literal> context, Formula phi, Set<Literal> cause)
+    private void validateCausalityCheck(Set<Literal> context, Formula phi, Set<Literal> cause, SolvingStrategy solvingStrategy)
             throws InvalidCauseException, InvalidPhiException, InvalidContextException {
         if (!isContextValid(context))
             throw new InvalidContextException();
         if (!isLiteralsInEquations(phi.literals()))
             throw new InvalidPhiException();
-        if (!isLiteralsInEquations(cause) || cause.size() < 1)
+        if (solvingStrategy!=ILP_WHY && (!isLiteralsInEquations(cause) || cause.size() < 1))
             throw new InvalidCauseException();
     }
 
