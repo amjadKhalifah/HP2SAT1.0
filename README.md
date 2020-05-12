@@ -94,7 +94,7 @@ The ```SolvingStrategy``` enum contains all currently supported algorithms/strat
 public enum SolvingStrategy {
     BRUTE_FORCE, BRUTE_FORCE_OPTIMIZED_W, SAT, SAT_MINIMAL, SAT_COMBINED, SAT_COMBINED_MINIMAL,
     SAT_OPTIMIZED_W, SAT_OPTIMIZED_W_MINIMAL, SAT_OPTIMIZED_FORMULAS, SAT_OPTIMIZED_FORMULAS_MINIMAL,
-    SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_AC3_MINIMAL, MAX_SAT, ILP
+    SAT_OPTIMIZED_AC3, SAT_OPTIMIZED_AC3_MINIMAL, MAX_SAT, ILP, ILP_WHY
 }
 ```
 
@@ -115,6 +115,18 @@ CausalitySolverResult causalitySolverResult =
 // SAT-based where checking AC2 and AC3 is combined
 CausalitySolverResult causalitySolverResult =
     CauscausalModel.isCause(context, phi, cause, SolvingStrategy.SAT_COMBINED);
+    
+ // ILP based AC2 and AC3 checking
+CausalitySolverResult causalitySolverResult =
+    CauscausalModel.isCause(context, phi, cause, SolvingStrategy.ILP);
+    
+ // MaxSAT based AC2 and AC3 checking
+CausalitySolverResult causalitySolverResult =
+    CauscausalModel.isCause(context, phi, cause, SolvingStrategy.MAX_SAT);   
+    
+ // ILP based  causlity inference
+CausalitySolverResult causalitySolverResult =
+    CauscausalModel.isCause(context, phi, new HashSet<>(), SolvingStrategy.ILP_WHY); 
 ```
 
 ### Important Notes
