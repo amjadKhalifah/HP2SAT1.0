@@ -40,6 +40,7 @@ Then, you can import it using Maven:
 
 ## Usage
 When using ILP, Gurobi solver should be installed and running on the machine. 
+All models in the benchmark can be created using the class util/ExampleProvider.java
 ### General
 
 #### Creation of a causal model
