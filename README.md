@@ -1,4 +1,21 @@
-# hp2sat
+# Academic Citation 
+Please cite the following paper when using this library. 
+
+Ibrahim, A., Pretschner, A.: "From Checking to Inference: Actual Causality Computations as Optimization Problems". International Symposium on Automated Technology for Verification and Analysis. Springer (to appear), pre-print https://arxiv.org/abs/2006.03363
+
+
+@inproceedings{ibrahim2020,
+  author    = {Amjad Ibrahim and Alexander Pretschner},
+  title     = {From Checking to Inference: Actual Causality Computations as Optimization Problems},
+  booktitle = {Automated Technology for Verification and Analysis - 18th International
+               Symposium, {ATVA} 2020, Proceedings},
+  series    = {Lecture Notes in Computer Science},
+  volume    = {},
+  pages     = {in print},
+  publisher = {Springer},
+  year      = {2020},
+}
+
 
 [![Build Status](https://travis-ci.com/srehwald/hp2sat.svg?token=YUmexXqP9AGj9wNMuDhx&branch=develop)](https://travis-ci.com/srehwald/hp2sat)
 
