@@ -36,4 +36,49 @@ public class Util<T> {
                 e.getSourceNode().getId(), true));
         return graphReversed;
     }
+
+    public static Set<Argument> generateRandomCauseSet(NumericCausalModel causalModel, int numberofcauses) {
+    	
+    	        Set<Argument> causes = new LinkedHashSet();     
+    	        Random r = new Random();
+    	        
+    	        for (int i =0; i<numberofcauses; i++) {
+    	        	int index = r.nextInt(causalModel.getEquationsSorted().size());
+    	        	 Argument e = causalModel.getEquationsSorted().get(index);
+    	        	if (!e.getArgumentName().equals("n_0"))	     // reserved for phi   	 
+    	        		causes.add(new Argument(e.getArgumentName(), e.getArgumentValue()));
+    	        	else {
+    	        		 Argument e2 = causalModel.getEquationsSorted().get(index--);
+    	        		 causes.add(new Argument(e2.getArgumentName(), e2.getArgumentValue()));
+    	        	}
+    	        }
+    	    	return causes;
+    }
+    
+    public static Expression getPhiExpression (NumericCausalModel causalModel) {
+    	 double rootValue = causalModel.getVaribale("n_0").getArgumentValue();
+	    	Expression phi;
+	        if (rootValue<0) {
+	        	 phi = new Expression("n_0+"+(-1*rootValue)+"= 0", causalModel.getVaribale("n_0"));
+	        }
+	        else {
+	        	 phi = new Expression("n_0-"+rootValue+"= 0", causalModel.getVaribale("n_0"));
+	        }
+    	return phi;
+    }
+    
+    public static Expression getContrastivePhiExpression (NumericCausalModel causalModel) {
+   	 double rootValue = causalModel.getVaribale("n_0").getArgumentValue();
+	    	Expression phi2;
+	        if (rootValue<0) {
+	        	 phi2 = new Expression("n_0+"+((-1*rootValue)+100)+"!= 0", causalModel.getVaribale("n_0")); 
+	        }
+	        else {
+	        	 phi2 = new Expression("n_0-"+(rootValue+100)+"!= 0", causalModel.getVaribale("n_0")); 
+	        }
+	       return phi2;
+   	
+   	
+   	
+   }
 }
